@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/anthonymesa/cwacos/main/res/cwacos.jpg" width="300" height="300" />
+
 # Cwacos
 Cwacos (pronounced quacko's) stands for Cloudy With A Chance Of Stonks.
 

@@ -13,7 +13,7 @@ Cwacos is a stonks projection software written in Java which uses the Alpha Vant
 
 ## Required Libraries
 * org.json
-* javaFX
+* JavaFX
 
 ## Developers
 * Github Admin - Anthony Mesa

@@ -1,7 +1,7 @@
 <img src="https://raw.githubusercontent.com/anthonymesa/cwacos/main/res/cwacos.jpg" width="300" height="300" />
 
 # Cwacos
-Cwacos (pronounced quacko's) stands for Cloudy With A Chance Of Stonks.
+Cwacos (pronounced like "quakkas") stands for Cloudy With A Chance Of Stonks.
 
 Cwacos is a stonks projection software written in Java which uses the Alpha Vantage stonks API to collect up-to-date trading data that is then evaluated using a magic algorithm in order to provide the user relevant future buy-sell projections that provide a positive net profit.
 

@@ -1,8 +1,10 @@
 package com.cwacos;
 
-public class Cwacos {
+// now we can use javaFX!
+import javafx.*;
 
-    public static void main(String[] args){
+public class Cwacos {
+    public static void main(String[] args) {
         System.out.println("hello stonks");
     }
 }

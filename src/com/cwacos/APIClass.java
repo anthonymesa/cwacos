@@ -1,8 +1,11 @@
+package com.cwacos;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,10 +14,9 @@ import java.util.Map;
 
 import org.json.*;
 
-private static final String baseURL = "https://www.alphavantage.co/query?";
-private static final String apiKey = "MO9QU9JAPBBPX5T7";
-
 public class APIClass {
+    protected static final String baseURL = "https://www.alphavantage.co/query?";
+    protected static final String apiKey = "MO9QU9JAPBBPX5T7";
 
     /**
      * Creates connection to API, stores JSON, parses JSON, and returns intraday data organized in an ArrayList of Entry Objects.
@@ -34,23 +36,25 @@ public class APIClass {
             String JSONinterval = translateInterval(_interval);
 
             //If there is an error receiving the JSONObject OR the time series interval then the function will exit.
-            if(JSONFile == NULL || JSONinterval == NULL){
-                return;
+            if(JSONFile == null || JSONinterval == null){
+                return null;
             }
 
             //Create JSON object that will hold only the information for the given time interval.
             JSONObject timeSeries = JSONFile.getJSONObject(JSONinterval);
 
             //Parse the given interval JSON and save the data in an ArrayList of Entry objects.
-            ArrayList<Entry> intraday = parseStockJSON(timerSeries);
+            ArrayList<Entry> intraday = parseStockJSON(timeSeries);
 
+            return intraday;
         }
         catch (Exception ex) {
             System.out.println("Error: " + ex);
-            return;
+            return null;
         }
-        for(int i = 0; i < intraday.size(); i++)
-            System.out.println(intraday.get(i).toString());
+
+        /*for(int i = 0; i < intraday.size(); i++)
+            System.out.println(intraday.get(i).toString());*/
     }
 
     /**
@@ -59,7 +63,7 @@ public class APIClass {
      * @param _interval String with desired time interval for Intraday (Options: "1min", "5min", "10min", "15min", "30min", "60min")
      * @return A URL object ready to make an API call.
      */
-    public static URL getIntradayURL(String _stock, String _interval){
+    public static URL getIntradayURL(String _stock, String _interval) throws MalformedURLException {
         //API function being called
         String function = "TIME_SERIES_INTRADAY";
 
@@ -68,7 +72,7 @@ public class APIClass {
 
         //Create endpoint and add it to the base URL to make API call
         String endpoint = "function=" + function + "&symbol=" + symbol + "&interval=" + _interval + "&apikey=" + apiKey;
-        String urlString = baseUrl + endpoint;
+        String urlString = baseURL + endpoint;
 
         return new URL(urlString);
     }
@@ -78,7 +82,7 @@ public class APIClass {
      * @param _APIlink URL object that is formatted for AlphaVantage API calls.
      * @return JSONobject containing intraday data.
      */
-    private static JSONObject getStockJSON(URL _APIlink){
+    private static JSONObject getStockJSON(URL _APIlink) throws IOException {
         // Create a HTTP Connection.
         HttpURLConnection con = (HttpURLConnection) _APIlink.openConnection();
 
@@ -88,7 +92,7 @@ public class APIClass {
         int status = con.getResponseCode();
         if (status != 200) {
             System.out.printf("Error: Could not load item: " + status);
-            return NULL;
+            return null;
         } else {
             // Parsing input stream into a text string.
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -121,38 +125,38 @@ public class APIClass {
         String base = "Time Series ";
 
         switch(_rawInterval) {
-            case _rawInterval.equals("1min"):
-                return base + "(1min)"
+            case "1min":
+                return base + "(1min)";
 
-            case _rawInterval.equals("5min"):
-                return base + "(5min)"
+            case "5min":
+                return base + "(5min)";
 
-            case _rawInterval.equals("10min"):
-                return base + "(10min)"
+            case "10min":
+                return base + "(10min)";
 
-            case _rawInterval.equals("15min"):
-                return base + "(15min)"
+            case "15min":
+                return base + "(15min)";
 
-            case _rawInterval.equals("30min"):
-                return base + "(30min)"
+            case "30min":
+                return base + "(30min)";
 
-            case _rawInterval.equals("60min"):
-                return base + "(60min)"
+            case "60min":
+                return base + "(60min)";
 
             default:
                 //Returns NULL for error checking and reports error.
                 System.out.println("Not a valid Interval.");
-                return NULL;
+                return null;
         }
     }
 
     /**
      * TODO: Generalize this method to be able to parse other types of API calls.
      * Takes an intraday stock JSON and parses the data into entry objects. These objects are stored and an ArrayList and returned.
-     * @param stockJSON JSONobject containing Intraday info for a specific time interval.
+     * @param timeSeries JSONobject containing Intraday info for a specific time interval.
      * @return ArrayList of intraday Entries.
      */
-    private static ArrayList<Entry> parseStockJSON(JSONObject stockJSON){
+    private static ArrayList<Entry> parseStockJSON(JSONObject timeSeries){
         //Create iterator to parse JSONObject
         Iterator<String> keys = timeSeries.keys();
 

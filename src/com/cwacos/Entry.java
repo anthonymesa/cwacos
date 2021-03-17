@@ -1,3 +1,4 @@
+package com.cwacos;
 public class Entry {
 
     double open, close, low, high;

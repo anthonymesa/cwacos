@@ -1,6 +1,6 @@
 package com.cwacos;
+import org.json.*;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.json.*;
 
 public class APIClass {
     protected static final String baseURL = "https://www.alphavantage.co/query?";
@@ -44,9 +43,8 @@ public class APIClass {
             JSONObject timeSeries = JSONFile.getJSONObject(JSONinterval);
 
             //Parse the given interval JSON and save the data in an ArrayList of Entry objects.
-            ArrayList<Entry> intraday = parseStockJSON(timeSeries);
 
-            return intraday;
+            return parseStockJSON(timeSeries);
         }
         catch (Exception ex) {
             System.out.println("Error: " + ex);
@@ -67,11 +65,8 @@ public class APIClass {
         //API function being called
         String function = "TIME_SERIES_INTRADAY";
 
-        //Name of stock passed to this method
-        String symbol = _stock;
-
         //Create endpoint and add it to the base URL to make API call
-        String endpoint = "function=" + function + "&symbol=" + symbol + "&interval=" + _interval + "&apikey=" + apiKey;
+        String endpoint = "function=" + function + "&symbol=" + _stock + "&interval=" + _interval + "&apikey=" + apiKey;
         String urlString = baseURL + endpoint;
 
         return new URL(urlString);
@@ -82,7 +77,7 @@ public class APIClass {
      * @param _APIlink URL object that is formatted for AlphaVantage API calls.
      * @return JSONobject containing intraday data.
      */
-    private static JSONObject getStockJSON(URL _APIlink) throws IOException {
+    private static JSONObject getStockJSON(URL _APIlink) throws IOException, JSONException {
         // Create a HTTP Connection.
         HttpURLConnection con = (HttpURLConnection) _APIlink.openConnection();
 
@@ -91,13 +86,13 @@ public class APIClass {
         // Examine the response code.
         int status = con.getResponseCode();
         if (status != 200) {
-            System.out.printf("Error: Could not load item: " + status);
+            System.out.print("Error: Could not load item: " + status);
             return null;
         } else {
             // Parsing input stream into a text string.
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
-            StringBuffer content = new StringBuffer();
+            StringBuilder content = new StringBuilder();
             while ((inputLine = in.readLine()) != null) {
                 content.append(inputLine);
             }
@@ -156,14 +151,14 @@ public class APIClass {
      * @param timeSeries JSONobject containing Intraday info for a specific time interval.
      * @return ArrayList of intraday Entries.
      */
-    private static ArrayList<Entry> parseStockJSON(JSONObject timeSeries){
+    private static ArrayList<Entry> parseStockJSON(JSONObject timeSeries) throws JSONException {
         //Create iterator to parse JSONObject
         Iterator<String> keys = timeSeries.keys();
 
         //Dynamic Arrays to hold values from JSON
         ArrayList<Entry> intraday = new ArrayList<>();
 
-        String open="", high="", low="", close="", volume="";
+        String open, high, low, close, volume;
 
         //Iterate the JSON and store all appropriate values in correct ArrayLists
         while(keys.hasNext()) {

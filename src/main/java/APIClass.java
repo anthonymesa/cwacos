@@ -1,4 +1,3 @@
-package com.cwacos;
 import org.json.*;
 import org.json.JSONObject;
 import java.io.BufferedReader;

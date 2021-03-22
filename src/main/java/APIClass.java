@@ -5,19 +5,52 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.*;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 
 public class APIClass {
-    protected static final String baseURL = "https://www.alphavantage.co/query?";
-    protected static final String apiKey = "MO9QU9JAPBBPX5T7";
+    protected static final String baseURLAlpha = "https://www.alphavantage.co/query?";
+    protected static final String apiKeyAlpha = "MO9QU9JAPBBPX5T7";
+    protected static final String baseURLQuokkas = "https://random-facts1.p.rapidapi.com/fact/search?query=quokka";
+    protected static final String apiKeyQuokkas = "7428506839msh1141f5e6cf76abdp11775fjsn3ab3e1af2ad5";
+
+    /**
+     * Calls to Rapid API's server and accesses a random fact about Quokkas to be returned.
+     * Limited to 5 calls per day.
+     * @return A string containing a fact about Quokkas.
+     */
+    public static String getQuokkasFact(){
+        try {
+            //Build HttpRequest with correct headers and using our API key.
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseURLQuokkas))
+                    .header("x-rapidapi-key", apiKeyQuokkas)
+                    .header("x-rapidapi-host", "random-facts1.p.rapidapi.com")
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
+            //Receive the response given by the HttpRequest
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+            //Store the response as JSON Object and parse through to the fact
+            JSONObject JSONFile = new JSONObject(response.body());
+            JSONObject JSONQuokkasFact = JSONFile.getJSONObject("contents");
+            return(JSONQuokkasFact.getString("fact"));
+        }
+        catch(Exception e){
+            System.out.println("Error!");
+        }
+        return null;
+    }
+
+
 
     /**
      * Creates connection to API, stores JSON, parses JSON, and returns intraday data organized in an ArrayList of Entry Objects.
+     * Limited to 5 calls per minute and 500 calls per day.
      * @param _stock String with desired stock symbol. (Example: "IBM")
      * @param _interval String with desired time interval for Intraday (Options: "1min", "5min", "10min", "15min", "30min", "60min")
      * @return ArrayList of Entry objects.
@@ -65,8 +98,8 @@ public class APIClass {
         String function = "TIME_SERIES_INTRADAY";
 
         //Create endpoint and add it to the base URL to make API call
-        String endpoint = "function=" + function + "&symbol=" + _stock + "&interval=" + _interval + "&apikey=" + apiKey;
-        String urlString = baseURL + endpoint;
+        String endpoint = "function=" + function + "&symbol=" + _stock + "&interval=" + _interval + "&apikey=" + apiKeyAlpha;
+        String urlString = baseURLAlpha + endpoint;
 
         return new URL(urlString);
     }
@@ -161,6 +194,7 @@ public class APIClass {
 
         //Iterate the JSON and store all appropriate values in correct ArrayLists
         while(keys.hasNext()) {
+
             String key = keys.next();
             if (timeSeries.get(key) instanceof JSONObject) {
                 open = ((JSONObject) timeSeries.get(key)).getString("1. open");

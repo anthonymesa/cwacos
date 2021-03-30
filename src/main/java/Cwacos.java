@@ -13,6 +13,6 @@ public class Cwacos {
         */
         //System.out.println(APIClass.getQuokkasFact());
 
-        CwacosUI.beginUI(args);
+        CwacosView.beginUI(args);
     }
 }

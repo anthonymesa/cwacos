@@ -202,12 +202,11 @@ public class APIClass {
                 low = ((JSONObject) timeSeries.get(key)).getString("3. low");
                 close = ((JSONObject) timeSeries.get(key)).getString("4. close");
                 volume = ((JSONObject) timeSeries.get(key)).getString("5. volume");
-                Entry currentEntry = new Entry(Double.parseDouble(open), Double.parseDouble(close), Double.parseDouble(low), Double.parseDouble(high), Integer.parseInt(volume));
+                Entry currentEntry = new Entry(Double.parseDouble(open), Double.parseDouble(close), Double.parseDouble(low), Double.parseDouble(high), Integer.parseInt(volume), key);
                 intraday.add(currentEntry);
             }
         }
 
         return intraday;
     }
-
 }

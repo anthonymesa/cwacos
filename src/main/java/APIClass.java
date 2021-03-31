@@ -209,5 +209,4 @@ public class APIClass {
 
         return intraday;
     }
-
 }

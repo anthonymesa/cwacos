@@ -20,14 +20,7 @@ public class Entry implements Comparable<Entry>{
 
     @Override
     public String toString() {
-        return  '{' +
-                "open=" + open +
-                ", close=" + close +
-                ", low=" + low +
-                ", high=" + high +
-                ", volume=" + volume +
-                ", timeDate=" + dateTime +
-                '}';
+        return  open + " " + close + " " + low + " " + high + " " + volume + " " + dateTime;
     }
 
     @Override

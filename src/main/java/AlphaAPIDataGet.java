@@ -7,8 +7,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
 
 public abstract class AlphaAPIDataGet {
     protected static final String baseURLAlpha = "https://www.alphavantage.co/query?";
@@ -194,14 +199,23 @@ public abstract class AlphaAPIDataGet {
      * @param timeSeries JSONObject containing stock info for a specific type of API call.
      * @return ArrayList of stock Entries.
      */
-    protected static ArrayList<Entry> parseStockJSON(JSONObject timeSeries) throws JSONException {
+    protected static ArrayList<Entry> parseStockJSON(JSONObject timeSeries, int _callType) throws JSONException, ParseException {
         //Create iterator to parse JSONObject
         Iterator<String> keys = timeSeries.keys();
 
         //Dynamic Arrays to hold values from JSON
-        ArrayList<Entry> intraday = new ArrayList<>();
+        ArrayList<Entry> stockInfo = new ArrayList<>();
 
         String open, high, low, close, volume;
+        DateFormat format;
+        Date date;
+
+        //Use Special format for Intraday call, otherwise use the default format.
+        if(_callType == INTRADAY_CALL)
+            format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        else
+            format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+
 
         //Iterate the JSON and store all appropriate values in correct ArrayLists
         while(keys.hasNext()) {
@@ -218,12 +232,12 @@ public abstract class AlphaAPIDataGet {
                                                 Double.parseDouble(low),
                                                 Double.parseDouble(high),
                                                 Integer.parseInt(volume),
-                                                key );
-                intraday.add(currentEntry);
+                                                format.parse(key) );
+                stockInfo.add(currentEntry);
             }
         }
 
-        return intraday;
+        return stockInfo;
     }
 
 

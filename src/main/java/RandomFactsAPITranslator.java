@@ -43,12 +43,3 @@ public class RandomFactsAPITranslator {
 
 
 
-        /*HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(baseURLAlpha))
-            .header("function", "TIME_SERIES_INTRADAY")
-            .header("symbol", "IBM")
-            .header("interval", "5min")
-            .header("apikey", apiKeyAlpha)
-            .method("GET", HttpRequest.BodyPublishers.noBody())
-            .build();*/
-

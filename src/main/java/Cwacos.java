@@ -1,8 +1,13 @@
 import org.json.*;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class Cwacos {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         //Use the call below to print full intraday ArrayList for given stock and time interval. (5 calls/minute, 500 calls/day)
 
         System.out.println("Intraday Data: " + AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.MINUTE_5, AlphaAPIDataGet.INTRADAY_CALL).toString());
@@ -20,5 +25,6 @@ public class Cwacos {
         //System.out.println(RandomFactsAPITranslator.getQuokkasFact());
 
         CwacosUI.beginUI(args);
+
     }
 }

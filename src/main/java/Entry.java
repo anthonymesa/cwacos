@@ -1,13 +1,15 @@
+import java.util.Date;
+
 public class Entry {
 
     double open, close, low, high;
     int volume;
-    String dateTime;
+    Date dateTime;
 
     public Entry(){
     }
 
-    public Entry (double _open, double _close, double _low, double _high, int _volume, String _dateTime){
+    public Entry (double _open, double _close, double _low, double _high, int _volume, Date _dateTime){
         this.open = _open;
         this.close = _close;
         this.low = _low;

@@ -44,7 +44,7 @@ public class AlphaVantageAPITranslator extends AlphaAPIDataGet{
             JSONObject timeSeries = JSONFile.getJSONObject(JSONInterval);
 
             //Parse the given interval JSON and return the data in an ArrayList of Entry objects.
-            return parseStockJSON(timeSeries);
+            return parseStockJSON(timeSeries, _callType);
         }
         catch (Exception ex) {
             System.out.println("Error: " + ex);

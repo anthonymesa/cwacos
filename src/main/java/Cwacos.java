@@ -10,12 +10,12 @@ public class Cwacos {
     public static void main(String[] args) {
         //Use the call below to print full intraday ArrayList for given stock and time interval. (5 calls/minute, 500 calls/day)
 
-        System.out.println("Intraday Data: " + AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.MINUTE_5, AlphaAPIDataGet.INTRADAY_CALL).toString());
-        System.out.println("Daily Data: " + AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.NO_INTERVAL, AlphaAPIDataGet.DAILY_CALL).toString());
-        System.out.println("Weekly Data: " + AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.NO_INTERVAL, AlphaAPIDataGet.WEEKLY_CALL).toString());
-        System.out.println("Monthly Data: " + AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.NO_INTERVAL, AlphaAPIDataGet.MONTHLY_CALL).toString());
+        System.out.println("Intraday Data: " + AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.INTRADAY_CALL, AlphaAPIDataGet.MINUTE_5).toString());
+        System.out.println("Daily Data: " + AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.DAILY_CALL, AlphaAPIDataGet.NO_INTERVAL).toString());
+        System.out.println("Weekly Data: " + AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.WEEKLY_CALL, AlphaAPIDataGet.NO_INTERVAL).toString());
+        System.out.println("Monthly Data: " + AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.MONTHLY_CALL, AlphaAPIDataGet.NO_INTERVAL).toString());
 
-        IO.storeData(AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.MINUTE_5, AlphaAPIDataGet.INTRADAY_CALL));
+        IO.storeData(AlphaVantageAPITranslator.getStockInfo("IBM", AlphaAPIDataGet.INTRADAY_CALL, AlphaAPIDataGet.MINUTE_5));
 
 
         /*

@@ -10,10 +10,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Locale;
+import java.util.*;
 
 public abstract class AlphaAPIDataGet {
     protected static final String baseURLAlpha = "https://www.alphavantage.co/query?";
@@ -236,7 +233,7 @@ public abstract class AlphaAPIDataGet {
                 stockInfo.add(currentEntry);
             }
         }
-
+        Collections.sort(stockInfo);
         return stockInfo;
     }
 

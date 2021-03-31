@@ -1,6 +1,6 @@
 import java.util.Date;
 
-public class Entry {
+public class Entry implements Comparable<Entry>{
 
     double open, close, low, high;
     int volume;
@@ -20,11 +20,18 @@ public class Entry {
 
     @Override
     public String toString() {
-        return open + "," + close +
+        return  '{' +
+                "open=" + open +
+                ", close=" + close +
                 ", low=" + low +
                 ", high=" + high +
                 ", volume=" + volume +
                 ", timeDate=" + dateTime +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Entry _entry) {
+        return this.dateTime.compareTo(_entry.dateTime);
     }
 }

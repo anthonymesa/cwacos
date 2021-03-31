@@ -6,15 +6,11 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-public class CwacosUI extends Application {
-    public static void beginUI(String[] args) {
-        launch(args);
-    }
+public class CwacosUI  {
 
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Hello World!");
-        Button btn = new Button();
+    public CwacosUI(){}
+
+    public Button testBtnFunction(Button btn) {
         btn.setText("Say 'Hello World'");
         btn.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -24,9 +20,6 @@ public class CwacosUI extends Application {
             }
         });
 
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
-        primaryStage.setScene(new Scene(root, 300, 250));
-        primaryStage.show();
+        return btn;
     }
 }

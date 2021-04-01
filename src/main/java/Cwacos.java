@@ -18,6 +18,6 @@ public class Cwacos {
         CAREFUL! There only 5 calls/day on this API and I (Michael Leonard) get charged $.03 for each additional call.
         */
         //System.out.println(APIClass.getQuokkasFact());
-        CwacosView.beginUI(args);
+        CwacosUI.startUI(args);
     }
 }

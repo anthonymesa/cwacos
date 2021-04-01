@@ -10,18 +10,12 @@ public class CwacosData {
 
     public static DataStorage storage = new DataStorage(DataStorage.StorageType.LOCAL);
 
-    /*
+    /**
      * Save the stock symbol's associated entry data to a file by
      * looking up that stock symbol in the finance data map and
      * saving its data attribute of ArrayList<Entry> type.
      *
-     * @params _symbol - stock/crypto symbol, i.e. "IBM"
-     * @params _params
-     *      an array list containing the parameters
-     *      for the current method of saving data.
-     *
-     *      current method is local file storage so _params should
-     *      only contain a file url
+     * @param _symbol stock/crypto symbol, i.e. "IBM"
      */
     public static String save(String _symbol){
 
@@ -49,13 +43,14 @@ public class CwacosData {
         return null;
     }
 
-    /*
+    /**
      * Load the file to populate the data for the current symbol in the finance data map
      *
      * Data can only be loaded for stocks/cryptos that have already been added to the finance data map.
      *
-     * @params _symbol - stock/crypto symbol, i.e. "IBM"
-     * @params _params -
+     * @param _symbol
+     *      stock/crypto symbol, i.e. "IBM"
+     * @param _params
      *      an array list containing the parameters
      *      for the current method of saving data.
      *
@@ -89,14 +84,14 @@ public class CwacosData {
 
     //=================== API INTERACTION =====================
 
-    /*
+    /**
      * this function updates an entry in the map that already exists. if the
      * symbol doesnt exist in the map, then there is nothing to update and
      * the function exits.
      *
-     * @params _symbol - stock/crypto symbol, i.e. "IBM"
-     * @params _call_type - integer that matches available call types in AlphaAPIDataGet class
-     * @param _call_interval - integer that matches available call intervals in AlphaAPIDataGet class
+     * @param _symbol stock/crypto symbol, i.e. "IBM"
+     * @param _call_type integer that matches available call types in AlphaAPIDataGet class
+     * @param _call_interval integer that matches available call intervals in AlphaAPIDataGet class
      */
     public static ArrayList<Entry> update(String _symbol, int _call_type, int _call_interval){
 
@@ -119,7 +114,7 @@ public class CwacosData {
         return finance_data.get(_symbol).data;
     }
 
-    /*
+    /**
      * Update all iterates through each symbol in the finance data map and calls
      * update using the parameters for the call saved in the FinanceDataSegment
      */
@@ -140,7 +135,7 @@ public class CwacosData {
     // e.g. "GME" --> new Ticker(s, t, d)
     private static Map<String, FinanceDataSegment> finance_data = new HashMap<String, FinanceDataSegment>();
 
-    /*
+    /**
      * when a user clicks add favorite, a dialogue window should pop up
      * that lets them put in a stock ticker and choose whether it is
      * stock or it is crypto, then this function should be run on success.
@@ -151,8 +146,8 @@ public class CwacosData {
      * All financial data segments are initialized with call_type intraday,
      * with an interval of 30 minutes.
      *
-     * @params _symbol - stock/crypto symbol, i.e. "IBM"
-     * @param _data_type - integer for datatype. 0 = null, 1 = stock, 2 = crypto
+     * @param _symbol stock/crypto symbol, i.e. "IBM"
+     * @param _data_type integer for datatype. 0 = null, 1 = stock, 2 = crypto
      */
     public static String AddFavorite(String _symbol, int _data_type){
 
@@ -181,8 +176,8 @@ public class CwacosData {
         }
     }
 
-    /*
-     * @params _symbol - stock/crypto symbol, i.e. "IBM"
+    /**
+     * @param _symbol stock/crypto symbol, i.e. "IBM"
      */
     public static String RemoveFavorite(String _symbol){
         finance_data.remove(_symbol);

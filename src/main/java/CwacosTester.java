@@ -122,9 +122,9 @@ public class CwacosTester {
         CwacosData.updateAll();
     }
 
-    /*
-    Use the call below to print a random fact about Quokkas.
-    CAREFUL! There only 5 calls/day on this API and I (Michael Leonard) get charged $.03 for each additional call.
+    /**
+     * Use the call below to print a random fact about Quokkas.
+     * CAREFUL! There only 5 calls/day on this API and I (Michael Leonard) get charged $.03 for each additional call.
     */
     public static void quakkasFactsTest(){
         System.out.println(RandomFactsAPITranslator.getQuokkasFact());

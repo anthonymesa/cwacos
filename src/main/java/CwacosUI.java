@@ -8,12 +8,14 @@ public class CwacosUI  {
         CwacosView.beginUI(args);
     }
 
-    public Button addDialogFunction(TextInputDialog td, Button btn){
+    public Button addDialogFunction(TextInputDialog td, ComboBox<String> cb, Button btn){
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e)
             {
                 // show the text input dialog
-                td.show();
+                td.showAndWait();
+
+                cb.getItems().add(td.getEditor().getText().toUpperCase());
             }
         };
 
@@ -21,4 +23,5 @@ public class CwacosUI  {
 
         return btn;
     }
+
 }

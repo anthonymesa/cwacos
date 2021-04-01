@@ -1,5 +1,8 @@
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class Entry implements Comparable<Entry>{
 
@@ -19,9 +22,12 @@ public class Entry implements Comparable<Entry>{
         this.dateTime = _dateTime;
     }
 
-    @Override
-    public String toString() {
-        return  open + " " + close + " " + low + " " + high + " " + volume + " " + dateTime;
+    public String out() {
+        DateFormat formatter;
+
+        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+
+        return  open + " " + close + " " + low + " " + high + " " + volume + " " + formatter.format(dateTime);
     }
 
     @Override

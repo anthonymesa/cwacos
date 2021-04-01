@@ -23,7 +23,7 @@ class DataStorage {
      */
     public void save(ArrayList<String> _params, ArrayList<Entry> _input) {
 
-        adapter.store(_params, arraylistOfEntriesToArraylistOfStrings(_input));
+        adapter.store(_params, arraylistOfEntriesToArraylistOfStrings(_input, Integer.parseInt(_params.get(1))));
     }
 
     /**
@@ -31,15 +31,11 @@ class DataStorage {
      * @param _arraylistOfEntries ArrayList of Entries to be converted to ArrayList of Strings.
      * @return ArrayList of Strings converted from ArrayList of Entries.
      */
-    private ArrayList<String> arraylistOfEntriesToArraylistOfStrings(ArrayList<Entry> _arraylistOfEntries) {
+    private ArrayList<String> arraylistOfEntriesToArraylistOfStrings(ArrayList<Entry> _arraylistOfEntries, int _call_type) {
         ArrayList<String> arraylistOfStrings = new ArrayList<>();
         for (Entry entry : _arraylistOfEntries) {
 
-            arraylistOfStrings.add(entry.open + " " +
-                    entry.close + " " +
-                    entry.low + " " +
-                    entry.high + " " +
-                    entry.volume);
+            arraylistOfStrings.add(entry.out());
         }
 
         return arraylistOfStrings;

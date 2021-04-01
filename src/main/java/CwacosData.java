@@ -37,6 +37,8 @@ public class CwacosData {
             )
         );
 
+        save_parameters.add(((Integer) finance_data.get(_symbol).call_type).toString());
+
         ArrayList<Entry> data_to_save = finance_data.get(_symbol).data;
         storage.save(save_parameters, data_to_save);
 
@@ -103,8 +105,8 @@ public class CwacosData {
 
         ArrayList<Entry> api_call_result = AlphaVantageAPITranslator.getStockInfo(
                 finance_data.get(_symbol).symbol,
-                _call_interval,
-                _call_type
+                _call_type,
+                _call_interval
         );
 
         finance_data.get(_symbol).call_type = _call_type;
@@ -155,8 +157,8 @@ public class CwacosData {
         // or not, which will tell us if the ticker exists or not.
         ArrayList<Entry> evaluator = AlphaVantageAPITranslator.getStockInfo(
                 _symbol,
-                10,
-                4
+                4,
+                10
         );
 
         // if the call returned a null array, then the favorite cant be added.

@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -80,6 +82,8 @@ class LocalStorageTranslator implements StorageAdapter {
     public ArrayList<Object> load(ArrayList<String> _params) {
         ArrayList<Object> data = new ArrayList<>();
         String fileName = _params.get(0);
+        SimpleDateFormat format;
+        Date date;
 
         try {
             File inputFile = new File(fileName);
@@ -92,8 +96,12 @@ class LocalStorageTranslator implements StorageAdapter {
                 double high = read.nextDouble();
                 int volume = read.nextInt();
 
-//                Entry entry = new Entry(open, close, low, high, volume);
-//                data.add(entry);
+                format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+
+                date = format.parse(read.nextLine());
+
+                Entry entry = new Entry(open, close, low, high, volume, date);
+                data.add(entry);
             }
 
         } catch (FileNotFoundException e) {

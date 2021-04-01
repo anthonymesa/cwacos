@@ -91,7 +91,7 @@ public class CwacosTester {
             StringBuilder sb = new StringBuilder();
 
             for(Entry each : loaded_data_for_table){
-                sb.append(each.toString() + "\n");
+                sb.append(each.out() + "\n");
             }
 
             String load_test = sb.toString();
@@ -103,14 +103,22 @@ public class CwacosTester {
 
     public static void updateFunctionTest(){
         //=============== UPDATE FUNCTION TEST ================
-        int call_type = 1;
-        int call_interval = 12;
+        int call_type = 2;
+        int call_interval = 10;
 
         // make api call and print returned data
         ArrayList<Entry> updated_data_for_table = CwacosData.update(symbol, call_type, call_interval);
 
         if(updated_data_for_table != null){
-            String update_test = updated_data_for_table.toString();
+
+            StringBuilder builder = new StringBuilder();
+
+            for(Entry each : updated_data_for_table){
+                builder.append(each.out());
+            }
+
+
+            String update_test = builder.toString();
             System.out.println("Intraday Data: " + update_test);
         } else {
             System.out.println("Can not update data, symbol does not exist in favorites");

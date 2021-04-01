@@ -6,7 +6,11 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class CwacosUI extends Application {
+
     public static void beginUI(String[] args) {
         launch(args);
     }

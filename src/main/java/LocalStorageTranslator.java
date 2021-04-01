@@ -92,8 +92,8 @@ class LocalStorageTranslator implements StorageAdapter {
                 double high = read.nextDouble();
                 int volume = read.nextInt();
 
-                Entry entry = new Entry(open, close, low, high, volume);
-                data.add(entry);
+//                Entry entry = new Entry(open, close, low, high, volume);
+//                data.add(entry);
             }
 
         } catch (FileNotFoundException e) {

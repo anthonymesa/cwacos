@@ -4,7 +4,6 @@ class DataStorage {
 
     public enum StorageType {LOCAL, DATABASE}
 
-
     StorageAdapter adapter;
 
     /* constructor takes enum, if LOCAL is used as

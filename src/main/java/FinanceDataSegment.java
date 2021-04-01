@@ -10,14 +10,16 @@ import java.util.ArrayList;
 // and entry data together in a neat package.
 public class FinanceDataSegment {
 
-    public enum CallType { NULL, STOCK, CRYPTO };
-
     String symbol;
-    CallType call_type;
+    int data_type; // 0 = null, 1 = stock, 2 = crypto
+    int call_type; // see apidataget
+    int call_interval; // see apidataget
     ArrayList<Entry> data;
 
-    FinanceDataSegment(String s, CallType t){
-        this.symbol = s;
-        this.call_type = t;
+    FinanceDataSegment(String _symbol, int _data_type, int _call_type, int _call_interval){
+        this.symbol = _symbol;
+        this.data_type = _data_type;
+        this.call_type = _call_type;
+        this.call_interval = _call_interval;
     }
 }

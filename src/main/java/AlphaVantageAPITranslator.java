@@ -20,7 +20,7 @@ public class AlphaVantageAPITranslator extends AlphaAPIDataGet{
      * @param _interval String with desired time interval for Intraday (Options: "1min", "5min", "10min", "15min", "30min", "60min")
      * @return ArrayList of Entry objects.
      */
-    public static ArrayList<Entry> getStockInfo(String _stock, int _interval, int _callType){
+    public static ArrayList<Entry> getStockInfo(String _stock, int _callType, int _interval){
         try {
             // Create the API url.
             URL url = getStockURL(_stock, _interval, _callType);

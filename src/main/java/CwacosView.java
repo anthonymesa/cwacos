@@ -14,16 +14,36 @@ public class CwacosView extends Application {
     //Parent layout
     public VBox root = new VBox();
 
+    //Active ticket selection drop down menu
+    public ComboBox<String> activeTickerMenu = new ComboBox<String>();
+
     public static void beginUI(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
-        ArrayList<Button> topButtons = new ArrayList<Button>();
-
         primaryStage.setTitle("Hello World!");
+        
+        HBox topBar = createTopBar();
 
+        HBox maxProfitHBox = createBottomBar();
+
+        HBox middleBar = createMiddleBar();
+
+        //This section is for the Chart/Table section
+
+        //Add HBoxes to parent layout
+        root.getChildren().add(topBar);
+        root.getChildren().add(middleBar);
+        root.getChildren().add(maxProfitHBox);
+        
+        primaryStage.setScene(new Scene(root, 1280, 720));
+        primaryStage.show();
+    }
+
+    public HBox createTopBar() {
+        ArrayList<Button> topButtons = new ArrayList<Button>();
         //This section is for the top HBox
         //Button that saves the active ticker data
         Button saveBtn = new Button();
@@ -53,7 +73,33 @@ public class CwacosView extends Application {
         topBar.setSpacing(10);
         topBar.getChildren().addAll(topButtons);
 
+        return topBar;
+    }
 
+    public HBox createMiddleBar() {
+        activeTickerMenu.setPromptText("Favorites");
+            //This section is for the middle HBox
+        //Text input area to add a new ticker
+        TextInputDialog addTickerDialog = new TextInputDialog("Ticker goes here");
+        addTickerDialog.setHeaderText("Add Ticker");
+        Button addTicker = new Button();
+        addTicker.setText("Add");
+        UI.addDialogFunction(addTickerDialog, activeTickerMenu, addTicker);
+
+        //Button to remove a ticker from the list
+        TextInputDialog removeTickerDialog = new TextInputDialog("Ticker goes here");
+        removeTickerDialog.setHeaderText("Remove Ticker");
+        Button removeTicker = new Button();
+        removeTicker.setText("Remove");
+
+        //HBox that holds all of the middle 
+        HBox middleBar = new HBox();
+        middleBar.getChildren().addAll(activeTickerMenu, addTicker, removeTicker);
+
+        return middleBar;
+    }
+
+    public HBox createBottomBar(){
         //This section is for the bottom HBox
         //Button that runs the max profit algorithm
         Button maxProfitBtn = new Button();
@@ -64,36 +110,6 @@ public class CwacosView extends Application {
         maxProfitHBox.getChildren().add(maxProfitBtn);
         maxProfitHBox.setAlignment(Pos.BOTTOM_CENTER);
 
-        //This section is for the Chart/Table section
-
-        //This section is for the middle HBox
-        //Active ticket selection drop down menu
-        ComboBox<String> activeTickerMenu = new ComboBox<String>();
-        
-        //Text input area to add a new ticker
-        TextInputDialog addTickerDialog = new TextInputDialog("Ticker goes here");
-        addTickerDialog.setHeaderText("Add Ticker");
-        Button addTicker = new Button();
-        addTicker.setText("Add");
-        UI.addDialogFunction(addTickerDialog, addTicker);
-
-        //Button to remove a ticker from the list
-        TextInputDialog removeTickerDialog = new TextInputDialog("Ticker goes here");
-        removeTickerDialog.setHeaderText("Remove Ticker");
-        Button removeTicker = new Button();
-        removeTicker.setText("Remove");
-        UI.addDialogFunction(removeTickerDialog, removeTicker);
-
-        //HBox that holds all of the middle 
-        HBox middleBar = new HBox();
-        middleBar.getChildren().addAll(activeTickerMenu, addTicker, removeTicker);
-
-        //Add HBoxes to parent layout
-        root.getChildren().add(topBar);
-        root.getChildren().add(middleBar);
-        root.getChildren().add(maxProfitHBox);
-        
-        primaryStage.setScene(new Scene(root, 1280, 720));
-        primaryStage.show();
+        return maxProfitHBox;
     }
 }

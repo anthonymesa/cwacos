@@ -3,6 +3,12 @@ import java.util.Map;
 
 public class CwacosData {
 
+    //===================== DATA STORAGE ======================
+
+
+
+    //=========================================================
+
     // This map represents a mapped list of favorited data
     // Map of strings to Ticker objects
     // e.g. "GME" --> new Ticker(s, t, d)

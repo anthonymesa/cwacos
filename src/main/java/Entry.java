@@ -6,6 +6,7 @@ import java.util.Locale;
 
 public class Entry implements Comparable<Entry>{
 
+    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);;
     double open, close, low, high;
     int volume;
     Date dateTime;
@@ -23,10 +24,6 @@ public class Entry implements Comparable<Entry>{
     }
 
     public String out() {
-        DateFormat formatter;
-
-        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
-
         return  open + " " + close + " " + low + " " + high + " " + volume + " " + formatter.format(dateTime);
     }
 

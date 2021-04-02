@@ -103,8 +103,8 @@ public class CwacosTester {
 
     public static void updateFunctionTest(){
         //=============== UPDATE FUNCTION TEST ================
-        int call_type = 2;
-        int call_interval = 10;
+        int call_type = 1;
+        int call_interval = 12;
 
         // make api call and print returned data
         ArrayList<Entry> updated_data_for_table = CwacosData.update(symbol, call_type, call_interval);
@@ -119,7 +119,7 @@ public class CwacosTester {
 
 
             String update_test = builder.toString();
-            System.out.println("Intraday Data: " + update_test);
+            System.out.println("Call Data: " + update_test);
         } else {
             System.out.println("Can not update data, symbol does not exist in favorites");
         }

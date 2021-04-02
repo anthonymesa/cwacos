@@ -82,7 +82,7 @@ class LocalStorageTranslator implements StorageAdapter {
     public ArrayList<Object> load(ArrayList<String> _params) {
         ArrayList<Object> data = new ArrayList<>();
         String fileName = _params.get(0);
-        SimpleDateFormat format;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);;
         Date date;
 
         try {
@@ -95,9 +95,6 @@ class LocalStorageTranslator implements StorageAdapter {
                 double low = read.nextDouble();
                 double high = read.nextDouble();
                 int volume = read.nextInt();
-
-                format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
-
                 date = format.parse(read.nextLine());
 
                 Entry entry = new Entry(open, close, low, high, volume, date);

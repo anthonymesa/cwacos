@@ -91,7 +91,7 @@ public class CwacosTester {
             StringBuilder sb = new StringBuilder();
 
             for(Entry each : loaded_data_for_table){
-                sb.append(each.out() + "\n");
+                sb.append(each.toString() + "\n");
             }
 
             String load_test = sb.toString();
@@ -114,7 +114,7 @@ public class CwacosTester {
             StringBuilder builder = new StringBuilder();
 
             for(Entry each : updated_data_for_table){
-                builder.append(each.out());
+                builder.append(each.toString());
             }
 
 

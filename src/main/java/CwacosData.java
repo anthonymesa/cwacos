@@ -157,7 +157,7 @@ public class CwacosData {
         // or not, which will tell us if the ticker exists or not.
         ArrayList<Entry> evaluator = AlphaVantageAPITranslator.getStockInfo(
                 _symbol,
-                4,
+                2,
                 10
         );
 

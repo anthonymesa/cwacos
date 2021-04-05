@@ -6,6 +6,9 @@ public class CwacosTester {
 
     private static String symbol = "";
     private static String file_url = "";
+    private static int data_type = 0;
+    private static int call_type = 1;
+    private static int call_interval = 12;
 
     public static void begin(){
         boolean should_quit = false;
@@ -14,78 +17,87 @@ public class CwacosTester {
             Scanner kbinput = new Scanner(System.in);
 
             System.out.print("CwacosTester~ ");
-            String command = kbinput.next();
+            String command = kbinput.nextLine();
 
-            switch(command){
-                case "symbol":
-                    System.out.print("CwacosTester~ new symbol: ");
-                    symbol = kbinput.next();
-                    break;
-                case "fileurl":
-                    System.out.print("CwacosTester~ new file url: ");
-                    file_url = kbinput.next();
-                    break;
-                case "addfavorite":
-                    addFavoriteFunctionTest();
-                    break;
-                case "removefavorite":
-                    removeFavoriteFunctionTest();
-                    break;
-                case "save":
-                    saveFunctionTest();
-                    break;
-                case "load":
-                    loadFunctionTest();
-                    break;
-                case "update":
-                    updateFunctionTest();
-                    break;
-                case "updateall":
-                    updateAllFunctionTest();
-                    break;
-                case "qfact":
-                    quakkasFactsTest();
-                    break;
-                case "quit":
-                    should_quit = true;
-                    break;
-                default:
-                    break;
+            String[] command_array = command.split(" ", 0);
+            try{
+                switch(command_array[0]) {
+                    case "addfavorite":
+                        symbol = command_array[1];
+                        if ((Integer.parseInt(command_array[2])) < 3) {
+                            data_type = Integer.parseInt(command_array[2]);
+                            addFavoriteFunctionTest(symbol, data_type);
+                        }
+                        break;
+                    case "removefavorite":
+                        symbol = command_array[1];
+                        removeFavoriteFunctionTest(symbol);
+                        break;
+                    case "save":
+                        symbol = command_array[1];
+                        saveFunctionTest(symbol);
+                        break;
+                    case "load":
+                        symbol = command_array[1];
+                        file_url = command_array[2];
+                        loadFunctionTest(symbol, file_url);
+                        break;
+                    case "update":
+                        symbol = command_array[1];
+                        call_type = Integer.parseInt(command_array[2]);
+                        call_interval = Integer.parseInt(command_array[2]);
+                        updateFunctionTest(symbol, call_type, call_interval);
+                        break;
+                    case "updateall":
+                        updateAllFunctionTest();
+                        break;
+                    case "qfact":
+                        quakkasFactsTest();
+                        break;
+                    case "quit":
+                        should_quit = true;
+                        break;
+                    default:
+                        System.out.println("command not recognised");
+                        break;
+                }
+            } catch (Exception e){
+                System.out.println("You messed that up probably.");
             }
         }
     }
 
-    public static void addFavoriteFunctionTest(){
+    public static void addFavoriteFunctionTest(String _symbol, int _data_type){
         //=============== ADD FAVORITE FUNCTION TEST ================
         // add a new favorite with symbol "IBM" and of datatype "stock"
-        String add_favorite_error = CwacosData.AddFavorite(symbol, 0);
+        String add_favorite_error = CwacosData.AddFavorite(_symbol, _data_type);
 
         if(add_favorite_error != null){
             System.out.println(add_favorite_error);
         }
     }
 
-    public static void saveFunctionTest() {
+    public static void saveFunctionTest(String _symbol) {
         //=============== SAVE FUNCTION TEST ================
 
         // save data related to given symbol to file at given url
-        String save_error = CwacosData.save(symbol);
+        String save_error = CwacosData.save(_symbol);
 
         if (save_error != null) {
             System.out.println(save_error);
         }
     }
 
-    public static void loadFunctionTest() {
+    public static void loadFunctionTest(String _symbol, String _file_url) {
         //=============== LOAD FUNCTION TEST ================
         // set the parameters for loading data
         ArrayList<String> load_parameters = new ArrayList<String>(
                 Arrays.asList(
-                        file_url
+                        _file_url
                 )
         );
 
-        ArrayList<Entry> loaded_data_for_table = CwacosData.load(symbol, load_parameters);
+        ArrayList<Entry> loaded_data_for_table = CwacosData.load(_symbol, load_parameters);
 
         if(loaded_data_for_table != null){
             StringBuilder sb = new StringBuilder();
@@ -101,13 +113,11 @@ public class CwacosTester {
         }
     }
 
-    public static void updateFunctionTest(){
+    public static void updateFunctionTest(String _symbol, int _call_type, int _call_interval){
         //=============== UPDATE FUNCTION TEST ================
-        int call_type = 1;
-        int call_interval = 12;
 
         // make api call and print returned data
-        ArrayList<Entry> updated_data_for_table = CwacosData.update(symbol, call_type, call_interval);
+        ArrayList<Entry> updated_data_for_table = CwacosData.update(_symbol, _call_type, _call_interval);
 
         if(updated_data_for_table != null){
 
@@ -138,7 +148,7 @@ public class CwacosTester {
         System.out.println(RandomFactsAPITranslator.getQuokkasFact());
     }
 
-    public static void removeFavoriteFunctionTest(){
-        CwacosData.RemoveFavorite(symbol);
+    public static void removeFavoriteFunctionTest(String _symbol){
+        CwacosData.RemoveFavorite(_symbol);
     }
 }

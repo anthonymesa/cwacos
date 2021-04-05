@@ -7,5 +7,8 @@ public class Cwacos {
         
         //CwacosUIController.beginUI(args);
         CwacosTester.begin();
+
+
+
     }
 }

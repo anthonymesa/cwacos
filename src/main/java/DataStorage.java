@@ -35,7 +35,7 @@ class DataStorage {
         ArrayList<String> arraylistOfStrings = new ArrayList<>();
         for (Entry entry : _arraylistOfEntries) {
 
-            arraylistOfStrings.add(entry.out());
+            arraylistOfStrings.add(entry.toString());
         }
 
         return arraylistOfStrings;

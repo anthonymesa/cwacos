@@ -23,7 +23,8 @@ public class Entry implements Comparable<Entry>{
         this.dateTime = _dateTime;
     }
 
-    public String out() {
+    @Override
+    public String toString() {
         return  open + " " + close + " " + low + " " + high + " " + volume + " " + formatter.format(dateTime);
     }
 

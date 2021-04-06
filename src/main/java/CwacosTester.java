@@ -45,7 +45,7 @@ public class CwacosTester {
                     case "update":
                         symbol = command_array[1];
                         call_type = Integer.parseInt(command_array[2]);
-                        call_interval = Integer.parseInt(command_array[2]);
+                        call_interval = Integer.parseInt(command_array[3]);
                         updateFunctionTest(symbol, call_type, call_interval);
                         break;
                     case "updateall":

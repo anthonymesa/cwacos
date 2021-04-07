@@ -13,6 +13,9 @@ public class CwacosTester {
     public static void begin(){
         boolean should_quit = false;
 
+        CwacosData.loadState();
+        System.out.println(CwacosData.getQuakkaFact());
+
         while(!should_quit){
             Scanner kbinput = new Scanner(System.in);
 
@@ -51,9 +54,6 @@ public class CwacosTester {
                     case "updateall":
                         updateAllFunctionTest();
                         break;
-                    case "qfact":
-                        quakkasFactsTest();
-                        break;
                     case "quit":
                         should_quit = true;
                         break;
@@ -62,15 +62,17 @@ public class CwacosTester {
                         break;
                 }
             } catch (Exception e){
-                System.out.println("You messed that up probably.");
+                System.out.println(e.toString());
             }
         }
+
+        CwacosData.saveState();
     }
 
     public static void addFavoriteFunctionTest(String _symbol, int _data_type){
         //=============== ADD FAVORITE FUNCTION TEST ================
         // add a new favorite with symbol "IBM" and of datatype "stock"
-        String add_favorite_error = CwacosData.AddFavorite(_symbol, _data_type);
+        String add_favorite_error = CwacosData.addFavorite(_symbol, _data_type);
 
         if(add_favorite_error != null){
             System.out.println(add_favorite_error);
@@ -81,7 +83,7 @@ public class CwacosTester {
         //=============== SAVE FUNCTION TEST ================
 
         // save data related to given symbol to file at given url
-        String save_error = CwacosData.save(_symbol);
+        String save_error = CwacosData.saveData(_symbol);
 
         if (save_error != null) {
             System.out.println(save_error);
@@ -97,7 +99,7 @@ public class CwacosTester {
                 )
         );
 
-        ArrayList<Entry> loaded_data_for_table = CwacosData.load(_symbol, load_parameters);
+        ArrayList<Entry> loaded_data_for_table = CwacosData.loadData(_symbol, load_parameters);
 
         if(loaded_data_for_table != null){
             StringBuilder sb = new StringBuilder();
@@ -140,15 +142,7 @@ public class CwacosTester {
         CwacosData.updateAll();
     }
 
-    /**
-     * Use the call below to print a random fact about Quokkas.
-     * CAREFUL! There only 5 calls/day on this API and I (Michael Leonard) get charged $.03 for each additional call.
-    */
-    public static void quakkasFactsTest(){
-        System.out.println(RandomFactsAPITranslator.getQuokkasFact());
-    }
-
     public static void removeFavoriteFunctionTest(String _symbol){
-        CwacosData.RemoveFavorite(_symbol);
+        CwacosData.removeFavorites(_symbol);
     }
 }

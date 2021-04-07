@@ -1,4 +1,7 @@
+import com.sun.scenario.effect.impl.sw.java.JSWBlend_OVERLAYPeer;
+
 import java.util.ArrayList;
+import java.util.Map;
 
 class DataStorage {
 
@@ -49,4 +52,7 @@ class DataStorage {
     public ArrayList<Object> load(ArrayList<String> _params) {
         return adapter.load(_params);
     }
+
+    public Map<String, String> loadSettings(ArrayList<String> _params) { return adapter.loadSettings(_params); }
+    public void saveSettings(Map<String, String> _settings, ArrayList<String> _params) { adapter.saveSettings(_settings, _params); }
 }

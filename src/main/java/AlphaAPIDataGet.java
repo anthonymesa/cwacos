@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public abstract class AlphaAPIDataGet {
+
     protected static final String baseURLAlpha = "https://www.alphavantage.co/query?";
     protected static final String apiKeyAlpha = "MO9QU9JAPBBPX5T7";
 

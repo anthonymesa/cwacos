@@ -78,7 +78,7 @@ public class CwacosView extends Application {
         activeTickerView.setPrefSize(WINDOWWIDTH, 300);
         //THE BELOW BLOCK OF CODE IS TEMPORARY
         Rectangle tempBox = new Rectangle();
-        tempBox.setFill(Paint.valueOf("B9B9B9"));
+        tempBox.setFill(Paint.valueOf("4E4E4E"));
         tempBox.setHeight(300);
         tempBox.setWidth(Math.floor(WINDOWWIDTH * .95));
         Label tempLabel = new Label();
@@ -99,7 +99,7 @@ public class CwacosView extends Application {
         candlestickGraph.setPrefSize(WINDOWWIDTH, 240);
         //THE BELOW BLOCK OF CODE IS TEMPORARY
         Rectangle tempBox = new Rectangle();
-        tempBox.setFill(Paint.valueOf("B9B9B9"));
+        tempBox.setFill(Paint.valueOf("4E4E4E"));
         tempBox.setHeight(240);
         tempBox.setWidth(Math.floor(WINDOWWIDTH * .95));
         Label tempLabel = new Label();

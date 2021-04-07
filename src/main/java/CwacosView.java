@@ -1,20 +1,19 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import javafx.geometry.*;
 import javafx.scene.shape.*;
 import javafx.scene.paint.*;
+import java.lang.Math;
 
 public class CwacosView extends Application {
 
     //Window dimensions
-    private final int WINDOWWIDTH = 1280;
-    private final int WINDOWHEIGHT = 720;
+    public final int WINDOWWIDTH = 1280;
+    public final int WINDOWHEIGHT = 720;
 
     CwacosUI UI = new CwacosUI();
 
@@ -35,6 +34,7 @@ public class CwacosView extends Application {
         
         //Call methods to add buttons to gridpane
         createTopBar();
+        createActiveTickerViewBox();
         createMiddleBar();
         createCandleStickGraph();
         createBottomBar();
@@ -46,7 +46,7 @@ public class CwacosView extends Application {
 
     //Fucntion sets styling of the gridpane and performs other necessary operations.
     public void setupGridPane(){
-        root.setStyle("-fx-background-color: #BFFFFE;");   //Background color
+        root.setStyle("-fx-background-color: #1D1D1D;");   //Background color
         //Set grid spacing
         root.getColumnConstraints().addAll(createColumnConstraints());
         root.getRowConstraints().addAll(createRowConstraints());
@@ -70,43 +70,82 @@ public class CwacosView extends Application {
         return list;
     }
 
+    //Method creates the view box for the active ticker.
+    public void createActiveTickerViewBox(){
+        //Create and style the background.
+        StackPane activeTickerView = new StackPane();
+        activeTickerView.setStyle("-fx-background-color: #1D1D1D;");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
+        activeTickerView.setPrefSize(WINDOWWIDTH, 300);
+        //THE BELOW BLOCK OF CODE IS TEMPORARY
+        Rectangle tempBox = new Rectangle();
+        tempBox.setFill(Paint.valueOf("B9B9B9"));
+        tempBox.setHeight(300);
+        tempBox.setWidth(Math.floor(WINDOWWIDTH * .95));
+        Label tempLabel = new Label();
+        tempLabel.setText("Active ticker data view goes here.");
+        tempLabel.setStyle("-fx-background-color: #BB86FC;");
+        activeTickerView.getChildren().addAll(tempBox, tempLabel);
+        activeTickerView.setAlignment(tempBox, Pos.CENTER);
+
+
+        root.add(activeTickerView, 0, 1, 5, 5);
+    }
+
     //Method creates the CandleStick Graph
     public void createCandleStickGraph(){
         //Create and style the background.
-        Rectangle background = new Rectangle();
-        background.setFill(Paint.valueOf("B9B9B9"));    //Set background of the graph
-        background.setHeight(20);
-        background.setWidth(1280);
-        root.add(background, 0, 7, 5, 4);
+        StackPane candlestickGraph = new StackPane();
+        candlestickGraph.setStyle("-fx-background-color: #1D1D1D;");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
+        candlestickGraph.setPrefSize(WINDOWWIDTH, 240);
+        //THE BELOW BLOCK OF CODE IS TEMPORARY
+        Rectangle tempBox = new Rectangle();
+        tempBox.setFill(Paint.valueOf("B9B9B9"));
+        tempBox.setHeight(240);
+        tempBox.setWidth(Math.floor(WINDOWWIDTH * .95));
+        Label tempLabel = new Label();
+        tempLabel.setText("Candlestick graph goes here.");
+        tempLabel.setStyle("-fx-background-color: #BB86FC;");
+        candlestickGraph.getChildren().addAll(tempBox, tempLabel);
+        candlestickGraph.setAlignment(tempBox, Pos.CENTER);
+
+
+        root.add(candlestickGraph, 0, 7, 5, 4);
     }
 
+    //Method creates the buttons at the top of the window
     public void createTopBar() {
         //Button that saves the active ticker data
         Button saveBtn = new Button();
         saveBtn.setText("Save");
-
         //Button that loads the active ticker data
         Button loadTickerDataBtn = new Button();
         loadTickerDataBtn.setText("Load");
+        //Groups the two above buttons together
+        HBox leftSide = new HBox(10);
+        leftSide.getChildren().addAll(saveBtn, loadTickerDataBtn);
+        leftSide.setTranslateX(32);
+        leftSide.setAlignment(Pos.CENTER_LEFT);
 
-        //Button that updates the active ticket data
+        //Button that updates the active ticker data
         Button updateTickerDataBtn = new Button();
         updateTickerDataBtn.setText("Update");
-        
         //Button that updates all ticker data
         Button updateAllTickersBtn = new Button();
         updateAllTickersBtn.setText("Update All");
+        //Groups the two above buttons together
+        HBox rightSide = new HBox(10);
+        rightSide.getChildren().addAll(updateTickerDataBtn, updateAllTickersBtn);
+        rightSide.setTranslateX(-32);
+        rightSide.setAlignment(Pos.CENTER_RIGHT);
 
         //Add the buttons to the top bar section of the GridPane
-        root.add(saveBtn, 0, 0, 1, 1);
-        root.add(loadTickerDataBtn, 1, 0, 1, 1);
-        root.add(updateTickerDataBtn, 3, 0, 1, 1);
-        root.add(updateAllTickersBtn, 4, 0, 1, 1);
+        root.add(leftSide, 0, 0, 2, 1);
+        root.add(rightSide, 3, 0, 2, 1);
     }
 
+    //Creates the buttons that are betweent he active ticker view and the candlestick graph view
     public void createMiddleBar() {
         activeTickerMenu.setPromptText("Favorites");
-        root.setHalignment(activeTickerMenu, HPos.CENTER);
 
         //Text input area to add a new ticker
         TextInputDialog addTickerDialog = new TextInputDialog("Ticker goes here");
@@ -121,17 +160,21 @@ public class CwacosView extends Application {
         Button removeTicker = new Button();
         removeTicker.setText("Remove");
 
+        HBox middleBar = new HBox(10);
+        middleBar.getChildren().addAll(activeTickerMenu, addTicker, removeTicker);
+        middleBar.setTranslateX(32);
+        middleBar.setAlignment(Pos.CENTER_LEFT);
+
         //Add the buttons for the middle bar to the Grid Pane
-        root.add(activeTickerMenu, 0, 6, 1, 1);
-        root.add(addTicker, 1, 6, 1, 1);
-        root.add(removeTicker, 2, 6, 1, 1);
+        root.add(middleBar, 0, 6, 2, 1);
     }
 
+    //Method creates the bottom section of buttons. Only includes the Max Profit Button right now.
     public void createBottomBar(){
         //Button that runs the max profit algorithm
         Button maxProfitBtn = new Button();
         maxProfitBtn.setText("MAX PROFIT!!!!!");
-        maxProfitBtn.setAlignment(Pos.CENTER);
+        root.setHalignment(maxProfitBtn, HPos.CENTER);
         
         //Add bottom buttons to the GridPane
         root.add(maxProfitBtn, 2, 11, 1, 1);

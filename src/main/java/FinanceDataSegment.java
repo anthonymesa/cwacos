@@ -14,6 +14,7 @@ public class FinanceDataSegment {
     int data_type; // 0 = null, 1 = stock, 2 = crypto
     int call_type; // see apidataget
     int call_interval; // see apidataget
+    String url;
     ArrayList<Entry> data;
 
     FinanceDataSegment(String _symbol, int _data_type, int _call_type, int _call_interval){
@@ -21,5 +22,6 @@ public class FinanceDataSegment {
         this.data_type = _data_type;
         this.call_type = _call_type;
         this.call_interval = _call_interval;
+        this.url = "";
     }
 }

@@ -1,8 +1,14 @@
-import java.net.FileNameMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class CwacosData {
 
@@ -17,19 +23,22 @@ public class CwacosData {
      *
      * @param _symbol stock/crypto symbol, i.e. "IBM"
      */
-    public static String save(String _symbol){
+    public static String saveData(String _symbol){
 
         // check if finance data contains the symbol as key
-        if(!finance_data.containsKey(_symbol)){
+        if(!financeData.containsKey(_symbol)){
             return "Symbol is not a favorite, no file was saved.";
         }
 
-        if(finance_data.get(_symbol).data == null){
+        if(financeData.get(_symbol).data == null){
+            System.out.println("There is no data to save.");
             return "There is no data to save.";
         }
 
         // generate filename and save to local folder
-        String file_url = "./res/" + _symbol + "_" + finance_data.get(_symbol).data.get(0).close;
+        String file_url = "./res/" + _symbol + "_" +  DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(financeData.get(_symbol).data.get(0).dateTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+        financeData.get(_symbol).url = file_url;
 
         ArrayList<String> save_parameters = new ArrayList<String>(
             Arrays.asList(
@@ -37,9 +46,9 @@ public class CwacosData {
             )
         );
 
-        save_parameters.add(((Integer) finance_data.get(_symbol).call_type).toString());
+        save_parameters.add(((Integer) financeData.get(_symbol).call_type).toString());
 
-        ArrayList<Entry> data_to_save = finance_data.get(_symbol).data;
+        ArrayList<Entry> data_to_save = financeData.get(_symbol).data;
         storage.save(save_parameters, data_to_save);
 
         return null;
@@ -59,10 +68,10 @@ public class CwacosData {
      *      current method is local file storage so _params should
      *      only contain a file url
      */
-    public static ArrayList<Entry> load(String _symbol, ArrayList<String> _params){
+    public static ArrayList<Entry> loadData(String _symbol, ArrayList<String> _params){
 
         // check if finance data contains the symbol as key
-        if(!finance_data.containsKey(_symbol)){
+        if(!financeData.containsKey(_symbol)){
             return null;
         }
 
@@ -79,12 +88,108 @@ public class CwacosData {
         }
 
         // save the loaded data to the finance data value with symbol key
-        finance_data.get(_symbol).data = loaded_data;
+        financeData.get(_symbol).data = loaded_data;
 
-        return finance_data.get(_symbol).data;
+        return financeData.get(_symbol).data;
+    }
+
+    public static void loadState(){
+        loadSettings();
+        loadQuakkaFacts();
+        // for each symbol in settings, add to favorites and populate data with data at file url
+    }
+
+    public static Map<String, String> settings = new HashMap<String, String>();
+
+    public static void loadSettings(){
+        String file_url = "./res/cwacossettings.conf";
+
+        ArrayList<String> load_parameters = new ArrayList<String>(
+                Arrays.asList(
+                        file_url
+                )
+        );
+
+        settings = storage.loadSettings(load_parameters);
+    }
+
+    public static void saveSettings(){
+        String file_url = "./res/cwacossettings.conf";
+
+        ArrayList<String> saveParameters = new ArrayList<String>(
+                Arrays.asList(
+                        file_url
+                )
+        );
+
+        storage.saveSettings(settings, saveParameters);
+    }
+
+    /**
+     * Saves the information state of the application. Supposed to take
+     * place on close, should be one of the last things to do.
+     *
+     */
+    public static void saveState(){
+
+        StringBuilder list_symbols = new StringBuilder();
+        StringBuilder list_file_urls = new StringBuilder();
+
+        // these are kept seperate because you cant concurrently modify
+        for (Map.Entry<String,FinanceDataSegment> entry : financeData.entrySet()) {
+            saveData(entry.getKey());
+        }
+
+        // gather state info to save for each element in the financeData
+        for (Map.Entry<String,FinanceDataSegment> entry : financeData.entrySet()) {
+            list_symbols.append(entry.getKey() + "|");
+            list_file_urls.append(entry.getValue().url + "|");
+        }
+
+        settings.put("favorites", list_symbols.toString());
+        settings.put("fileLocations", list_file_urls.toString());
+
+        saveSettings();
     }
 
     //=================== API INTERACTION =====================
+
+    public static String getQuakkaFact(){
+        String[] facts = settings.get("facts").split("\\|", 0);
+        return facts[(int) (Math.random() * facts.length)];
+    }
+
+    /**
+     * Checks that settings date is older than 24 hours and updates settings accordingly if so.
+     */
+    public static void loadQuakkaFacts(){
+
+        String value = settings.get("lastQuakkaCall");
+
+        LocalDateTime dateNow = LocalDateTime.now();
+
+        if(value != null) {
+            LocalDateTime dateSinceLastQuakkaCall = LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+
+            // 24 hours have passed. need new 5 strings and to update time
+            if (dateNow.isAfter(dateSinceLastQuakkaCall)) {
+
+                StringBuilder sb = new StringBuilder();
+
+                //make call to quakkas api and save values
+                for(int i = 0; i < 5; i++){
+                    //sb.append("|" + RandomFactsAPITranslator.getQuokkasFact());
+                }
+
+                settings.put("facts", "Quakkas are really cute!" + sb.toString());
+                settings.put("lastQuakkaCall", dateNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")));
+            }
+
+        } else {
+            settings.put("facts", "Quakkas are really cute!");
+            settings.put("lastQuakkaCall", dateNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")));
+        }
+    }
 
     /**
      * this function updates an entry in the map that already exists. if the
@@ -97,23 +202,23 @@ public class CwacosData {
      */
     public static ArrayList<Entry> update(String _symbol, int _call_type, int _call_interval){
 
-        if(!finance_data.containsKey(_symbol)){
+        if(!financeData.containsKey(_symbol)){
             return null;
         }
 
         // make a call to the api using the data values associated with the symbol being updated.
 
         ArrayList<Entry> api_call_result = AlphaVantageAPITranslator.getStockInfo(
-                finance_data.get(_symbol).symbol,
+                financeData.get(_symbol).symbol,
                 _call_type,
                 _call_interval
         );
 
-        finance_data.get(_symbol).call_type = _call_type;
-        finance_data.get(_symbol).call_interval = _call_interval;
-        finance_data.get(_symbol).data = api_call_result;
+        financeData.get(_symbol).call_type = _call_type;
+        financeData.get(_symbol).call_interval = _call_interval;
+        financeData.get(_symbol).data = api_call_result;
 
-        return finance_data.get(_symbol).data;
+        return financeData.get(_symbol).data;
     }
 
     /**
@@ -121,7 +226,7 @@ public class CwacosData {
      * update using the parameters for the call saved in the FinanceDataSegment
      */
     public static void updateAll(){
-        for(Map.Entry<String, FinanceDataSegment> each : finance_data.entrySet()){
+        for(Map.Entry<String, FinanceDataSegment> each : financeData.entrySet()){
             update(
               each.getValue().symbol,
               each.getValue().call_type,
@@ -135,7 +240,7 @@ public class CwacosData {
     // This map represents a mapped list of favorite data
     // Map of strings to Ticker objects
     // e.g. "GME" --> new Ticker(s, t, d)
-    private static Map<String, FinanceDataSegment> finance_data = new HashMap<String, FinanceDataSegment>();
+    private static Map<String, FinanceDataSegment> financeData = new HashMap<String, FinanceDataSegment>();
 
     /**
      * when a user clicks add favorite, a dialogue window should pop up
@@ -149,9 +254,10 @@ public class CwacosData {
      * with an interval of 30 minutes.
      *
      * @param _symbol stock/crypto symbol, i.e. "IBM"
-     * @param _data_type integer for datatype. 0 = null, 1 = stock, 2 = crypto
+     * @param _dataType integer for datatype. 0 = null, 1 = stock, 2 = crypto
+     * @return If not null, an error message.
      */
-    public static String AddFavorite(String _symbol, int _data_type){
+    public static String addFavorite(String _symbol, int _dataType){
 
         // here we are making a call to the api to see if it returns a null array
         // or not, which will tell us if the ticker exists or not.
@@ -163,11 +269,11 @@ public class CwacosData {
 
         // if the call returned a null array, then the favorite cant be added.
         if(evaluator != null){
-            finance_data.putIfAbsent(
+            financeData.putIfAbsent(
                 _symbol,
                 new FinanceDataSegment(
                     _symbol,
-                    _data_type,
+                    _dataType,
                     1,
                     15
                 )
@@ -179,12 +285,16 @@ public class CwacosData {
     }
 
     /**
+     * Removes the FinanceDataSegment value associated with the _symbol
+     * string key from the financeData map.
+     *
      * @param _symbol stock/crypto symbol, i.e. "IBM"
+     * @return If not null, an error message.
      */
-    public static String RemoveFavorite(String _symbol){
-        finance_data.remove(_symbol);
+    public static String removeFavorites(String _symbol){
+        financeData.remove(_symbol);
 
-        if(!finance_data.containsKey(_symbol)){
+        if(!financeData.containsKey(_symbol)){
             return "Symbol " + _symbol + " does not exist.";
         }
 

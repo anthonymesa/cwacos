@@ -14,7 +14,6 @@
 # Maven
 /target/
 
-#resources
 res/
 
 # Mobile Tools for Java (J2ME)

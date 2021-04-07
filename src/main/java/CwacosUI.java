@@ -7,8 +7,8 @@ public class CwacosUI  {
     public static void startUI(String[] args){
         CwacosView.beginUI(args);
     }
-
-    public Button addDialogFunction(TextInputDialog td, ComboBox<String> cb, Button btn){
+    //Method adds functionality to the add ticker button
+    public Button addTickerFunction(TextInputDialog td, ComboBox<String> cb, Button btn){
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e)
             {
@@ -24,4 +24,20 @@ public class CwacosUI  {
         return btn;
     }
 
+    //Method adds functionality to the remove ticker button
+    public Button removeTickerFunction(TextInputDialog td, ComboBox<String> cb, Button btn) {
+        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e)
+            {
+                // show the text input dialog
+                td.showAndWait();
+
+                cb.getItems().remove(td.getEditor().getText().toUpperCase());
+            }
+        };
+
+        btn.setOnAction(event);
+
+        return btn;
+    }
 }

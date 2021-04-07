@@ -152,13 +152,16 @@ public class CwacosView extends Application {
         addTickerDialog.setHeaderText("Add Ticker");
         Button addTicker = new Button();
         addTicker.setText("Add");
-        UI.addDialogFunction(addTickerDialog, activeTickerMenu, addTicker);
+        //Add functionality to button
+        UI.addTickerFunction(addTickerDialog, activeTickerMenu, addTicker);
 
         //Button to remove a ticker from the list
         TextInputDialog removeTickerDialog = new TextInputDialog("Ticker goes here");
         removeTickerDialog.setHeaderText("Remove Ticker");
         Button removeTicker = new Button();
         removeTicker.setText("Remove");
+        //Add functionality to button
+        UI.removeTickerFunction(removeTickerDialog, activeTickerMenu, removeTicker);
 
         HBox middleBar = new HBox(10);
         middleBar.getChildren().addAll(activeTickerMenu, addTicker, removeTicker);

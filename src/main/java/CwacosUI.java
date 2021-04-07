@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import javafx.scene.control.*;
 import javafx.event.*;
 
@@ -22,6 +23,23 @@ public class CwacosUI  {
         btn.setOnAction(event);
 
         return btn;
+=======
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class CwacosUI extends Application {
+
+    public static void beginUI(String[] args) {
+        launch(args);
+>>>>>>> 9f07506e308a020dd49f1e0c00f907ef4c8a5592
     }
 
     //Method adds functionality to the remove ticker button

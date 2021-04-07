@@ -76,6 +76,7 @@ public class CwacosView extends Application {
         StackPane activeTickerView = new StackPane();
         activeTickerView.setStyle("-fx-background-color: #1D1D1D;");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
         activeTickerView.setPrefSize(WINDOWWIDTH, 300);
+
         //THE BELOW BLOCK OF CODE IS TEMPORARY
         Rectangle tempBox = new Rectangle();
         tempBox.setFill(Paint.valueOf("4E4E4E"));
@@ -97,6 +98,7 @@ public class CwacosView extends Application {
         StackPane candlestickGraph = new StackPane();
         candlestickGraph.setStyle("-fx-background-color: #1D1D1D;");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
         candlestickGraph.setPrefSize(WINDOWWIDTH, 240);
+        
         //THE BELOW BLOCK OF CODE IS TEMPORARY
         Rectangle tempBox = new Rectangle();
         tempBox.setFill(Paint.valueOf("4E4E4E"));

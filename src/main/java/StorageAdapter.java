@@ -1,3 +1,9 @@
+/*
+Last updated:
+Purpose of this class:
+Contributing Authors: Anthony Mesa
+ */
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -6,8 +12,11 @@ import java.util.Map;
  * of the list in the CwacosData class!
  */
 interface StorageAdapter {
-    void store(ArrayList<String> params, ArrayList<String> input);
-    ArrayList<Object> load(ArrayList<String> params);
+    void store(ArrayList<String> _params, ArrayList<String> _input);
+
+    ArrayList<Object> load(ArrayList<String> _params);
+
     Map<String, String> loadSettings(ArrayList<String> _params);
+
     void saveSettings(Map<String, String> _settings, ArrayList<String> _params);
 } 

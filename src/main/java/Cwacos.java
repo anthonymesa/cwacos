@@ -1,12 +1,12 @@
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+/*
+Last updated:
+Purpose of this class:
+Contributing Authors:
+ */
 
 public class Cwacos {
 
-    public static void main(String[] args) {
+    public static void main(String[] _args) {
 
         //CwacosUIController.beginUI(args);
         CwacosTester.begin();

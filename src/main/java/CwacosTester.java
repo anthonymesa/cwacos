@@ -1,3 +1,9 @@
+/*
+Last updated:
+Purpose of this class:
+Contributing Authors:
+ */
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -10,21 +16,21 @@ public class CwacosTester {
     private static int call_type = 1;
     private static int call_interval = 12;
 
-    public static void begin(){
+    public static void begin() {
         boolean should_quit = false;
 
         CwacosData.loadState();
         System.out.println(CwacosData.getQuakkaFact());
 
-        while(!should_quit){
+        while (!should_quit) {
             Scanner kbinput = new Scanner(System.in);
 
             System.out.print("CwacosTester~ ");
             String command = kbinput.nextLine();
 
             String[] command_array = command.split(" ", 0);
-            try{
-                switch(command_array[0]) {
+            try {
+                switch (command_array[0]) {
                     case "addfavorite":
                         symbol = command_array[1];
                         if ((Integer.parseInt(command_array[2])) < 3) {
@@ -61,7 +67,7 @@ public class CwacosTester {
                         System.out.println("command not recognised");
                         break;
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 System.out.println(e.toString());
             }
         }
@@ -69,12 +75,12 @@ public class CwacosTester {
         CwacosData.saveState();
     }
 
-    public static void addFavoriteFunctionTest(String _symbol, int _data_type){
+    public static void addFavoriteFunctionTest(String _symbol, int _data_type) {
         //=============== ADD FAVORITE FUNCTION TEST ================
         // add a new favorite with symbol "IBM" and of datatype "stock"
         String add_favorite_error = CwacosData.addFavorite(_symbol, _data_type);
 
-        if(add_favorite_error != null){
+        if (add_favorite_error != null) {
             System.out.println(add_favorite_error);
         }
     }
@@ -101,10 +107,10 @@ public class CwacosTester {
 
         ArrayList<Entry> loaded_data_for_table = CwacosData.loadData(_symbol, load_parameters);
 
-        if(loaded_data_for_table != null){
+        if (loaded_data_for_table != null) {
             StringBuilder sb = new StringBuilder();
 
-            for(Entry each : loaded_data_for_table){
+            for (Entry each : loaded_data_for_table) {
                 sb.append(each.toString() + "\n");
             }
 
@@ -115,17 +121,17 @@ public class CwacosTester {
         }
     }
 
-    public static void updateFunctionTest(String _symbol, int _call_type, int _call_interval){
+    public static void updateFunctionTest(String _symbol, int _call_type, int _call_interval) {
         //=============== UPDATE FUNCTION TEST ================
 
         // make api call and print returned data
         ArrayList<Entry> updated_data_for_table = CwacosData.update(_symbol, _call_type, _call_interval);
 
-        if(updated_data_for_table != null){
+        if (updated_data_for_table != null) {
 
             StringBuilder builder = new StringBuilder();
 
-            for(Entry each : updated_data_for_table){
+            for (Entry each : updated_data_for_table) {
                 builder.append(each.toString());
             }
 
@@ -137,12 +143,12 @@ public class CwacosTester {
         }
     }
 
-    public static void updateAllFunctionTest(){
+    public static void updateAllFunctionTest() {
         //=============== UPDATE ALL FUNCTION TEST ================
         CwacosData.updateAll();
     }
 
-    public static void removeFavoriteFunctionTest(String _symbol){
+    public static void removeFavoriteFunctionTest(String _symbol) {
         CwacosData.removeFavorites(_symbol);
     }
 }

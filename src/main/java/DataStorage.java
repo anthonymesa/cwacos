@@ -1,4 +1,8 @@
-import com.sun.scenario.effect.impl.sw.java.JSWBlend_OVERLAYPeer;
+/*
+Last updated:
+Purpose of this class:
+Contributing Authors: Anthony Mesa, Hyoungjin Choi
+ */
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -21,6 +25,7 @@ class DataStorage {
 
     /**
      * Saves the API output to a desired location.
+     *
      * @param _params ArrayList of Strings that will contain either the file URL/Path or the IP, Port number, etc.
      * @param _input  ArrayList of Entries to be stored to desired location.
      */
@@ -30,7 +35,26 @@ class DataStorage {
     }
 
     /**
+     * Reads the stored data from a desired location.
+     *
+     * @param _params ArrayList of Strings that will contain either the file URL/Path or the IP, Port number, etc.
+     * @return ArrayList of Objects that contain the values read from the storage.
+     */
+    public ArrayList<Object> load(ArrayList<String> _params) {
+        return adapter.load(_params);
+    }
+
+    public Map<String, String> loadSettings(ArrayList<String> _params) {
+        return adapter.loadSettings(_params);
+    }
+
+    public void saveSettings(Map<String, String> _settings, ArrayList<String> _params) {
+        adapter.saveSettings(_settings, _params);
+    }
+
+    /**
      * Converts and returns an ArrayList of Entries to an ArrayList of Strings.
+     *
      * @param _arraylistOfEntries ArrayList of Entries to be converted to ArrayList of Strings.
      * @return ArrayList of Strings converted from ArrayList of Entries.
      */
@@ -43,16 +67,4 @@ class DataStorage {
 
         return arraylistOfStrings;
     }
-
-    /**
-     * Reads the stored data from a desired location.
-     * @param _params ArrayList of Strings that will contain either the file URL/Path or the IP, Port number, etc.
-     * @return ArrayList of Objects that contain the values read from the storage.
-     */
-    public ArrayList<Object> load(ArrayList<String> _params) {
-        return adapter.load(_params);
-    }
-
-    public Map<String, String> loadSettings(ArrayList<String> _params) { return adapter.loadSettings(_params); }
-    public void saveSettings(Map<String, String> _settings, ArrayList<String> _params) { adapter.saveSettings(_settings, _params); }
 }

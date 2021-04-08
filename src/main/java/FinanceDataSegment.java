@@ -1,4 +1,10 @@
 /*
+Last updated:
+Purpose of this class:
+Contributing Authors:
+ */
+
+/*
     Project: Cwacos
     Author: Anthony Mesa
  */
@@ -17,7 +23,7 @@ public class FinanceDataSegment {
     String url;
     ArrayList<Entry> data;
 
-    FinanceDataSegment(String _symbol, int _data_type, int _call_type, int _call_interval){
+    FinanceDataSegment(String _symbol, int _data_type, int _call_type, int _call_interval) {
         this.symbol = _symbol;
         this.data_type = _data_type;
         this.call_type = _call_type;

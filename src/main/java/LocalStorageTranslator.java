@@ -1,3 +1,9 @@
+/*
+Last updated: 04/07/2021
+Purpose of this class: Translator class that is responsible for read/write operation for local storage
+Contributing Authors: Anthony Mesa, Hyoungjin Choi
+ */
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -5,7 +11,6 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -16,7 +21,7 @@ class LocalStorageTranslator implements StorageAdapter {
 
     }
 
-    public Map<String, String> loadSettings(ArrayList<String> _params){
+    public Map<String, String> loadSettings(ArrayList<String> _params) {
         String fileName = _params.get(0);
         Path filePath = Paths.get(fileName);
 
@@ -35,7 +40,7 @@ class LocalStorageTranslator implements StorageAdapter {
 
             while (read.hasNextLine()) {
                 String[] line = read.nextLine().split("=", 0);
-                if(line.length == 2){
+                if (line.length == 2) {
                     settings.put(line[0], line[1]);
                 }
             }
@@ -54,7 +59,7 @@ class LocalStorageTranslator implements StorageAdapter {
         return settings;
     }
 
-    public void saveSettings(Map<String, String> _settings, ArrayList<String> _params){
+    public void saveSettings(Map<String, String> _settings, ArrayList<String> _params) {
         String fileName = _params.get(0);
         File inputFile = new File(fileName);
         PrintWriter pw = null;
@@ -132,14 +137,13 @@ class LocalStorageTranslator implements StorageAdapter {
      */
 
     /**
-     *
      * @param _params Array List of String containing a single element that is a Path/URL of the file.
      * @return Array List of Objects containing the Entries read from a desired text file.
      */
     public ArrayList<Object> load(ArrayList<String> _params) {
         ArrayList<Object> data = new ArrayList<>();
         String fileName = _params.get(0);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);
         Date date;
 
         try {

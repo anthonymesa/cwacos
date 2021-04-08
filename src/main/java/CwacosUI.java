@@ -1,25 +1,17 @@
-/*
-Last updated:
-Purpose of this class:
-Contributing Authors:
- */
-
 import javafx.scene.control.*;
 import javafx.event.*;
 
-public class CwacosUI {
+public class CwacosUI  {
 
-    public CwacosUI() {
-    }
-
-    public static void startUI(String[] args) {
+    public CwacosUI(){}
+    public static void startUI(String[] args){
         CwacosView.beginUI(args);
     }
-
     //Method adds functionality to the add ticker button
-    public Button addTickerFunction(TextInputDialog td, ComboBox<String> cb, Button btn) {
+    public Button addTickerFunction(TextInputDialog td, ComboBox<String> cb, Button btn){
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
+            public void handle(ActionEvent e)
+            {
                 // show the text input dialog
                 td.showAndWait();
 
@@ -35,7 +27,8 @@ public class CwacosUI {
     //Method adds functionality to the remove ticker button
     public Button removeTickerFunction(TextInputDialog td, ComboBox<String> cb, Button btn) {
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
+            public void handle(ActionEvent e)
+            {
                 // show the text input dialog
                 td.showAndWait();
 

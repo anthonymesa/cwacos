@@ -135,7 +135,6 @@ public class CwacosTester {
                 builder.append(each.toString());
             }
 
-
             String update_test = builder.toString();
             System.out.println("Call Data: " + update_test);
         } else {

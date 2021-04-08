@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -14,6 +16,63 @@ class LocalStorageTranslator implements StorageAdapter {
 
     }
 
+    public Map<String, String> loadSettings(ArrayList<String> _params){
+        String fileName = _params.get(0);
+        Path filePath = Paths.get(fileName);
+
+        Map<String, String> settings = new HashMap<String, String>();
+
+        if (Files.exists(filePath)) {
+
+            File inputFile = new File(fileName);
+            Scanner read = null;
+
+            try {
+                read = new Scanner(inputFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            while (read.hasNextLine()) {
+                String[] line = read.nextLine().split("=", 0);
+                if(line.length == 2){
+                    settings.put(line[0], line[1]);
+                }
+            }
+        } else {
+            File inputFile = new File(fileName);
+            System.out.println("new settings file created");
+            PrintWriter pw = null;
+            try {
+                pw = new PrintWriter(inputFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            pw.close();
+        }
+
+        return settings;
+    }
+
+    public void saveSettings(Map<String, String> _settings, ArrayList<String> _params){
+        String fileName = _params.get(0);
+        File inputFile = new File(fileName);
+        PrintWriter pw = null;
+        try {
+            pw = new PrintWriter(inputFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        for (Map.Entry<String, String> entry : _settings.entrySet()) {
+            entry.getKey();
+
+            pw.println(entry.getKey() + "=" + entry.getValue());
+        }
+
+        pw.flush();
+        pw.close();
+    }
     /*
      * It is expected that the params for creating and saving a file should
      * simpley be the url of the file. (so only one element in the
@@ -80,6 +139,8 @@ class LocalStorageTranslator implements StorageAdapter {
     public ArrayList<Object> load(ArrayList<String> _params) {
         ArrayList<Object> data = new ArrayList<>();
         String fileName = _params.get(0);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);;
+        Date date;
 
         try {
             File inputFile = new File(fileName);
@@ -91,8 +152,9 @@ class LocalStorageTranslator implements StorageAdapter {
                 double low = read.nextDouble();
                 double high = read.nextDouble();
                 int volume = read.nextInt();
+                date = format.parse(read.nextLine());
 
-                Entry entry = new Entry(open, close, low, high, volume);
+                Entry entry = new Entry(open, close, low, high, volume, date);
                 data.add(entry);
             }
 

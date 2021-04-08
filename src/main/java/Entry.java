@@ -1,13 +1,20 @@
-public class Entry {
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+public class Entry implements Comparable<Entry>{
+
+    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);;
     double open, close, low, high;
     int volume;
-    String dateTime;
+    Date dateTime;
 
     public Entry(){
     }
 
-    public Entry (double _open, double _close, double _low, double _high, int _volume, String _dateTime){
+    public Entry (double _open, double _close, double _low, double _high, int _volume, Date _dateTime){
         this.open = _open;
         this.close = _close;
         this.low = _low;
@@ -18,13 +25,11 @@ public class Entry {
 
     @Override
     public String toString() {
-        return "Entry{" +
-                "open=" + open +
-                ", close=" + close +
-                ", low=" + low +
-                ", high=" + high +
-                ", volume=" + volume +
-                ", dateTime=" + dateTime +
-                '}';
+        return  open + " " + close + " " + low + " " + high + " " + volume + " " + formatter.format(dateTime);
+    }
+
+    @Override
+    public int compareTo(Entry _entry) {
+        return this.dateTime.compareTo(_entry.dateTime);
     }
 }

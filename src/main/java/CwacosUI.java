@@ -1,36 +1,43 @@
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
+import javafx.scene.control.*;
+import javafx.event.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+public class CwacosUI  {
 
-public class CwacosUI extends Application {
+    public CwacosUI(){}
+    public static void startUI(String[] args){
+        CwacosView.beginUI(args);
+    }
+    //Method adds functionality to the add ticker button
+    public Button addTickerFunction(TextInputDialog td, ComboBox<String> cb, Button btn){
+        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e)
+            {
+                // show the text input dialog
+                td.showAndWait();
 
-    public static void beginUI(String[] args) {
-        launch(args);
+                cb.getItems().add(td.getEditor().getText().toUpperCase());
+            }
+        };
+
+        btn.setOnAction(event);
+
+        return btn;
     }
 
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Hello World!");
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
+    //Method adds functionality to the remove ticker button
+    public Button removeTickerFunction(TextInputDialog td, ComboBox<String> cb, Button btn) {
+        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e)
+            {
+                // show the text input dialog
+                td.showAndWait();
 
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
+                cb.getItems().remove(td.getEditor().getText().toUpperCase());
             }
-        });
+        };
 
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
-        primaryStage.setScene(new Scene(root, 300, 250));
-        primaryStage.show();
+        btn.setOnAction(event);
+
+        return btn;
     }
 }

@@ -1,3 +1,9 @@
+/*
+Last updated:
+Purpose of this class:
+Contributing Authors:
+ */
+
 import org.json.JSONObject;
 
 import java.net.URI;
@@ -14,9 +20,10 @@ public class RandomFactsAPITranslator {
     /**
      * Calls to Rapid API's server and accesses a random fact about Quokkas to be returned.
      * Limited to 5 calls per day.
+     *
      * @return A string containing a fact about Quokkas.
      */
-    public static String getQuokkasFact(){
+    public static String getQuokkasFact() {
         try {
             //Build HttpRequest with correct headers and using our API key.
             HttpRequest request = HttpRequest.newBuilder()
@@ -32,9 +39,8 @@ public class RandomFactsAPITranslator {
             //Store the response as JSON Object and parse through to the fact and return it
             JSONObject JSONFile = new JSONObject(response.body());
             JSONObject JSONQuokkasFact = JSONFile.getJSONObject("contents");
-            return(JSONQuokkasFact.getString("fact"));
-        }
-        catch(Exception e){
+            return (JSONQuokkasFact.getString("fact"));
+        } catch (Exception e) {
             System.out.println("Error!");
         }
         return null;

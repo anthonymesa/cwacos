@@ -1,12 +1,21 @@
+/*
+Last updated:
+Purpose of this class:
+Contributing Authors:
+ */
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+
 import java.util.ArrayList;
+
 import javafx.geometry.*;
 import javafx.scene.shape.*;
 import javafx.scene.paint.*;
+
 import java.lang.Math;
 
 public class CwacosView extends Application {
@@ -31,7 +40,7 @@ public class CwacosView extends Application {
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Cwacos");
-        
+
         //Call methods to add buttons to gridpane
         createTopBar();
         createActiveTickerViewBox();
@@ -45,7 +54,7 @@ public class CwacosView extends Application {
     }
 
     //Fucntion sets styling of the gridpane and performs other necessary operations.
-    public void setupGridPane(){
+    public void setupGridPane() {
         root.setStyle("-fx-background-color: #1D1D1D;");   //Background color
         //Set grid spacing
         root.getColumnConstraints().addAll(createColumnConstraints());
@@ -56,22 +65,22 @@ public class CwacosView extends Application {
     public ArrayList<ColumnConstraints> createColumnConstraints() {
         ArrayList<ColumnConstraints> list = new ArrayList<ColumnConstraints>();
         for (int i = 0; i < root.getColumnCount(); i++) {
-            list.add(new ColumnConstraints(WINDOWWIDTH/root.getColumnCount()));
+            list.add(new ColumnConstraints(WINDOWWIDTH / root.getColumnCount()));
         }
         return list;
     }
 
     //Method adds row constraints for however many rows there are.
-    public ArrayList<RowConstraints> createRowConstraints(){
+    public ArrayList<RowConstraints> createRowConstraints() {
         ArrayList<RowConstraints> list = new ArrayList<RowConstraints>();
         for (int i = 0; i < root.getRowCount(); i++) {
-            list.add(new RowConstraints(WINDOWHEIGHT/root.getRowCount()));
+            list.add(new RowConstraints(WINDOWHEIGHT / root.getRowCount()));
         }
         return list;
     }
 
     //Method creates the view box for the active ticker.
-    public void createActiveTickerViewBox(){
+    public void createActiveTickerViewBox() {
         //Create and style the background.
         StackPane activeTickerView = new StackPane();
         activeTickerView.setStyle("-fx-background-color: #1D1D1D;");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
@@ -93,12 +102,12 @@ public class CwacosView extends Application {
     }
 
     //Method creates the CandleStick Graph
-    public void createCandleStickGraph(){
+    public void createCandleStickGraph() {
         //Create and style the background.
         StackPane candlestickGraph = new StackPane();
         candlestickGraph.setStyle("-fx-background-color: #1D1D1D;");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
         candlestickGraph.setPrefSize(WINDOWWIDTH, 240);
-        
+
         //THE BELOW BLOCK OF CODE IS TEMPORARY
         Rectangle tempBox = new Rectangle();
         tempBox.setFill(Paint.valueOf("4E4E4E"));
@@ -175,12 +184,12 @@ public class CwacosView extends Application {
     }
 
     //Method creates the bottom section of buttons. Only includes the Max Profit Button right now.
-    public void createBottomBar(){
+    public void createBottomBar() {
         //Button that runs the max profit algorithm
         Button maxProfitBtn = new Button();
         maxProfitBtn.setText("MAX PROFIT!!!!!");
         root.setHalignment(maxProfitBtn, HPos.CENTER);
-        
+
         //Add bottom buttons to the GridPane
         root.add(maxProfitBtn, 2, 11, 1, 1);
     }

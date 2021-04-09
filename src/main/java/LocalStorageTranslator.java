@@ -22,8 +22,8 @@ class LocalStorageTranslator implements StorageAdapter {
     }
 
     public Map<String, String> loadSettings(ArrayList<String> _params) {
-        String fileName = _params.get(0);
-        Path filePath = Paths.get(fileName);
+        String fileName = getFileName(_params);
+        Path filePath = getPath(fileName);
 
         Map<String, String> settings = new HashMap<String, String>();
 
@@ -45,22 +45,22 @@ class LocalStorageTranslator implements StorageAdapter {
                 }
             }
         } else {
-            File inputFile = new File(fileName);
-            System.out.println("new settings file created");
-            PrintWriter pw = null;
-            try {
-                pw = new PrintWriter(inputFile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            pw.close();
+            // Commented out until we find a use for this
+//            File inputFile = new File(fileName);
+//            System.out.println("new settings file created");
+//            PrintWriter writer = null;
+//            try {
+//                writer = new PrintWriter(inputFile);
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//            pw.close();
         }
-
         return settings;
     }
 
     public void saveSettings(Map<String, String> _settings, ArrayList<String> _params) {
-        String fileName = _params.get(0);
+        String fileName = getFileName(_params);
         File inputFile = new File(fileName);
         PrintWriter pw = null;
         try {
@@ -98,8 +98,8 @@ class LocalStorageTranslator implements StorageAdapter {
      * @param _input  Array List of String containing the data from API output to be stored.
      */
     public void store(ArrayList<String> _params, ArrayList<String> _input) {
-        String fileName = _params.get(0);
-        Path filePath = Paths.get(fileName);
+        String fileName = getFileName(_params);
+        Path filePath = getPath(fileName);
 
         if (Files.exists(filePath)) {
             System.out.println(fileName + " exists and the data in it will be overwritten.");
@@ -107,21 +107,21 @@ class LocalStorageTranslator implements StorageAdapter {
 
         try {
             File file = new File(fileName);
-            PrintWriter pw = new PrintWriter(file);
+            PrintWriter writer = new PrintWriter(file);
 
             // loop through _input and write to file
             for (int i = 0; i < _input.size(); i++) {
 
-                // ensure no trailing whitespace
+                // ensure no trailing whitespace or it WILL cause an error when reading back
                 if (i == _input.size() - 1) {
-                    pw.print(_input.get(i));
+                    writer.print(_input.get(i));
                 } else {
-                    pw.println(_input.get(i));
+                    writer.println(_input.get(i));
                 }
             }
-//            pw.println(_input.toString());
-            pw.flush();
-            pw.close();
+
+            writer.flush();
+            writer.close();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -137,27 +137,29 @@ class LocalStorageTranslator implements StorageAdapter {
      */
 
     /**
-     * @param _params Array List of String containing a single element that is a Path/URL of the file.
+     * @param _storageInfo Array List of String containing a single element that is a Path/URL of the file.
      * @return Array List of Objects containing the Entries read from a desired text file.
      */
-    public ArrayList<Object> load(ArrayList<String> _params) {
+    public ArrayList<Object> load(ArrayList<String> _storageInfo) {
         ArrayList<Object> data = new ArrayList<>();
-        String fileName = _params.get(0);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);
-        Date date;
+        String fileName = getFileName(_storageInfo);
+
+        SimpleDateFormat format = CwacosDateFormat.getDateFormat();
 
         try {
             File inputFile = new File(fileName);
             Scanner read = new Scanner(inputFile);
+
+            // read space separated Strings back into usable data
             while (read.hasNextLine()) {
-                // split by commas, space or whatever it is separated by
                 double open = read.nextDouble();
                 double close = read.nextDouble();
                 double low = read.nextDouble();
                 double high = read.nextDouble();
                 int volume = read.nextInt();
-                date = format.parse(read.nextLine());
+                Date date = format.parse(read.nextLine());
 
+                // The usable data is retrieved as instances of Entries and are stored in the ArrayList of Objects
                 Entry entry = new Entry(open, close, low, high, volume, date);
                 data.add(entry);
             }
@@ -170,5 +172,17 @@ class LocalStorageTranslator implements StorageAdapter {
         }
 
         return data;
+    }
+
+    private static String getFileName(ArrayList<String> _storageInfo) {
+        if(_storageInfo.isEmpty()) {
+            throw new IllegalArgumentException("Empty arraylist!");
+        } else {
+            return _storageInfo.get(0);
+        }
+    }
+
+    private static Path getPath(String _fileName) {
+        return Paths.get(_fileName);
     }
 }

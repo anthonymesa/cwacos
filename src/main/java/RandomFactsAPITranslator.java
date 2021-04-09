@@ -14,8 +14,6 @@ import java.net.http.HttpResponse;
 public class RandomFactsAPITranslator {
     protected static final String baseURLQuokkas = "https://random-facts1.p.rapidapi.com/fact/search?query=quokka";
     protected static final String apiKeyQuokkas = "7428506839msh1141f5e6cf76abdp11775fjsn3ab3e1af2ad5";
-    protected static final String baseURLAlpha = "https://www.alphavantage.co/query?";
-    protected static final String apiKeyAlpha = "MO9QU9JAPBBPX5T7";
 
     /**
      * Calls to Rapid API's server and accesses a random fact about Quokkas to be returned.

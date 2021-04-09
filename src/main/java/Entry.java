@@ -11,7 +11,7 @@ import java.util.Locale;
 
 public class Entry implements Comparable<Entry> {
 
-    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);
+    DateFormat formatter = CwacosDateFormat.getDateFormat();
 
     double open, close, low, high;
     int volume;

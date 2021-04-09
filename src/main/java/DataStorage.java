@@ -20,6 +20,10 @@ class DataStorage {
     public DataStorage(StorageType _type) {
         if (_type == StorageType.LOCAL) {
             adapter = new LocalStorageTranslator();
+        } else if (_type == StorageType.DATABASE) {
+            System.out.println("This feature is not yet supported.");
+        } else {
+            System.out.println("Invalid input!");
         }
     }
 
@@ -30,8 +34,13 @@ class DataStorage {
      * @param _input  ArrayList of Entries to be stored to desired location.
      */
     public void save(ArrayList<String> _params, ArrayList<Entry> _input) {
-
-        adapter.store(_params, arraylistOfEntriesToArraylistOfStrings(_input, Integer.parseInt(_params.get(1))));
+        if (_params.isEmpty()) {
+            throw new IllegalArgumentException("Storage parameter can not be empty!");
+        } else if (_input.isEmpty()) {
+            throw new IllegalArgumentException("Input parameter can not be empty!");
+        } else {
+            adapter.store(_params, arraylistOfEntriesToArraylistOfStrings(_input));
+        }
     }
 
     /**
@@ -58,13 +67,11 @@ class DataStorage {
      * @param _arraylistOfEntries ArrayList of Entries to be converted to ArrayList of Strings.
      * @return ArrayList of Strings converted from ArrayList of Entries.
      */
-    private ArrayList<String> arraylistOfEntriesToArraylistOfStrings(ArrayList<Entry> _arraylistOfEntries, int _call_type) {
+    private ArrayList<String> arraylistOfEntriesToArraylistOfStrings(ArrayList<Entry> _arraylistOfEntries) {
         ArrayList<String> arraylistOfStrings = new ArrayList<>();
         for (Entry entry : _arraylistOfEntries) {
-
             arraylistOfStrings.add(entry.toString());
         }
-
         return arraylistOfStrings;
     }
 }

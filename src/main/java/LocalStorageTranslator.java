@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -27,7 +28,7 @@ class LocalStorageTranslator implements StorageAdapter {
 
         Map<String, String> settings = new HashMap<String, String>();
 
-        if (Files.exists(filePath)) {
+        if (exists(filePath)) {
 
             File inputFile = new File(fileName);
             Scanner read = null;
@@ -101,7 +102,7 @@ class LocalStorageTranslator implements StorageAdapter {
         String fileName = getFileName(_params);
         Path filePath = getPath(fileName);
 
-        if (Files.exists(filePath)) {
+        if (exists(filePath)) {
             System.out.println(fileName + " exists and the data in it will be overwritten.");
         }
 
@@ -120,9 +121,12 @@ class LocalStorageTranslator implements StorageAdapter {
                 }
             }
 
-            writer.flush();
-            writer.close();
-        } catch (IOException ex) {
+            if (writer.checkError()) {
+                writer.close();
+            } else {
+                throw new PrintWriterException();
+            }
+        } catch (IOException | PrintWriterException ex) {
             ex.printStackTrace();
         }
     }
@@ -166,7 +170,9 @@ class LocalStorageTranslator implements StorageAdapter {
 
         } catch (FileNotFoundException e) {
             System.out.println(fileName + " can not be found.");
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
+            System.out.println("No trailing whitespace is allowed!");
+        } catch(Exception e) {
             System.out.println("Something went wrong.");
             e.printStackTrace();
         }
@@ -174,15 +180,44 @@ class LocalStorageTranslator implements StorageAdapter {
         return data;
     }
 
+    /**
+     * Gets the file name from a given ArrayList of String.
+     *
+     * @param _storageInfo Array List of String containing a single element that is a Path/URL of the file.
+     * @return String name of the file.
+     */
     private static String getFileName(ArrayList<String> _storageInfo) {
-        if(_storageInfo.isEmpty()) {
+        if (_storageInfo.isEmpty()) {
             throw new IllegalArgumentException("Empty arraylist!");
         } else {
             return _storageInfo.get(0);
         }
     }
 
+    /**
+     * Gets the file path of a given file from its name.
+     *
+     * @param _fileName String name of the file.
+     * @return Path of the given file.
+     */
     private static Path getPath(String _fileName) {
-        return Paths.get(_fileName);
+        try {
+            return Paths.get(_fileName);
+        } catch (InvalidPathException ex) {
+            // exception thrown if the path string cannot be converted to a Path
+            System.out.println("The file name is not valid!");
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Checks if the file exists, given the path of the file.
+     *
+     * @param _path Path of the file.
+     * @return True if the file exists, False if the file does not exist.
+     */
+    private static boolean exists(Path _path) {
+        return Files.exists(_path);
     }
 }

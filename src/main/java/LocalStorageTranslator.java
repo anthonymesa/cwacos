@@ -63,9 +63,9 @@ class LocalStorageTranslator implements StorageAdapter {
     public void saveSettings(Map<String, String> _settings, ArrayList<String> _params) {
         String fileName = getFileName(_params);
         File inputFile = new File(fileName);
-        PrintWriter pw = null;
+        PrintWriter writer = null;
         try {
-            pw = new PrintWriter(inputFile);
+            writer = new PrintWriter(inputFile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -73,11 +73,15 @@ class LocalStorageTranslator implements StorageAdapter {
         for (Map.Entry<String, String> entry : _settings.entrySet()) {
             entry.getKey();
 
-            pw.println(entry.getKey() + "=" + entry.getValue());
+            writer.println(entry.getKey() + "=" + entry.getValue());
         }
 
-        pw.flush();
-        pw.close();
+        // flush and check for error
+        if (writer.checkError()) {
+            throw new PrintWriterException();
+        } else {
+            writer.close();
+        }
     }
     /*
      * It is expected that the params for creating and saving a file should
@@ -121,10 +125,11 @@ class LocalStorageTranslator implements StorageAdapter {
                 }
             }
 
+            // flush and check for error
             if (writer.checkError()) {
-                writer.close();
-            } else {
                 throw new PrintWriterException();
+            } else {
+                writer.close();
             }
         } catch (IOException | PrintWriterException ex) {
             ex.printStackTrace();

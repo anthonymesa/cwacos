@@ -13,3 +13,5 @@ public class Cwacos {
         CwacosTester.begin();
     }
 }
+
+//did anthony set up permissions right?

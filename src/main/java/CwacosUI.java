@@ -4,9 +4,13 @@ import javafx.event.*;
 public class CwacosUI  {
 
     public CwacosUI(){}
+
     public static void startUI(String[] args){
         CwacosView.beginUI(args);
     }
+
+    // need some type of "on start" and "on end"
+
     //Method adds functionality to the add ticker button
     public Button addTickerFunction(TextInputDialog td, ComboBox<String> cb, Button btn){
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {

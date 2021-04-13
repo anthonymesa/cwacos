@@ -177,6 +177,7 @@ public class CwacosData {
         return financeData.get(_symbol).data;
     }
 
+
     //=================== API INTERACTION =====================
 
     public static String getQuakkaFact() {

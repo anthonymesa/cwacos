@@ -48,7 +48,7 @@ public class AlphaVantageAPITranslator {
             if(intervalEnum == CallInterval.NO_INTERVAL)
                 JSONInterval = translateStockJSONInterval(callEnum);
             else
-                JSONInterval = translateStockJSONInterval(callEnum);
+                JSONInterval = translateStockJSONInterval(intervalEnum);
 
             //If there is an error receiving the JSONObject OR the time series interval then the function will exit.
             if(JSONFile == null || JSONInterval == null)

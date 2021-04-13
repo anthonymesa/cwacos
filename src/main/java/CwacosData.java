@@ -102,7 +102,7 @@ public class CwacosData {
     public static Map<String, String> settings = new HashMap<String, String>();
 
     public static void loadSettings() {
-        String file_url = "./res/cwacossettings.conf";
+        String file_url = "./cwacossettings.conf";
 
         ArrayList<String> load_parameters = new ArrayList<String>(
                 Arrays.asList(

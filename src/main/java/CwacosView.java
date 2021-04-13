@@ -21,17 +21,17 @@ import java.lang.Math;
 public class CwacosView extends Application {
 
     //Window dimensions
-    public final int WINDOWWIDTH = 1280;
-    public final int WINDOWHEIGHT = 720;
+    private final int WINDOWWIDTH = 1280;
+    private final int WINDOWHEIGHT = 720;
 
     CwacosUI UI = new CwacosUI();
 
     //Parent layout
-    public GridPane root = new GridPane();
+    private GridPane root = new GridPane();
 
 
     //Active ticket selection drop down menu
-    public ComboBox<String> activeTickerMenu = new ComboBox<String>();
+    private MenuBar middleOptions = new MenuBar();
 
     public static void beginUI(String[] args) {
         launch(args);
@@ -156,7 +156,9 @@ public class CwacosView extends Application {
 
     //Creates the buttons that are betweent he active ticker view and the candlestick graph view
     public void createMiddleBar() {
-        activeTickerMenu.setPromptText("Favorites");
+        //Creates the parent menu and adds the submenus
+        middleOptions.getMenus().add(new Menu("Favorites"));
+        middleOptions.getMenus().get(0).getItems().addAll(new Menu("Stocks"), new Menu("Cryptos"));
 
         //Text input area to add a new ticker
         TextInputDialog addTickerDialog = new TextInputDialog("Ticker goes here");
@@ -164,7 +166,7 @@ public class CwacosView extends Application {
         Button addTicker = new Button();
         addTicker.setText("Add");
         //Add functionality to button
-        UI.addTickerFunction(addTickerDialog, activeTickerMenu, addTicker);
+        //addTicker = UI.addTickerFunction(addTickerDialog, middleOptions.getMenus().get(0), addTicker);
 
         //Button to remove a ticker from the list
         TextInputDialog removeTickerDialog = new TextInputDialog("Ticker goes here");
@@ -172,15 +174,15 @@ public class CwacosView extends Application {
         Button removeTicker = new Button();
         removeTicker.setText("Remove");
         //Add functionality to button
-        UI.removeTickerFunction(removeTickerDialog, activeTickerMenu, removeTicker);
+        //removeTicker = UI.removeTickerFunction(removeTickerDialog, favorites, removeTicker);
 
-        HBox middleBar = new HBox(10);
-        middleBar.getChildren().addAll(activeTickerMenu, addTicker, removeTicker);
-        middleBar.setTranslateX(32);
-        middleBar.setAlignment(Pos.CENTER_LEFT);
+        HBox middleOptionsLayout = new HBox(10);
+        middleOptionsLayout.getChildren().addAll(middleOptions, addTicker, removeTicker);
+        middleOptionsLayout.setTranslateX(32);
+        middleOptionsLayout.setAlignment(Pos.CENTER_LEFT);
 
         //Add the buttons for the middle bar to the Grid Pane
-        root.add(middleBar, 0, 6, 2, 1);
+        root.add(middleOptionsLayout, 0, 6, 2, 1);
     }
 
     //Method creates the bottom section of buttons. Only includes the Max Profit Button right now.

@@ -29,10 +29,6 @@ public class CwacosView extends Application {
     //Parent layout
     private GridPane root = new GridPane();
 
-
-    //Active ticket selection drop down menu
-    private MenuBar middleOptions = new MenuBar();
-
     public static void beginUI(String[] args) {
         launch(args);
     }
@@ -44,7 +40,7 @@ public class CwacosView extends Application {
         //Call methods to add buttons to gridpane
         createTopBar();
         createActiveTickerViewBox();
-        createMiddleBar();
+        createFavoritesMenu();
         createCandleStickGraph();
         createBottomBar();
 
@@ -54,7 +50,7 @@ public class CwacosView extends Application {
     }
 
     //Fucntion sets styling of the gridpane and performs other necessary operations.
-    public void setupGridPane() {
+    private void setupGridPane() {
         root.setStyle("-fx-background-color: #1D1D1D;");   //Background color
         //Set grid spacing
         root.getColumnConstraints().addAll(createColumnConstraints());
@@ -62,7 +58,7 @@ public class CwacosView extends Application {
     }
 
     //Method adds column constraints for however many columns there are.
-    public ArrayList<ColumnConstraints> createColumnConstraints() {
+    private ArrayList<ColumnConstraints> createColumnConstraints() {
         ArrayList<ColumnConstraints> list = new ArrayList<ColumnConstraints>();
         for (int i = 0; i < root.getColumnCount(); i++) {
             list.add(new ColumnConstraints(WINDOWWIDTH / root.getColumnCount()));
@@ -71,7 +67,7 @@ public class CwacosView extends Application {
     }
 
     //Method adds row constraints for however many rows there are.
-    public ArrayList<RowConstraints> createRowConstraints() {
+    private ArrayList<RowConstraints> createRowConstraints() {
         ArrayList<RowConstraints> list = new ArrayList<RowConstraints>();
         for (int i = 0; i < root.getRowCount(); i++) {
             list.add(new RowConstraints(WINDOWHEIGHT / root.getRowCount()));
@@ -80,7 +76,7 @@ public class CwacosView extends Application {
     }
 
     //Method creates the view box for the active ticker.
-    public void createActiveTickerViewBox() {
+    private void createActiveTickerViewBox() {
         //Create and style the background.
         StackPane activeTickerView = new StackPane();
         activeTickerView.setStyle("-fx-background-color: #1D1D1D;");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
@@ -102,7 +98,7 @@ public class CwacosView extends Application {
     }
 
     //Method creates the CandleStick Graph
-    public void createCandleStickGraph() {
+    private void createCandleStickGraph() {
         //Create and style the background.
         StackPane candlestickGraph = new StackPane();
         candlestickGraph.setStyle("-fx-background-color: #1D1D1D;");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
@@ -123,8 +119,34 @@ public class CwacosView extends Application {
         root.add(candlestickGraph, 0, 7, 5, 4);
     }
 
+    private void createFavoritesMenu(){
+        //Create Menu Bar with 3 different menus
+        MenuBar menuBar = new MenuBar();
+        menuBar.getMenus().addAll(new Menu("Actions"), new Menu("Stocks"), new Menu("Cryptos"));
+        MenuItem addStock = new MenuItem("Add Stock");
+        addStock.setStyle("-fx-font-weight: bold");
+        MenuItem removeStock = new MenuItem("Remove Stock");
+        removeStock.setStyle("-fx-font-weight: bold");
+
+        //Add action buttons to Action menu
+        MenuItem addCrypto = new MenuItem("Add Crypto");
+        addCrypto.setStyle("-fx-font-weight: bold");
+        MenuItem removeCrypto = new MenuItem("Remove Crypto");
+        removeCrypto.setStyle("-fx-font-weight: bold");
+        menuBar.getMenus().get(0).getItems().addAll(addStock, removeStock, addCrypto, removeCrypto);
+        
+        //Add to HBox layout to make layout look nicer
+        HBox middleOptionsLayout = new HBox(10);
+        middleOptionsLayout.getChildren().add(menuBar);
+        middleOptionsLayout.setTranslateX(32);
+        middleOptionsLayout.setAlignment(Pos.CENTER_LEFT);
+
+        //Add the buttons for the middle bar to the Grid Pane
+        root.add(middleOptionsLayout, 0, 6, 2, 1);
+    }
+
     //Method creates the buttons at the top of the window
-    public void createTopBar() {
+    private void createTopBar() {
         //Button that saves the active ticker data
         Button saveBtn = new Button();
         saveBtn.setText("Save");
@@ -154,39 +176,8 @@ public class CwacosView extends Application {
         root.add(rightSide, 3, 0, 2, 1);
     }
 
-    //Creates the buttons that are betweent he active ticker view and the candlestick graph view
-    public void createMiddleBar() {
-        //Creates the parent menu and adds the submenus
-        middleOptions.getMenus().add(new Menu("Favorites"));
-        middleOptions.getMenus().get(0).getItems().addAll(new Menu("Stocks"), new Menu("Cryptos"));
-
-        //Text input area to add a new ticker
-        TextInputDialog addTickerDialog = new TextInputDialog("Ticker goes here");
-        addTickerDialog.setHeaderText("Add Ticker");
-        Button addTicker = new Button();
-        addTicker.setText("Add");
-        //Add functionality to button
-        //addTicker = UI.addTickerFunction(addTickerDialog, middleOptions.getMenus().get(0), addTicker);
-
-        //Button to remove a ticker from the list
-        TextInputDialog removeTickerDialog = new TextInputDialog("Ticker goes here");
-        removeTickerDialog.setHeaderText("Remove Ticker");
-        Button removeTicker = new Button();
-        removeTicker.setText("Remove");
-        //Add functionality to button
-        //removeTicker = UI.removeTickerFunction(removeTickerDialog, favorites, removeTicker);
-
-        HBox middleOptionsLayout = new HBox(10);
-        middleOptionsLayout.getChildren().addAll(middleOptions, addTicker, removeTicker);
-        middleOptionsLayout.setTranslateX(32);
-        middleOptionsLayout.setAlignment(Pos.CENTER_LEFT);
-
-        //Add the buttons for the middle bar to the Grid Pane
-        root.add(middleOptionsLayout, 0, 6, 2, 1);
-    }
-
     //Method creates the bottom section of buttons. Only includes the Max Profit Button right now.
-    public void createBottomBar() {
+    private void createBottomBar() {
         //Button that runs the max profit algorithm
         Button maxProfitBtn = new Button();
         maxProfitBtn.setText("MAX PROFIT!!!!!");

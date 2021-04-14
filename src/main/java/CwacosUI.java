@@ -35,8 +35,6 @@ public class CwacosUI  {
             {
                 // show the text input dialog
                 td.showAndWait();
-
-                cb.getItems().remove(td.getEditor().getText().toUpperCase());
             }
         };
 

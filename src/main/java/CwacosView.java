@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import javafx.geometry.*;
 import javafx.scene.shape.*;
 import javafx.scene.paint.*;
-import javafx.scene.Node;
 
 import java.lang.Math;
 
@@ -134,15 +133,14 @@ public class CwacosView extends Application {
         MenuBar favoritesMenus = new MenuBar();
         Menu actions = new Menu("Actions");
         Menu stocks = new Menu("Stocks");
-        stocks.getItems().add(new MenuItem("AMD"));
         Menu cryptos = new Menu("Cryptos");
         favoritesMenus.getMenus().addAll(actions, stocks, cryptos);
         //Create buttons for the actions menu
         MenuItem addButton = new MenuItem("Add");
-        addButton = UI.addActionFunction(addButton, createChoiceDialog("Add", favoritesMenus));
+        addButton = UI.addActionFunction(addButton, createChoiceDialog("Add"), favoritesMenus);
         addButton.setStyle("-fx-font-weight: bold");
         MenuItem removeButton = new MenuItem("Remove");
-        removeButton = UI.removeActionFunction(removeButton, createChoiceDialog("Remove", favoritesMenus));
+        removeButton = UI.removeActionFunction(removeButton, createChoiceDialog("Remove"), favoritesMenus);
         removeButton.setStyle("-fx-font-weight: bold");
         actions.getItems().addAll(addButton, removeButton);
 
@@ -157,31 +155,31 @@ public class CwacosView extends Application {
     }
 
     //Creates the dialog window that lets the user choose stock or crypto
-    private TextInputDialog createChoiceDialog(String text, MenuBar favorites){
+    private TextInputDialog createChoiceDialog(String text){
         TextInputDialog choiceWindow = new TextInputDialog();   //Create dialog window
         GridPane dialogContent = new GridPane();   //Create layout for dialog window
         choiceWindow.getDialogPane().getButtonTypes().remove(0);    //Remove the "OK" default button
 
-        //This will create either add buttons or remove buttons depending on which is passed into the method
-        if (text == "Add") {
-            //Create add stock button and add its functionality
-            dialogContent.add(new Button(text + " Stock"), 2, 0);
-            dialogContent.getChildren().set(0, UI.addButtonFunction((Button)dialogContent.getChildren().get(0), favorites.getMenus().get(1), choiceWindow));
-        } else {
-            //Create remove stock button and add its functionality
-            dialogContent.add(new Button(text), 2, 0);
-            dialogContent.getChildren().set(0, UI.removeButtonFunction((Button)dialogContent.getChildren().get(0), favorites.getMenus().get(1), choiceWindow));
-        }
+        //Create the drop down menu for selecting which type of ticker you have
         ComboBox<String> typeSelection = new ComboBox<String>();
-        typeSelection = styleDropDownMenu(typeSelection);
-        typeSelection.setPromptText("Type");
         typeSelection.getItems().addAll("Stocks", "Cryptos");
+        typeSelection = styleDropDownMenu(typeSelection);
         dialogContent.add(typeSelection, 0, 0);
+        
 
         //Create text field that takes user input
         TextField inputArea = new TextField();
         inputArea.setPromptText("Enter ticker: ");
         dialogContent.add(inputArea, 1, 0);
+
+        //This will create either add buttons or remove buttons depending on which is passed into the method
+        if (text == "Add") {
+            //Create add button and add its functionality
+            dialogContent.add(new Button(text), 2, 0);
+        } else {
+            //Create remove button and add its functionality
+            dialogContent.add(new Button(text), 2, 0);
+        }
 
         choiceWindow.getDialogPane().setContent(dialogContent);
         choiceWindow = styleChoiceDialog(choiceWindow);
@@ -205,7 +203,7 @@ public class CwacosView extends Application {
                                     setBackground(new Background(new BackgroundFill(Paint.valueOf(secondary), null, null)));
                                 }
                                 else {
-                                    setText(null);
+                                    
                                 }
                             }
                 };
@@ -225,12 +223,12 @@ public class CwacosView extends Application {
 
         GridPane gp = (GridPane)td.getDialogPane().getContent();
         //Style the text field
-        gp.getChildren().get(2).setStyle("-fx-background-color: #" + secondary + ";" 
+        gp.getChildren().get(1).setStyle("-fx-background-color: #" + secondary + ";" 
         + "-fx-text-fill: #" + white + ";");
         //Style the type drop down menu
-        gp.getChildren().get(1).setStyle("-fx-background-color: #" + secondary + ";");
+        gp.getChildren().get(0).setStyle("-fx-background-color: #" + secondary + ";");
         //Style the remove/add button
-        gp.getChildren().get(0).setStyle("-fx-background-color: #" + secondary + ";" 
+        gp.getChildren().get(2).setStyle("-fx-background-color: #" + secondary + ";" 
         + "-fx-text-fill: #" + white + ";");
         //Add padding between buttons
         gp.setHgap(10);

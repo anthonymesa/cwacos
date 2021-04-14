@@ -7,8 +7,10 @@ Contributing Authors:
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.TextFieldSkin;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.scene.control.ButtonBar.ButtonData;
 
 import java.util.ArrayList;
 
@@ -121,36 +123,65 @@ public class CwacosView extends Application {
 
     private void createFavoritesMenu(){
         //Create Menu Bar with 3 different menus
-        MenuBar menuBar = new MenuBar();
+        MenuBar favoritesMenus = new MenuBar();
         Menu actions = new Menu("Actions");
         Menu stocks = new Menu("Stocks");
         stocks.getItems().add(new MenuItem("AMD"));
         Menu cryptos = new Menu("Cryptos");
-        menuBar.getMenus().addAll(actions, stocks, cryptos);
+        favoritesMenus.getMenus().addAll(actions, stocks, cryptos);
         //Create buttons for the actions menu
-        MenuItem addStock = new MenuItem("Add Stock");
-        addStock = UI.addStockFunction(stocks, addStock);
-        addStock.setStyle("-fx-font-weight: bold");
-        MenuItem removeStock = new MenuItem("Remove Stock");
-        removeStock = UI.removeStockFunction(stocks, removeStock);
-        removeStock.setStyle("-fx-font-weight: bold");
+        MenuItem addButton = new MenuItem("Add");
+        addButton = UI.addActionFunction(addButton, createChoiceDialog("Add", favoritesMenus));
+        addButton.setStyle("-fx-font-weight: bold");
+        MenuItem removeButton = new MenuItem("Remove");
+        removeButton = UI.removeActionFunction(removeButton, createChoiceDialog("Remove", favoritesMenus));
+        removeButton.setStyle("-fx-font-weight: bold");
+        actions.getItems().addAll(addButton, removeButton);
 
-        MenuItem addCrypto = new MenuItem("Add Crypto");
-        addCrypto = UI.addCryptoFunction(cryptos, addCrypto);
-        addCrypto.setStyle("-fx-font-weight: bold");
-        MenuItem removeCrypto = new MenuItem("Remove Crypto");
-        removeCrypto = UI.removeCryptoFunction(cryptos, removeCrypto);
-        removeCrypto.setStyle("-fx-font-weight: bold");
-        actions.getItems().addAll(addStock, removeStock, addCrypto, removeCrypto);
-        
         //Add to HBox layout to make layout look nicer
         HBox middleOptionsLayout = new HBox(10);
-        middleOptionsLayout.getChildren().add(menuBar);
+        middleOptionsLayout.getChildren().add(favoritesMenus);
         middleOptionsLayout.setTranslateX(32);
         middleOptionsLayout.setAlignment(Pos.CENTER_LEFT);
 
         //Add the buttons for the middle bar to the Grid Pane
         root.add(middleOptionsLayout, 0, 6, 2, 1);
+    }
+
+    //Creates the dialog window that lets the user choose stock or crypto
+    private TextInputDialog createChoiceDialog(String text, MenuBar favorites){
+        TextInputDialog choiceWindow = new TextInputDialog();   //Create dialog window
+        GridPane dialogContent = new GridPane();   //Create layout for dialog window
+        choiceWindow.getDialogPane().getButtonTypes().remove(0);    //Remove the "OK" default button
+        
+        //This will create either add buttons or remove buttons depending on which is passed into the method
+        if (text == "Add") {
+            //Create add stock button and add its functionality
+            dialogContent.add(new Button(text + " Stock"), 2, 1);
+            dialogContent.getChildren().set(0, UI.addButtonFunction((Button)dialogContent.getChildren().get(0), favorites.getMenus().get(1), choiceWindow));
+            //Create add crypto button and add its functionality
+            dialogContent.add(new Button(text + " Crypto"), 2, 2);
+            dialogContent.getChildren().set(1, UI.addButtonFunction((Button)dialogContent.getChildren().get(1), favorites.getMenus().get(2), choiceWindow));
+        } else {
+            //Create remove stock button and add its functionality
+            dialogContent.add(new Button(text + " Stock"), 2, 1);
+            dialogContent.getChildren().set(0, UI.removeButtonFunction((Button)dialogContent.getChildren().get(0), favorites.getMenus().get(1), choiceWindow));
+            //Create remove crypto button and add its functionality
+            dialogContent.add(new Button(text + " Crypto"), 2, 2);
+            dialogContent.getChildren().set(1, UI.addButtonFunction((Button)dialogContent.getChildren().get(1), favorites.getMenus().get(2), choiceWindow));
+        }
+        //Create text field that takes user input
+        TextField inputArea = new TextField();
+        inputArea.setPromptText("Enter ticker: ");
+        dialogContent.add(inputArea, 0, 0);
+
+        choiceWindow.getDialogPane().setContent(dialogContent);
+        return choiceWindow;
+    }
+
+    //Meethod styles the dialog window
+    private void styleChoiceDialog() {
+
     }
 
     //Method creates the buttons at the top of the window

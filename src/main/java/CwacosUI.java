@@ -12,15 +12,12 @@ public class CwacosUI  {
     // need some type of "on start" and "on end"
 
     //Method adds functionality to the add stock button
-    public MenuItem addStockFunction(Menu menu, MenuItem item){
-        TextInputDialog td = new TextInputDialog();
+    public MenuItem addActionFunction(MenuItem item, TextInputDialog choiceWindow){
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e)
             {
                 // show the text input dialog
-                td.showAndWait();
-                MenuItem ticker = new MenuItem(td.getEditor().getText().toUpperCase());
-                menu.getItems().add(ticker);
+                choiceWindow.showAndWait();
             }
         };
 
@@ -30,24 +27,25 @@ public class CwacosUI  {
     }
 
     //Method adds functionality to the remove stock button
-    public MenuItem removeStockFunction(Menu menu, MenuItem btn) {
-        TextInputDialog td = new TextInputDialog();
+    public MenuItem removeActionFunction(MenuItem btn, TextInputDialog choiceWindow) {
+        //TextInputDialog td = new TextInputDialog(); //Text dialog window asks the user to enter a ticker
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e)
             {   
                 // show the text input dialog
-                td.showAndWait();
+                choiceWindow.showAndWait();
+                /*
                 MenuItem ticker = new MenuItem(td.getEditor().getText().toUpperCase()); //Ticker the user inputted
                 //Search Stocks menu for the ticker I want to remove
                 for(int i = 0; i < menu.getItems().size(); i++) {
-                    MenuItem current = menu.getItems().get(i);  //Store the current searched 
-                    String text = current.getText();
-                    boolean test = (text.contains(ticker.getText()));
-                    System.out.println(test);
-                    if (test)
-                        menu.getItems().remove(current);
+                    MenuItem current = menu.getItems().get(i);  //Store the current menu item that's being checked 
+                    String text = current.getText();    //Store the string contained in the menu item
+                    //Check if the ticker the user entered matches the current menu item
+                    if (text.contains(ticker.getText()))
+                        menu.getItems().remove(current);    //Remove that ticker from the menu
                 }
                 //menu.getItems().remove(menu.getItems().indexOf(ticker));
+                */
             }
         };
 
@@ -56,40 +54,32 @@ public class CwacosUI  {
         return btn;
     }
 
-    //Method adds functionality to the add crypto button
-    public MenuItem addCryptoFunction(Menu menu, MenuItem item){
-        TextInputDialog td = new TextInputDialog();
+    public Button addButtonFunction(Button btn, Menu menu, TextInputDialog choiceWindow){
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e)
             {
-                // show the text input dialog
-                td.showAndWait();
-
-                menu.getItems().add(new MenuItem(td.getEditor().getText().toUpperCase()));
+                // close the window
+                choiceWindow.close();
             }
         };
 
-        item.setOnAction(event);
+        btn.setOnAction(event);
 
-        return item;
+        return btn;
     }
 
-    //Method removes functionality to the remove crypto button
-    public MenuItem removeCryptoFunction(Menu menu, MenuItem item){
-        TextInputDialog td = new TextInputDialog();
+    public Button removeButtonFunction(Button btn, Menu menu, Dialog<String> choiceWindow){
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e)
             {
-                // show the text input dialog
-                td.showAndWait();
-
-                menu.getItems().remove(new MenuItem(td.getEditor().getText().toUpperCase()));
-
+                // close the window
+                choiceWindow.close();
+                System.out.println("pressed");
             }
         };
 
-        item.setOnAction(event);
+        btn.setOnAction(event);
 
-        return item;
+        return btn;
     }
 }

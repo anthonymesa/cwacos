@@ -10,12 +10,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 
-public class RandomFactsAPITranslator {
+public class RandomFactsAPITranslator implements QfactsAdapter {
+
     protected static final String baseURLQuokkas = "https://random-facts1.p.rapidapi.com/fact/search?query=quokka";
     protected static final String apiKeyQuokkas = "7428506839msh1141f5e6cf76abdp11775fjsn3ab3e1af2ad5";
-    protected static final String baseURLAlpha = "https://www.alphavantage.co/query?";
-    protected static final String apiKeyAlpha = "MO9QU9JAPBBPX5T7";
 
     /**
      * Calls to Rapid API's server and accesses a random fact about Quokkas to be returned.
@@ -23,7 +23,7 @@ public class RandomFactsAPITranslator {
      *
      * @return A string containing a fact about Quokkas.
      */
-    public static String getQuokkasFact() {
+    private String getQuakkaFact() {
         try {
             //Build HttpRequest with correct headers and using our API key.
             HttpRequest request = HttpRequest.newBuilder()
@@ -44,6 +44,16 @@ public class RandomFactsAPITranslator {
             System.out.println("Error!");
         }
         return null;
+    }
+
+    public ArrayList<String> getQfactsList(int _amnt){
+        ArrayList<String> factsList = new ArrayList<String>();
+
+        for(int i = 0; i < _amnt; i++){
+            factsList.add(getQuakkaFact());
+        }
+
+        return factsList;
     }
 }
 

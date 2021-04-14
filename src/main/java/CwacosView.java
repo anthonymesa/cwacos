@@ -122,19 +122,26 @@ public class CwacosView extends Application {
     private void createFavoritesMenu(){
         //Create Menu Bar with 3 different menus
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(new Menu("Actions"), new Menu("Stocks"), new Menu("Cryptos"));
+        Menu actions = new Menu("Actions");
+        Menu stocks = new Menu("Stocks");
+        stocks.getItems().add(new MenuItem("AMD"));
+        Menu cryptos = new Menu("Cryptos");
+        menuBar.getMenus().addAll(actions, stocks, cryptos);
+        //Create buttons for the actions menu
         MenuItem addStock = new MenuItem("Add Stock");
-        UI.addStockFunction(menuBar.getMenus().get(1), addStock);
+        addStock = UI.addStockFunction(stocks, addStock);
         addStock.setStyle("-fx-font-weight: bold");
         MenuItem removeStock = new MenuItem("Remove Stock");
+        removeStock = UI.removeStockFunction(stocks, removeStock);
         removeStock.setStyle("-fx-font-weight: bold");
 
-        //Add action buttons to Action menu
         MenuItem addCrypto = new MenuItem("Add Crypto");
+        addCrypto = UI.addCryptoFunction(cryptos, addCrypto);
         addCrypto.setStyle("-fx-font-weight: bold");
         MenuItem removeCrypto = new MenuItem("Remove Crypto");
+        removeCrypto = UI.removeCryptoFunction(cryptos, removeCrypto);
         removeCrypto.setStyle("-fx-font-weight: bold");
-        menuBar.getMenus().get(0).getItems().addAll(addStock, removeStock, addCrypto, removeCrypto);
+        actions.getItems().addAll(addStock, removeStock, addCrypto, removeCrypto);
         
         //Add to HBox layout to make layout look nicer
         HBox middleOptionsLayout = new HBox(10);

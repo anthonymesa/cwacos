@@ -74,7 +74,6 @@ public class CwacosUI  {
             {
                 // close the window
                 choiceWindow.close();
-                System.out.println("pressed");
             }
         };
 

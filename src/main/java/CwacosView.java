@@ -7,20 +7,28 @@ Contributing Authors:
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.TextFieldSkin;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.util.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 
 import java.util.ArrayList;
 
 import javafx.geometry.*;
 import javafx.scene.shape.*;
 import javafx.scene.paint.*;
+import javafx.scene.Node;
 
 import java.lang.Math;
 
 public class CwacosView extends Application {
+
+    //Color palette
+    private final String primary = "1D1D1D";
+    private final String secondary = "4E4E4E";
+    private final String white = "FFFFFF";
+    private final String accent = "BB86FC";
 
     //Window dimensions
     private final int WINDOWWIDTH = 1280;
@@ -53,7 +61,7 @@ public class CwacosView extends Application {
 
     //Fucntion sets styling of the gridpane and performs other necessary operations.
     private void setupGridPane() {
-        root.setStyle("-fx-background-color: #1D1D1D;");   //Background color
+        root.setStyle("-fx-background-color: #" + primary + ";");   //Background color
         //Set grid spacing
         root.getColumnConstraints().addAll(createColumnConstraints());
         root.getRowConstraints().addAll(createRowConstraints());
@@ -81,7 +89,7 @@ public class CwacosView extends Application {
     private void createActiveTickerViewBox() {
         //Create and style the background.
         StackPane activeTickerView = new StackPane();
-        activeTickerView.setStyle("-fx-background-color: #1D1D1D;");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
+        activeTickerView.setStyle("-fx-background-color: #" + primary + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
         activeTickerView.setPrefSize(WINDOWWIDTH, 300);
 
         //THE BELOW BLOCK OF CODE IS TEMPORARY
@@ -91,7 +99,7 @@ public class CwacosView extends Application {
         tempBox.setWidth(Math.floor(WINDOWWIDTH * .95));
         Label tempLabel = new Label();
         tempLabel.setText("Active ticker data view goes here.");
-        tempLabel.setStyle("-fx-background-color: #BB86FC;");
+        tempLabel.setStyle("-fx-background-color: #" + accent + ";");
         activeTickerView.getChildren().addAll(tempBox, tempLabel);
         activeTickerView.setAlignment(tempBox, Pos.CENTER);
 
@@ -103,7 +111,7 @@ public class CwacosView extends Application {
     private void createCandleStickGraph() {
         //Create and style the background.
         StackPane candlestickGraph = new StackPane();
-        candlestickGraph.setStyle("-fx-background-color: #1D1D1D;");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
+        candlestickGraph.setStyle("-fx-background-color: #" + primary + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
         candlestickGraph.setPrefSize(WINDOWWIDTH, 240);
 
         //THE BELOW BLOCK OF CODE IS TEMPORARY
@@ -113,7 +121,7 @@ public class CwacosView extends Application {
         tempBox.setWidth(Math.floor(WINDOWWIDTH * .95));
         Label tempLabel = new Label();
         tempLabel.setText("Candlestick graph goes here.");
-        tempLabel.setStyle("-fx-background-color: #BB86FC;");
+        tempLabel.setStyle("-fx-background-color: #" + accent + ";");
         candlestickGraph.getChildren().addAll(tempBox, tempLabel);
         candlestickGraph.setAlignment(tempBox, Pos.CENTER);
 
@@ -153,7 +161,7 @@ public class CwacosView extends Application {
         TextInputDialog choiceWindow = new TextInputDialog();   //Create dialog window
         GridPane dialogContent = new GridPane();   //Create layout for dialog window
         choiceWindow.getDialogPane().getButtonTypes().remove(0);    //Remove the "OK" default button
-        
+
         //This will create either add buttons or remove buttons depending on which is passed into the method
         if (text == "Add") {
             //Create add stock button and add its functionality
@@ -165,21 +173,70 @@ public class CwacosView extends Application {
             dialogContent.getChildren().set(0, UI.removeButtonFunction((Button)dialogContent.getChildren().get(0), favorites.getMenus().get(1), choiceWindow));
         }
         ComboBox<String> typeSelection = new ComboBox<String>();
-        typeSelection.setPromptText("type");
-        typeSelection.getItems().addAll("Stock", "Crypto");
+        typeSelection = styleDropDownMenu(typeSelection);
+        typeSelection.setPromptText("Type");
+        typeSelection.getItems().addAll("Stocks", "Cryptos");
         dialogContent.add(typeSelection, 0, 0);
+
         //Create text field that takes user input
         TextField inputArea = new TextField();
         inputArea.setPromptText("Enter ticker: ");
         dialogContent.add(inputArea, 1, 0);
 
         choiceWindow.getDialogPane().setContent(dialogContent);
+        choiceWindow = styleChoiceDialog(choiceWindow);
         return choiceWindow;
     }
 
-    //Meethod styles the dialog window
-    private void styleChoiceDialog() {
+    //Style the type drop down menu in the dialog window
+    private ComboBox<String> styleDropDownMenu(ComboBox<String> cb) {
+        //CellFactory that styles each item in the drop down menu
+        cb.setCellFactory(
+            new Callback<ListView<String>, ListCell<String>>() {
+                @Override public ListCell<String> call(ListView<String> param) {
+                    final ListCell<String> cell = new ListCell<String>() {   
+                        @Override public void updateItem(String item, 
+                            boolean empty) {
+                                super.updateItem(item, empty);
+                                if (item != null) {
+                                    //Style the cell
+                                    setText(item);    
+                                    setTextFill(Paint.valueOf(white));
+                                    setBackground(new Background(new BackgroundFill(Paint.valueOf(secondary), null, null)));
+                                }
+                                else {
+                                    setText(null);
+                                }
+                            }
+                };
+                return cell;
+            }
+        });
 
+        return cb;
+    }
+
+    //Meethod styles the dialog window
+    private TextInputDialog styleChoiceDialog(TextInputDialog td) {
+        td.getDialogPane().getContent().setStyle("-fx-background-color: #" + primary + ";");
+        td.getDialogPane().setStyle("-fx-background-color: #" + primary + ";");
+        td.setHeaderText(null);
+        td.setGraphic(null);
+
+        GridPane gp = (GridPane)td.getDialogPane().getContent();
+        //Style the text field
+        gp.getChildren().get(2).setStyle("-fx-background-color: #" + secondary + ";" 
+        + "-fx-text-fill: #" + white + ";");
+        //Style the type drop down menu
+        gp.getChildren().get(1).setStyle("-fx-background-color: #" + secondary + ";");
+        //Style the remove/add button
+        gp.getChildren().get(0).setStyle("-fx-background-color: #" + secondary + ";" 
+        + "-fx-text-fill: #" + white + ";");
+        //Add padding between buttons
+        gp.setHgap(10);
+        
+        td.getDialogPane().setContent(gp);
+        return td;
     }
 
     //Method creates the buttons at the top of the window

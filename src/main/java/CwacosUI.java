@@ -12,20 +12,19 @@ public class CwacosUI  {
     // need some type of "on start" and "on end"
 
     //Method adds functionality to the add ticker button
-    public Button addTickerFunction(TextInputDialog td, ComboBox<String> cb, Button btn){
+    public void addStockFunction(Menu menu, MenuItem item){
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
+            TextInputDialog td = new TextInputDialog();
             public void handle(ActionEvent e)
             {
                 // show the text input dialog
                 td.showAndWait();
 
-                cb.getItems().add(td.getEditor().getText().toUpperCase());
+                menu.getItems().add(new MenuItem(td.getEditor().getText().toUpperCase()));
             }
         };
 
-        btn.setOnAction(event);
-
-        return btn;
+        item.setOnAction(event);
     }
 
     //Method adds functionality to the remove ticker button

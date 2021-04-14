@@ -124,6 +124,7 @@ public class CwacosView extends Application {
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(new Menu("Actions"), new Menu("Stocks"), new Menu("Cryptos"));
         MenuItem addStock = new MenuItem("Add Stock");
+        UI.addStockFunction(menuBar.getMenus().get(1), addStock);
         addStock.setStyle("-fx-font-weight: bold");
         MenuItem removeStock = new MenuItem("Remove Stock");
         removeStock.setStyle("-fx-font-weight: bold");

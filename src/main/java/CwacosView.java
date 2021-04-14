@@ -157,23 +157,21 @@ public class CwacosView extends Application {
         //This will create either add buttons or remove buttons depending on which is passed into the method
         if (text == "Add") {
             //Create add stock button and add its functionality
-            dialogContent.add(new Button(text + " Stock"), 2, 1);
+            dialogContent.add(new Button(text + " Stock"), 2, 0);
             dialogContent.getChildren().set(0, UI.addButtonFunction((Button)dialogContent.getChildren().get(0), favorites.getMenus().get(1), choiceWindow));
-            //Create add crypto button and add its functionality
-            dialogContent.add(new Button(text + " Crypto"), 2, 2);
-            dialogContent.getChildren().set(1, UI.addButtonFunction((Button)dialogContent.getChildren().get(1), favorites.getMenus().get(2), choiceWindow));
         } else {
             //Create remove stock button and add its functionality
-            dialogContent.add(new Button(text + " Stock"), 2, 1);
+            dialogContent.add(new Button(text), 2, 0);
             dialogContent.getChildren().set(0, UI.removeButtonFunction((Button)dialogContent.getChildren().get(0), favorites.getMenus().get(1), choiceWindow));
-            //Create remove crypto button and add its functionality
-            dialogContent.add(new Button(text + " Crypto"), 2, 2);
-            dialogContent.getChildren().set(1, UI.addButtonFunction((Button)dialogContent.getChildren().get(1), favorites.getMenus().get(2), choiceWindow));
         }
+        ComboBox<String> typeSelection = new ComboBox<String>();
+        typeSelection.setPromptText("type");
+        typeSelection.getItems().addAll("Stock", "Crypto");
+        dialogContent.add(typeSelection, 0, 0);
         //Create text field that takes user input
         TextField inputArea = new TextField();
         inputArea.setPromptText("Enter ticker: ");
-        dialogContent.add(inputArea, 0, 0);
+        dialogContent.add(inputArea, 1, 0);
 
         choiceWindow.getDialogPane().setContent(dialogContent);
         return choiceWindow;

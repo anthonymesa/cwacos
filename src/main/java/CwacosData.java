@@ -122,7 +122,7 @@ public class CwacosData {
         }
 
         // generate filename and save to local folder
-        String file_url = "./res/" + _symbol + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(financeData.get(_symbol).data.get(0).dateTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        String file_url = "./res/" + _symbol + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(financeData.get(_symbol).data.get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
         financeData.get(_symbol).url = file_url;
 

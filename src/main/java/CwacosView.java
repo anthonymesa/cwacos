@@ -199,12 +199,16 @@ public class CwacosView extends Application {
     }
 
     //Method creates a TableView for viewing Entries
+
+    /**
+     * Creates and returns the TableView control
+     *
+     * @return TableView control
+     */
     private TableView createTableView() {
         TableView entryTable = new TableView();
 
-        entryTable.setPrefWidth(Math.floor(WINDOWWIDTH * 0.95));
-        entryTable.setPrefHeight(240);
-
+        // set up columns
         TableColumn<Entry, String> openColumn = new TableColumn<>("Open");
         openColumn.setCellValueFactory(new PropertyValueFactory<>("open"));
 
@@ -223,8 +227,10 @@ public class CwacosView extends Application {
         TableColumn<Entry, String> dateColumn = new TableColumn<>("Date");
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
 
+        // add all the columns to the table
         entryTable.getColumns().setAll(openColumn, closeColumn, lowColumn, highColumn, volumeColumn, dateColumn);
 
+        // set the size of the table to fit the temporary gray rectangle
         entryTable.setMaxSize(Math.floor(WINDOWWIDTH * .95), 300);
         entryTable.setPrefSize(Math.floor(WINDOWWIDTH * .95), 300);
 

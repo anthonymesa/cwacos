@@ -7,6 +7,7 @@ Contributing Authors:
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
@@ -99,6 +100,9 @@ public class CwacosView extends Application {
 
 
         root.add(activeTickerView, 0, 1, 5, 5);
+        activeTickerView.getChildren().add(createTableView());
+        //activeTickerView.setPadding(new Insets(0, WINDOWWIDTH - Math.floor(WINDOWWIDTH * 0.95), 0,WINDOWWIDTH - Math.floor(WINDOWWIDTH * 0.95)));
+
     }
 
     //Method creates the CandleStick Graph
@@ -192,5 +196,39 @@ public class CwacosView extends Application {
 
         //Add bottom buttons to the GridPane
         root.add(maxProfitBtn, 2, 11, 1, 1);
+    }
+
+    //Method creates a TableView for viewing Entries
+    private TableView createTableView() {
+        TableView entryTable = new TableView();
+
+        entryTable.setPrefWidth(Math.floor(WINDOWWIDTH * 0.95));
+        entryTable.setPrefHeight(240);
+
+        TableColumn<Entry, String> openColumn = new TableColumn<>("Open");
+        openColumn.setCellValueFactory(new PropertyValueFactory<>("open"));
+
+        TableColumn<Entry, String> closeColumn = new TableColumn<>("Close");
+        closeColumn.setCellValueFactory(new PropertyValueFactory<>("close"));
+
+        TableColumn<Entry, String> lowColumn = new TableColumn<>("Low");
+        lowColumn.setCellValueFactory(new PropertyValueFactory<>("low"));
+
+        TableColumn<Entry, String> highColumn = new TableColumn<>("High");
+        highColumn.setCellValueFactory(new PropertyValueFactory<>("high"));
+
+        TableColumn<Entry, String> volumeColumn = new TableColumn<>("Volume");
+        volumeColumn.setCellValueFactory(new PropertyValueFactory<>("volume"));
+
+        TableColumn<Entry, String> dateColumn = new TableColumn<>("Date");
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+
+        entryTable.getColumns().setAll(openColumn, closeColumn, lowColumn, highColumn, volumeColumn, dateColumn);
+
+        entryTable.setMaxSize(Math.floor(WINDOWWIDTH * .95), 300);
+        entryTable.setPrefSize(Math.floor(WINDOWWIDTH * .95), 300);
+
+        return entryTable;
+
     }
 }

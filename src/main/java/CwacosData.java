@@ -14,95 +14,34 @@ import java.util.*;
 
 public class CwacosData {
 
-    //===================== DATA STORAGE ======================
+    public static Map<String, String> settings = new HashMap<String, String>();
+    private static String file_url = "./res/cwacossettings.conf";
 
-    public static DataStorage storage = new DataStorage(DataStorage.StorageType.LOCAL);
+    // This map represents a mapped list of favorite data
+    // Map of strings to Ticker objects
+    // e.g. "GME" --> new Ticker(s, t, d)
+    private static Map<String, FinanceDataSegment> financeData = new HashMap<String, FinanceDataSegment>();
 
-    /**
-     * Save the stock symbol's associated entry data to a file by
-     * looking up that stock symbol in the finance data map and
-     * saving its data attribute of ArrayList<Entry> type.
-     *
-     * @param _symbol stock/crypto symbol, i.e. "IBM"
-     */
-    public static String saveData(String _symbol) {
-
-        // check if finance data contains the symbol as key
-        if (!financeData.containsKey(_symbol)) {
-            return "Symbol is not a favorite, no file was saved.";
-        }
-
-        if (financeData.get(_symbol).data == null) {
-            System.out.println("There is no data to save.");
-            return "There is no data to save.";
-        }
-
-        // generate filename and save to local folder
-        String file_url = "./res/" + _symbol + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(financeData.get(_symbol).data.get(0).dateTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-
-        financeData.get(_symbol).url = file_url;
-
-        ArrayList<String> save_parameters = new ArrayList<String>(
-                Arrays.asList(
-                        file_url
-                )
-        );
-
-        save_parameters.add(((Integer) financeData.get(_symbol).call_type).toString());
-
-        ArrayList<Entry> data_to_save = financeData.get(_symbol).data;
-        storage.save(save_parameters, data_to_save);
-
-        return null;
-    }
+    //======================= STATE ===========================
 
     /**
-     * Load the file to populate the data for the current symbol in the finance data map
-     * <p>
-     * Data can only be loaded for stocks/cryptos that have already been added to the finance data map.
-     *
-     * @param _symbol stock/crypto symbol, i.e. "IBM"
-     * @param _params an array list containing the parameters
-     *                for the current method of saving data.
-     *                <p>
-     *                current method is local file storage so _params should
-     *                only contain a file url
+     * Load the state of the software from local files and initialize data sources
      */
-    public static ArrayList<Entry> loadData(String _symbol, ArrayList<String> _params) {
-
-        // check if finance data contains the symbol as key
-        if (!financeData.containsKey(_symbol)) {
-            return null;
-        }
-
-        ArrayList<Object> data = storage.load(_params);
-
-        /* This is for casting the objects returned into
-         * entry objects. If we ever change Entry or use a
-         * different type in the future, this is the only
-         * thing we need to change.
-         */
-        ArrayList<Entry> loaded_data = new ArrayList<>();
-        for (Object each : data) {
-            loaded_data.add((Entry) each);
-        }
-
-        // save the loaded data to the finance data value with symbol key
-        financeData.get(_symbol).data = loaded_data;
-
-        return financeData.get(_symbol).data;
-    }
-
     public static void loadState() {
         loadSettings();
         loadQuakkaFacts();
+        initDataSources();
+
+        // parse through the symbols value and fileurls values in the settings, add them to favorites, and then
+        // load their data using their respective urls
+
         // for each symbol in settings, add to favorites and populate data with data at file url
     }
 
-    public static Map<String, String> settings = new HashMap<String, String>();
-
+    /**
+     * Loads the settings from local files
+     */
     public static void loadSettings() {
-        String file_url = "./res/cwacossettings.conf";
 
         ArrayList<String> load_parameters = new ArrayList<String>(
                 Arrays.asList(
@@ -110,19 +49,17 @@ public class CwacosData {
                 )
         );
 
-        settings = storage.loadSettings(load_parameters);
+        settings = DataStorage.loadSettings(load_parameters);
     }
 
-    public static void saveSettings() {
-        String file_url = "./res/cwacossettings.conf";
-
-        ArrayList<String> saveParameters = new ArrayList<String>(
-                Arrays.asList(
-                        file_url
-                )
-        );
-
-        storage.saveSettings(settings, saveParameters);
+    /**
+     * Initializes static datastorage and datasources
+     */
+    private static void initDataSources(){
+        DataStorage.init();
+        Stocks.init();
+        Cryptos.init();
+        Qfacts.init();
     }
 
     /**
@@ -150,6 +87,96 @@ public class CwacosData {
 
         saveSettings();
     }
+
+    public static void saveSettings() {
+        String file_url = "./res/cwacossettings.conf";
+
+        ArrayList<String> saveParameters = new ArrayList<String>(
+                Arrays.asList(
+                        file_url
+                )
+        );
+
+        DataStorage.saveSettings(settings, saveParameters);
+    }
+
+    //===================== DATA STORAGE ======================
+
+    /**
+     * Save the stock symbol's associated entry data to a file by
+     * looking up that stock symbol in the finance data map and
+     * saving its data attribute of ArrayList<Entry> type.
+     *
+     * @param _symbol stock/crypto symbol, i.e. "IBM"
+     */
+    public static String saveData(String _symbol) {
+
+        // check if finance data contains the symbol as key
+        if (!financeData.containsKey(_symbol)) {
+            return "Symbol is not a favorite, no file was saved.";
+        }
+
+        if (financeData.get(_symbol).data == null) {
+            System.out.println("There is no data to save.");
+            return "There is no data to save.";
+        }
+
+        // generate filename and save to local folder
+        String file_url = "./res/" + _symbol + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(financeData.get(_symbol).data.get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+        financeData.get(_symbol).url = file_url;
+
+        ArrayList<String> save_parameters = new ArrayList<String>(
+                Arrays.asList(
+                        file_url
+                )
+        );
+
+        save_parameters.add(((Integer) financeData.get(_symbol).call_type).toString());
+
+        ArrayList<Entry> data_to_save = financeData.get(_symbol).data;
+        DataStorage.save(save_parameters, data_to_save);
+
+        return null;
+    }
+
+    /**
+     * Load the file to populate the data for the current symbol in the finance data map
+     * <p>
+     * Data can only be loaded for stocks/cryptos that have already been added to the finance data map.
+     *
+     * @param _symbol stock/crypto symbol, i.e. "IBM"
+     * @param _params an array list containing the parameters
+     *                for the current method of saving data.
+     *                <p>
+     *                current method is local file storage so _params should
+     *                only contain a file url
+     */
+    public static ArrayList<Entry> loadData(String _symbol, ArrayList<String> _params) {
+
+        // check if finance data contains the symbol as key
+        if (!financeData.containsKey(_symbol)) {
+            return null;
+        }
+
+        ArrayList<Object> data = DataStorage.load(_params);
+
+        /* This is for casting the objects returned into
+         * entry objects. If we ever change Entry or use a
+         * different type in the future, this is the only
+         * thing we need to change.
+         */
+        ArrayList<Entry> loaded_data = new ArrayList<>();
+        for (Object each : data) {
+            loaded_data.add((Entry) each);
+        }
+
+        // save the loaded data to the finance data value with symbol key
+        financeData.get(_symbol).data = loaded_data;
+
+        return financeData.get(_symbol).data;
+    }
+
 
     //=================== API INTERACTION =====================
 
@@ -199,6 +226,9 @@ public class CwacosData {
      * @param _call_type     integer that matches available call types in AlphaAPIDataGet class
      * @param _call_interval integer that matches available call intervals in AlphaAPIDataGet class
      */
+
+    // update crypto vs update stock
+
     public static ArrayList<Entry> update(String _symbol, int _call_type, int _call_interval) {
 
         if (!financeData.containsKey(_symbol)) {
@@ -207,7 +237,7 @@ public class CwacosData {
 
         // make a call to the api using the data values associated with the symbol being updated.
 
-        ArrayList<Entry> api_call_result = AlphaVantageAPITranslator.getStockInfo(
+        ArrayList<Entry> api_call_result = Stocks.get(
                 financeData.get(_symbol).symbol,
                 _call_type,
                 _call_interval
@@ -236,11 +266,6 @@ public class CwacosData {
 
     //===================== PROGRAM DATA ======================
 
-    // This map represents a mapped list of favorite data
-    // Map of strings to Ticker objects
-    // e.g. "GME" --> new Ticker(s, t, d)
-    private static Map<String, FinanceDataSegment> financeData = new HashMap<String, FinanceDataSegment>();
-
     /**
      * when a user clicks add favorite, a dialogue window should pop up
      * that lets them put in a stock ticker and choose whether it is
@@ -260,7 +285,7 @@ public class CwacosData {
 
         // here we are making a call to the api to see if it returns a null array
         // or not, which will tell us if the ticker exists or not.
-        ArrayList<Entry> evaluator = AlphaVantageAPITranslator.getStockInfo(
+        ArrayList<Entry> evaluator = Stocks.get(
                 _symbol,
                 2,
                 10

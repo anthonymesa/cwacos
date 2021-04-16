@@ -129,6 +129,8 @@ public class CwacosTester {
 
         if (updated_data_for_table != null) {
 
+            // for each Entry
+
             StringBuilder builder = new StringBuilder();
 
             for (Entry each : updated_data_for_table) {

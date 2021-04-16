@@ -7,7 +7,7 @@ import java.util.Map;
 public class Cwacos {
 
     public static void main(String[] args) {
-        //CwacosUI.startUI(args);
-        CwacosTester.begin();
+        CwacosUI.startUI(args);
+        //CwacosTester.begin();
     }
 }

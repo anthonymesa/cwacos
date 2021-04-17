@@ -61,21 +61,38 @@ public class CwacosUI  {
         EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e)
             {
+                int count = 0;
                 //Get the ticker the user inputted.
                 TextField input = (TextField)gp.getChildren().get(1);
                 //Try/catch to catch exceptions.
                 try {
                     //Store the string value of the ticker the user inputted.
                     String text = input.getText();
+
                     //Store the ticker type the user selected.
                     String typeSelection = ((ComboBox<String>)gp.getChildren().get(0)).getValue();
+
+                    int typeInt;
                     //Insert a menu item for the ticker depending on ticker type selection.
                     if (typeSelection.contains("Stocks")) {
                         mb.getMenus().get(1).getItems().add(new MenuItem(text.toUpperCase()));
+                        typeInt = 0;
                     } else {
                         mb.getMenus().get(2).getItems().add(new MenuItem(text.toUpperCase()));
+                        typeInt = 1;
                     }
-                } catch (Exception exception){
+
+                    String addFavoriteStatus = CwacosData.addFavorite(text, typeInt);
+
+                    System.out.println(addFavoriteStatus);
+
+                    //statusOutput.setText(addFavoriteStatus);
+                    CwacosData.setActiveData(text);
+
+                    // update table view to be populated with the data from the data in the map.
+                    // for all intents and purposes this should create an empty table.
+
+                } catch (Exception exception) {
                     System.out.println("pain " + exception);
                 }
                 // close the window

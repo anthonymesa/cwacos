@@ -13,6 +13,8 @@ import javafx.stage.Stage;
 import javafx.util.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 
 import java.util.ArrayList;
 
@@ -29,6 +31,10 @@ public class CwacosView extends Application {
     private final String secondary = "4E4E4E";
     private final String white = "FFFFFF";
     private final String accent = "BB86FC";
+
+    // This label is used for outputting state messages to user. Defined at
+    // class level because it will be referenced everywhere.
+    private final Label statusOutput = new Label();
 
     //Window dimensions
     private final int WINDOWWIDTH = 1280;
@@ -97,10 +103,10 @@ public class CwacosView extends Application {
         tempBox.setFill(Paint.valueOf("4E4E4E"));
         tempBox.setHeight(300);
         tempBox.setWidth(Math.floor(WINDOWWIDTH * .95));
-        Label tempLabel = new Label();
-        tempLabel.setText("Active ticker data view goes here.");
-        tempLabel.setStyle("-fx-background-color: #" + accent + ";");
-        activeTickerView.getChildren().addAll(tempBox, tempLabel);
+        Label statusOutput = new Label();
+        statusOutput.setText("Active ticker data view goes here.");
+        statusOutput.setStyle("-fx-background-color: #" + accent + ";");
+        activeTickerView.getChildren().addAll(tempBox, statusOutput);
         activeTickerView.setAlignment(tempBox, Pos.CENTER);
 
 
@@ -122,10 +128,10 @@ public class CwacosView extends Application {
         tempBox.setFill(Paint.valueOf("4E4E4E"));
         tempBox.setHeight(240);
         tempBox.setWidth(Math.floor(WINDOWWIDTH * .95));
-        Label tempLabel = new Label();
-        tempLabel.setText("Candlestick graph goes here.");
-        tempLabel.setStyle("-fx-background-color: #" + accent + ";");
-        candlestickGraph.getChildren().addAll(tempBox, tempLabel);
+        Label statusOutput = new Label();
+        statusOutput.setText("Candlestick graph goes here.");
+        statusOutput.setStyle("-fx-background-color: #" + accent + ";");
+        candlestickGraph.getChildren().addAll(tempBox, statusOutput);
         candlestickGraph.setAlignment(tempBox, Pos.CENTER);
 
 
@@ -141,16 +147,19 @@ public class CwacosView extends Application {
         favoritesMenus.getMenus().addAll(actions, stocks, cryptos);
         //Create buttons for the actions menu
         MenuItem addButton = new MenuItem("Add");
-        addButton = UI.addActionFunction(addButton, createChoiceDialog("Add"), favoritesMenus);
+        addButton = UI.addActionFunction(addButton, addRemoveFavoritesDialogue("Add"), favoritesMenus);
         addButton.setStyle("-fx-font-weight: bold");
         MenuItem removeButton = new MenuItem("Remove");
-        removeButton = UI.removeActionFunction(removeButton, createChoiceDialog("Remove"), favoritesMenus);
+        removeButton = UI.removeActionFunction(removeButton, addRemoveFavoritesDialogue("Remove"), favoritesMenus);
         removeButton.setStyle("-fx-font-weight: bold");
         actions.getItems().addAll(addButton, removeButton);
+        
+        statusOutput.setText("Welcome to Cwacos!");
+        statusOutput.setStyle("-fx-background-color: #" + accent + ";");
 
         //Add to HBox layout to make layout look nicer
         HBox middleOptionsLayout = new HBox(10);
-        middleOptionsLayout.getChildren().add(favoritesMenus);
+        middleOptionsLayout.getChildren().addAll(favoritesMenus, statusOutput);
         middleOptionsLayout.setTranslateX(32);
         middleOptionsLayout.setAlignment(Pos.CENTER_LEFT);
 
@@ -159,7 +168,7 @@ public class CwacosView extends Application {
     }
 
     //Creates the dialog window that lets the user choose stock or crypto
-    private TextInputDialog createChoiceDialog(String text){
+    private TextInputDialog addRemoveFavoritesDialogue(String text){
         TextInputDialog choiceWindow = new TextInputDialog();   //Create dialog window
         GridPane dialogContent = new GridPane();   //Create layout for dialog window
         choiceWindow.getDialogPane().getButtonTypes().remove(0);    //Remove the "OK" default button
@@ -241,11 +250,82 @@ public class CwacosView extends Application {
         return td;
     }
 
+        //Creates the dialog window that lets the user choose stock or crypto
+    private TextInputDialog updateActiveDataDialogue(String text){
+
+        TextInputDialog choiceWindow = new TextInputDialog();   //Create dialog window
+        GridPane dialogContent = new GridPane();   //Create layout for dialog window
+
+        //choiceWindow.getDialogPane().getButtonTypes().remove(0);    //Remove the "OK" default button
+
+        ComboBox<String> callTypeList = new ComboBox<String>();
+        int callType = 1;
+
+        // this could be done programmatically, technically, but we may not always use enums given the API we use,
+        // so this will be done custom
+        callTypeList.getItems().addAll("INTRADAY_CALL", "DAILY_CALL", "WEEKLY_CALL", "MONTHLY_CALL");
+        callTypeList = styleDropDownMenu(callTypeList);
+        callTypeList.setOnAction((event) -> {
+            callType = callTypeList.getSelectionModel().getSelectedIndex();
+        });
+        dialogContent.add(callTypeList, 0, 0);
+        
+        ComboBox<String> callIntervalList = new ComboBox<String>();
+        int callInterval = 10;
+
+        // this could be done programmatically, technically, but we may not always use enums given the API we use,
+        // so this will be done custom
+        callIntervalList.getItems().addAll("NO_INTERVAL", "MINUTE_1", "MINUTE_5", "MINUTE_10", "MINUTE_15", "MINUTE_30", "MINUTE_60");
+        callIntervalList = styleDropDownMenu(callIntervalList);
+        callIntervalList.setOnAction((event) -> {
+            callInterval = callIntervalList.getSelectionModel().getSelectedIndex();
+        });
+        dialogContent.add(callIntervalList, 0, 1);
+
+        Button confirm = new Button("Update");
+
+        // add saving functionality from CwacosData to the button execution
+        confirm.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+
+                ArrayList<Entry> dataForTable = CwacosData.update(callType, callInterval);
+
+                if(dataForTable == null) {
+                    statusOutput.setText("Error: Update failed.");
+                    return;
+                }
+
+                // set active table view to the data returned by the update
+
+                statusOutput.setText("Success: Updated");
+            }
+        });
+
+        dialogContent.add(confirm, 0, 2);
+
+        choiceWindow.getDialogPane().setContent(dialogContent);
+        choiceWindow = styleChoiceDialog(choiceWindow);
+        return choiceWindow;
+    }
+
     //Method creates the buttons at the top of the window
     private void createTopBar() {
         //Button that saves the active ticker data
         Button saveBtn = new Button();
         saveBtn.setText("Save");
+
+        // add saving functionality from CwacosData to the button execution
+        saveBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                // save data related to given symbol to file at given url
+                String save_status = CwacosData.saveData();
+
+                statusOutput.setText(save_status);
+            }
+        });
+
         //Button that loads the active ticker data
         Button loadTickerDataBtn = new Button();
         loadTickerDataBtn.setText("Load");
@@ -258,6 +338,17 @@ public class CwacosView extends Application {
         //Button that updates the active ticker data
         Button updateTickerDataBtn = new Button();
         updateTickerDataBtn.setText("Update");
+
+        updateTickerDataBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                // save data related to given symbol to file at given url
+                String save_status = CwacosData.saveData();
+
+                statusOutput.setText(save_status);
+            }
+        });
+        
         //Button that updates all ticker data
         Button updateAllTickersBtn = new Button();
         updateAllTickersBtn.setText("Update All");

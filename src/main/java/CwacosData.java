@@ -14,8 +14,9 @@ import java.util.*;
 
 public class CwacosData {
 
-    public static Map<String, String> settings = new HashMap<String, String>();
+    private static Map<String, String> settings = new HashMap<String, String>();
     private static String file_url = "./res/cwacossettings.conf";
+    private static String activeData = "";
 
     // This map represents a mapped list of favorite data
     // Map of strings to Ticker objects
@@ -30,7 +31,6 @@ public class CwacosData {
     public static void loadState() {
         loadSettings();
         loadQuakkaFacts();
-        initDataSources();
 
         // parse through the symbols value and fileurls values in the settings, add them to favorites, and then
         // load their data using their respective urls
@@ -55,7 +55,7 @@ public class CwacosData {
     /**
      * Initializes static datastorage and datasources
      */
-    private static void initDataSources(){
+    public static void initDataSources(){
         DataStorage.init();
         Stocks.init();
         Cryptos.init();
@@ -73,7 +73,8 @@ public class CwacosData {
 
         // these are kept seperate because you cant concurrently modify
         for (Map.Entry<String, FinanceDataSegment> entry : financeData.entrySet()) {
-            saveData(entry.getKey());
+            activeData = entry.getKey();
+            saveData();
         }
 
         // gather state info to save for each element in the financeData
@@ -109,35 +110,36 @@ public class CwacosData {
      *
      * @param _symbol stock/crypto symbol, i.e. "IBM"
      */
-    public static String saveData(String _symbol) {
+    public static String saveData() {
 
         // check if finance data contains the symbol as key
-        if (!financeData.containsKey(_symbol)) {
-            return "Symbol is not a favorite, no file was saved.";
+        if (!financeData.containsKey(activeData)) {
+            return "Error: Symbol " + activeData +" is not a favorite, no file was saved.";
         }
 
-        if (financeData.get(_symbol).data == null) {
-            System.out.println("There is no data to save.");
-            return "There is no data to save.";
+        if (financeData.get(activeData).data == null) {
+            return "Error: There is no data to save.";
         }
 
         // generate filename and save to local folder
-        String file_url = "./res/" + _symbol + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(financeData.get(_symbol).data.get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        String file_url = "./res/" + activeData + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(financeData.get(activeData).data.get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
-        financeData.get(_symbol).url = file_url;
+        // save local file url to map
+        financeData.get(activeData).url = file_url;
 
+        // create list of save paramaters to send to send funcition
         ArrayList<String> save_parameters = new ArrayList<String>(
                 Arrays.asList(
                         file_url
                 )
         );
 
-        save_parameters.add(((Integer) financeData.get(_symbol).call_type).toString());
+        save_parameters.add(((Integer) financeData.get(activeData).call_type).toString());
 
-        ArrayList<Entry> data_to_save = financeData.get(_symbol).data;
+        ArrayList<Entry> data_to_save = financeData.get(activeData).data;
         DataStorage.save(save_parameters, data_to_save);
 
-        return null;
+        return "Data saved successfully at: " + file_url;
     }
 
     /**
@@ -152,10 +154,10 @@ public class CwacosData {
      *                current method is local file storage so _params should
      *                only contain a file url
      */
-    public static ArrayList<Entry> loadData(String _symbol, ArrayList<String> _params) {
+    public static ArrayList<Entry> loadData(ArrayList<String> _params) {
 
         // check if finance data contains the symbol as key
-        if (!financeData.containsKey(_symbol)) {
+        if (!financeData.containsKey(activeData)) {
             return null;
         }
 
@@ -172,9 +174,9 @@ public class CwacosData {
         }
 
         // save the loaded data to the finance data value with symbol key
-        financeData.get(_symbol).data = loaded_data;
+        financeData.get(activeData).data = loaded_data;
 
-        return financeData.get(_symbol).data;
+        return financeData.get(activeData).data;
     }
 
 
@@ -229,25 +231,25 @@ public class CwacosData {
 
     // update crypto vs update stock
 
-    public static ArrayList<Entry> update(String _symbol, int _call_type, int _call_interval) {
+    public static ArrayList<Entry> update(int _call_type, int _call_interval) {
 
-        if (!financeData.containsKey(_symbol)) {
+        if (!financeData.containsKey(activeData)) {
             return null;
         }
 
         // make a call to the api using the data values associated with the symbol being updated.
 
         ArrayList<Entry> api_call_result = Stocks.get(
-                financeData.get(_symbol).symbol,
+                financeData.get(activeData).symbol,
                 _call_type,
                 _call_interval
         );
 
-        financeData.get(_symbol).call_type = _call_type;
-        financeData.get(_symbol).call_interval = _call_interval;
-        financeData.get(_symbol).data = api_call_result;
+        financeData.get(activeData).call_type = _call_type;
+        financeData.get(activeData).call_interval = _call_interval;
+        financeData.get(activeData).data = api_call_result;
 
-        return financeData.get(_symbol).data;
+        return financeData.get(activeData).data;
     }
 
     /**
@@ -257,7 +259,6 @@ public class CwacosData {
     public static void updateAll() {
         for (Map.Entry<String, FinanceDataSegment> each : financeData.entrySet()) {
             update(
-                    each.getValue().symbol,
                     each.getValue().call_type,
                     each.getValue().call_interval
             );
@@ -302,9 +303,9 @@ public class CwacosData {
                             15
                     )
             );
-            return null;
+            return "Success: Favorite " + _symbol + " added";
         } else {
-            return "EROR: CwacosData.AddFavorite - New favorite failed validation";
+            return "ERROR: CwacosData.AddFavorite - New favorite failed validation";
         }
     }
 
@@ -323,5 +324,13 @@ public class CwacosData {
         }
 
         return null;
+    }
+
+    public static String getActiveData() {
+        return activeData;
+    }
+    
+    public static void setActiveData(String _symbol) {
+        activeData = _symbol;
     }
 }

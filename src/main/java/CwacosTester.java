@@ -55,7 +55,7 @@ public class CwacosTester {
                         symbol = command_array[1];
                         call_type = Integer.parseInt(command_array[2]);
                         call_interval = Integer.parseInt(command_array[3]);
-                        updateFunctionTest(symbol, call_type, call_interval);
+                        updateFunctionTest(call_type, call_interval);
                         break;
                     case "updateall":
                         updateAllFunctionTest();
@@ -89,7 +89,7 @@ public class CwacosTester {
         //=============== SAVE FUNCTION TEST ================
 
         // save data related to given symbol to file at given url
-        String save_error = CwacosData.saveData(_symbol);
+        String save_error = CwacosData.saveData();
 
         if (save_error != null) {
             System.out.println(save_error);
@@ -105,7 +105,7 @@ public class CwacosTester {
                 )
         );
 
-        ArrayList<Entry> loaded_data_for_table = CwacosData.loadData(_symbol, load_parameters);
+        ArrayList<Entry> loaded_data_for_table = CwacosData.loadData(load_parameters);
 
         if (loaded_data_for_table != null) {
             StringBuilder sb = new StringBuilder();
@@ -121,11 +121,11 @@ public class CwacosTester {
         }
     }
 
-    public static void updateFunctionTest(String _symbol, int _call_type, int _call_interval) {
+    public static void updateFunctionTest(int _call_type, int _call_interval) {
         //=============== UPDATE FUNCTION TEST ================
 
         // make api call and print returned data
-        ArrayList<Entry> updated_data_for_table = CwacosData.update(_symbol, _call_type, _call_interval);
+        ArrayList<Entry> updated_data_for_table = CwacosData.update(_call_type, _call_interval);
 
         if (updated_data_for_table != null) {
 

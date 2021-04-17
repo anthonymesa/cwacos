@@ -11,6 +11,7 @@ import java.util.Locale;
 
 public class Entry implements Comparable<Entry> {
 
+    // You can now use CwacosDateFormat.getDateFormat(); to avoid reusing of code
     private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);
 
     private double open, close, low, high;

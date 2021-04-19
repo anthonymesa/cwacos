@@ -29,13 +29,31 @@ public class CwacosData {
      * Load the state of the software from local files and initialize data sources
      */
     public static void loadState() {
+        CwacosData.initDataSources();
         loadSettings();
         loadQuakkaFacts();
 
-        // parse through the symbols value and fileurls values in the settings, add them to favorites, and then
-        // load their data using their respective urls
+        if((settings.get("favorites") != null) && (settings.get("fileLocations") != null)) {
 
-        // for each symbol in settings, add to favorites and populate data with data at file url
+            String[] symbols = settings.get("favorites").split("\\|", 0);
+            String[] fileLocations = settings.get("fileLocations").split("\\|", 0);
+
+            if ((symbols.length == fileLocations.length) && (symbols.length != 0)) {
+                for (int i = 0; i < symbols.length; i++) {
+                    //ATTN: datatype needs to be known at this point
+                    financeData.put(symbols[i], new FinanceDataSegment(symbols[i], 0, 1, 0));
+
+                    ArrayList<String> load_parameters = new ArrayList<String>(
+                            Arrays.asList(
+                                    fileLocations[i]
+                            )
+                    );
+
+                    //ATTN: possible loading issues need to be caught here
+                    CwacosData.loadData(load_parameters);
+                }
+            }
+        }
     }
 
     /**
@@ -108,7 +126,6 @@ public class CwacosData {
      * looking up that stock symbol in the finance data map and
      * saving its data attribute of ArrayList<Entry> type.
      *
-     * @param _symbol stock/crypto symbol, i.e. "IBM"
      */
     public static String saveData() {
 
@@ -122,7 +139,7 @@ public class CwacosData {
         }
 
         // generate filename and save to local folder
-        String file_url = "./res/" + activeData + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(financeData.get(activeData).data.get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        String file_url = "./../" + activeData + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(financeData.get(activeData).data.get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
         // save local file url to map
         financeData.get(activeData).url = file_url;
@@ -147,18 +164,17 @@ public class CwacosData {
      * <p>
      * Data can only be loaded for stocks/cryptos that have already been added to the finance data map.
      *
-     * @param _symbol stock/crypto symbol, i.e. "IBM"
      * @param _params an array list containing the parameters
      *                for the current method of saving data.
      *                <p>
      *                current method is local file storage so _params should
      *                only contain a file url
      */
-    public static ArrayList<Entry> loadData(ArrayList<String> _params) {
+    public static String loadData(ArrayList<String> _params) {
 
         // check if finance data contains the symbol as key
         if (!financeData.containsKey(activeData)) {
-            return null;
+            return "Error: Can not load file data, symbol does not exist in favorites";
         }
 
         ArrayList<Object> data = DataStorage.load(_params);
@@ -176,9 +192,12 @@ public class CwacosData {
         // save the loaded data to the finance data value with symbol key
         financeData.get(activeData).data = loaded_data;
 
-        return financeData.get(activeData).data;
+        if (financeData.get(activeData).data != null) {
+            return "Success: data was loaded for " + activeData;
+        } else {
+            return "Error: an error occured on import";
+        }
     }
-
 
     //=================== API INTERACTION =====================
 
@@ -224,17 +243,16 @@ public class CwacosData {
      * symbol doesnt exist in the map, then there is nothing to update and
      * the function exits.
      *
-     * @param _symbol        stock/crypto symbol, i.e. "IBM"
      * @param _call_type     integer that matches available call types in AlphaAPIDataGet class
      * @param _call_interval integer that matches available call intervals in AlphaAPIDataGet class
      */
 
     // update crypto vs update stock
 
-    public static ArrayList<Entry> update(int _call_type, int _call_interval) {
+    public static String update(int _call_type, int _call_interval) {
 
         if (!financeData.containsKey(activeData)) {
-            return null;
+            return "Error: " + activeData + " does not exist, update failed. ";
         }
 
         // make a call to the api using the data values associated with the symbol being updated.
@@ -249,20 +267,30 @@ public class CwacosData {
         financeData.get(activeData).call_interval = _call_interval;
         financeData.get(activeData).data = api_call_result;
 
-        return financeData.get(activeData).data;
+        if(api_call_result == null){
+            return "Error: An error occured while making update request. Update failed. ";
+        }
+
+        return null;
     }
 
     /**
      * Update all iterates through each symbol in the finance data map and calls
      * update using the parameters for the call saved in the FinanceDataSegment
      */
-    public static void updateAll() {
+    public static String updateAll() {
         for (Map.Entry<String, FinanceDataSegment> each : financeData.entrySet()) {
-            update(
+            String updateStatus = update(
                     each.getValue().call_type,
                     each.getValue().call_interval
             );
+
+            if(updateStatus != null){
+                return updateStatus + each + " could not be updated. 'Update All' failed. Only some symbols may have been updated";
+            }
         }
+
+        return "Success: All symbols were updated.";
     }
 
     //===================== PROGRAM DATA ======================
@@ -284,12 +312,16 @@ public class CwacosData {
      */
     public static String addFavorite(String _symbol, int _dataType) {
 
+        if(financeData.containsKey(_symbol)) {
+            return "Error: Symbol already exists.";
+        }
+
         // here we are making a call to the api to see if it returns a null array
         // or not, which will tell us if the ticker exists or not.
         ArrayList<Entry> evaluator = Stocks.get(
                 _symbol,
-                2,
-                10
+                1,
+                0
         );
 
         // if the call returned a null array, then the favorite cant be added.
@@ -300,7 +332,7 @@ public class CwacosData {
                             _symbol,
                             _dataType,
                             1,
-                            15
+                            0
                     )
             );
             return "Success: Favorite " + _symbol + " added";
@@ -317,13 +349,13 @@ public class CwacosData {
      * @return If not null, an error message.
      */
     public static String removeFavorites(String _symbol) {
-        financeData.remove(_symbol);
-
         if (!financeData.containsKey(_symbol)) {
             return "Symbol " + _symbol + " does not exist.";
         }
 
-        return null;
+        financeData.remove(_symbol);
+
+        return "Success: Favorite " + _symbol + " removed";
     }
 
     public static String getActiveData() {
@@ -332,5 +364,13 @@ public class CwacosData {
     
     public static void setActiveData(String _symbol) {
         activeData = _symbol;
+    }
+
+    public static boolean existData(String _symbol) {
+        return financeData.containsKey(_symbol);
+    }
+
+    public static ArrayList<Entry> getActiveEntryList() {
+        return financeData.get(activeData).data;
     }
 }

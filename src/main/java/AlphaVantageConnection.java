@@ -62,16 +62,16 @@ public abstract class AlphaVantageConnection {
      */
     protected static AVAPIStocksTranslator.CallType translateTypeEnum(int _callType){
         switch(_callType){
-            case 1:
+            case 0:
                 return AVAPIStocksTranslator.CallType.INTRADAY_CALL;
 
-            case 2:
+            case 1:
                 return AVAPIStocksTranslator.CallType.DAILY_CALL;
 
-            case 3:
+            case 2:
                 return AVAPIStocksTranslator.CallType.WEEKLY_CALL;
 
-            case 4:
+            case 3:
                 return AVAPIStocksTranslator.CallType.MONTHLY_CALL;
 
             default:
@@ -88,25 +88,25 @@ public abstract class AlphaVantageConnection {
      */
     protected static AVAPIStocksTranslator.CallInterval translateIntervalEnum(int _callInterval){
         switch(_callInterval){
-            case 10:
+            case 0:
                 return AVAPIStocksTranslator.CallInterval.NO_INTERVAL;
 
-            case 11:
+            case 1:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_1;
 
-            case 12:
+            case 2:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_5;
 
-            case 13:
+            case 3:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_10;
 
-            case 14:
+            case 4:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_15;
 
-            case 15:
+            case 5:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_30;
 
-            case 16:
+            case 6:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_60;
 
             default:

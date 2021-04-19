@@ -682,7 +682,7 @@ public class CwacosView extends Application {
                 content.getChildren().add(dialogContent);
 
                 // call popup with above parameters
-                CwacosPopup.display("Load","Load", "Cancel", content, testFunction);
+                CwacosPopup.display("Update","Update", "Cancel", content, testFunction);
             }
         });
 

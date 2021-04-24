@@ -215,7 +215,7 @@ public class CwacosView extends Application {
 
         Button saveBtn = new Button();
 
-        Image img = new Image("file:res/download.png");
+        Image img = new Image("file:res/save.png");
         ImageView view = new ImageView(img);
         view.setFitHeight(BUTTON_ICON_SIZE);
         view.setPreserveRatio(true);
@@ -250,7 +250,7 @@ public class CwacosView extends Application {
 
         Button loadBtn = new Button();
 
-        Image img = new Image("file:res/upload.png");
+        Image img = new Image("file:res/folder.png");
         ImageView view = new ImageView(img);
         view.setFitHeight(BUTTON_ICON_SIZE);
         view.setPreserveRatio(true);
@@ -369,7 +369,7 @@ public class CwacosView extends Application {
                         int type = typeSelection.getSelectionModel().getSelectedIndex();
 
                         // Checks that a type is actually selected from the dropdown
-                        if(type < 0) {
+                        if (type < 0) {
                             return -1;
                         } else {
                             String addFavoriteStatus = CwacosData.addFavorite(symbol, type);
@@ -445,7 +445,7 @@ public class CwacosView extends Application {
                         int type = typeSelection.getSelectionModel().getSelectedIndex();
 
                         // if type is -1, nothing in the combobox is selected
-                        if(type < 0) {
+                        if (type < 0) {
                             return -1;
                         } else {
                             String removeFavoriteStatus = CwacosData.removeFavorites(symbol);
@@ -649,8 +649,7 @@ public class CwacosView extends Application {
                         int interval = callIntervalList.getSelectionModel().getSelectedIndex();
 
                         // check that type and interval have been chosen
-                        if((type < 0) || (interval < 0))
-                        {
+                        if ((type < 0) || (interval < 0)) {
                             return -1;
                         } else {
                             String updateStatus = CwacosData.update(type, interval);
@@ -662,7 +661,7 @@ public class CwacosView extends Application {
                             }
 
                             // set active table view to the activeData
-
+                            populateTable(entryTable);
                             setStatus("Success: Updated " + CwacosData.getActiveData());
 
                             return 0;
@@ -774,10 +773,17 @@ public class CwacosView extends Application {
     /**
      * Populates the table with entries from the API.
      */
-    private void populateTable(TableView _table) {
+    private void populateTable(TableView<Entry> _table) {
+        // clear table entries if there are any
+        if (!_table.getItems().isEmpty()) {
+            _table.getItems().clear();
+            _table.refresh();
+        }
+
+        // populate the table
         ArrayList<Entry> entries = CwacosData.getActiveEntryList();
-        for (int i = 0; i < entries.size(); i++) {
-            _table.getItems().add(entries.get(i));
+        for (Entry entry : entries) {
+            _table.getItems().add(entry);
         }
     }
 

@@ -70,6 +70,30 @@ public class Entry implements Comparable<Entry> {
         return dateTime;
     }
 
+    public String getOpenString() {
+        return Double.toString(open);
+    }
+
+    public double getCloseString() {
+        return close;
+    }
+
+    public double getLowString() {
+        return low;
+    }
+
+    public double getHighString() {
+        return high;
+    }
+
+    public int getVolumeString() {
+        return volume;
+    }
+
+    public Date getDateTimeString() {
+        return dateTime;
+    }
+
     //---------------------------------SETTERS-----------------------------------//
 
 

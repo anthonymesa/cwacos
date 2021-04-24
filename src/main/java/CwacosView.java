@@ -86,9 +86,9 @@ public class CwacosView extends Application {
         content.getChildren().add(qfact);
 
         // call popup with above parameters
-        CwacosPopup.display("Cwacos", "Woah!", content);
+        CwacosPopup.display("src/Cwacos", "Woah!", content);
 
-        primaryStage.setTitle("Cwacos");
+        primaryStage.setTitle("src/Cwacos");
 
         // Changing the order of these functions will change the order these rows
         // are displayed
@@ -278,13 +278,14 @@ public class CwacosView extends Application {
                             )
                         );
 
+                        //ATTN: need to handle when loadData doesnt work
                         String loadDataStatus = CwacosData.loadData(load_parameters);
 
                         setStatus(loadDataStatus);
 
                         // update table view to be populated with the data from the data loaded in the map.
 
-                        return null;
+                        return 0;
                     }
                 };
 
@@ -357,30 +358,29 @@ public class CwacosView extends Application {
                         // get int type based on position in list.
                         int type = typeSelection.getSelectionModel().getSelectedIndex();
 
-                        String addFavoriteStatus = CwacosData.addFavorite(symbol, type);
-
-                        // check to see if the symbol was added to the data, if not, exit
-                        if(!CwacosData.existData(symbol)){
-                            setStatus(addFavoriteStatus);
-                            return null;
-                        }
-
-                        //Insert a menu item for the ticker depending on ticker type selection.
-                        if (type == 0) {
-                            // stocks menu
-                            favoritesMenu.getMenus().get(0).getItems().add(new MenuItem(symbol.toUpperCase()));
+                        // Checks that a type is actually selected from the dropdown
+                        if(type < 0) {
+                            return -1;
                         } else {
-                            // cryptos menu
-                            favoritesMenu.getMenus().get(1).getItems().add(new MenuItem(symbol.toUpperCase()));
+                            String addFavoriteStatus = CwacosData.addFavorite(symbol, type);
+
+                            // check to see if the symbol was added to the data, if not, exit
+                            if (!CwacosData.existData(symbol)) {
+                                setStatus(addFavoriteStatus);
+                                return -1;
+                            }
+
+                            //ATTN: this is dependent on the case that there are always the same number
+                            // of items in the combo box as in the menubar types (stocks, cryptos)
+                            favoritesMenu.getMenus().get(type).getItems().add(new MenuItem(symbol.toUpperCase()));
+
+                            setStatus(addFavoriteStatus);
+                            CwacosData.setActiveData(symbol);
+
+                            return 0;
+                            // update table view to be populated with the data from the data in the map.
+                            // for all intents and purposes this should create an empty table.
                         }
-
-                        setStatus(addFavoriteStatus);
-                        CwacosData.setActiveData(symbol);
-
-                        // update table view to be populated with the data from the data in the map.
-                        // for all intents and purposes this should create an empty table.
-
-                        return null;
                     }
                 };
 
@@ -435,42 +435,42 @@ public class CwacosView extends Application {
                         //Get the type the user selected
                         int type = typeSelection.getSelectionModel().getSelectedIndex();
 
-                        String removeFavoriteStatus = CwacosData.removeFavorites(symbol);
-
-                        // check to see if the symbol was properly removed
-                        if(CwacosData.existData(symbol)){
-                            setStatus(removeFavoriteStatus);
-                            return null;
-                        }
-
-                        //Pick one of the ticker menus depending on ticker type selection
-                        Menu menu = new Menu();
-                        if (type == 0) {
-                            //stocks menu
-                            menu = favoritesMenu.getMenus().get(0);
+                        // if type is -1, nothing in the combobox is selected
+                        if(type < 0) {
+                            return -1;
                         } else {
-                            //cryptos menu
-                            menu = favoritesMenu.getMenus().get(1);
-                        }
+                            String removeFavoriteStatus = CwacosData.removeFavorites(symbol);
 
-                        //Search the menu for the ticker to remove
-                        for(int i = 0; i < menu.getItems().size(); i++) {
-                            MenuItem current = menu.getItems().get(i);  //Store the current menu item that's being checked
-
-                            String text = current.getText();    //Store the string contained in the menu item
-
-                            //Check if the ticker the user entered matches the current menu item
-                            if (text.contains(symbol)) {
-                                menu.getItems().remove(current);    //Remove that ticker from the menu
+                            // check to see if the symbol was properly removed
+                            if (CwacosData.existData(symbol)) {
+                                setStatus(removeFavoriteStatus);
+                                return -1;
                             }
+
+                            //Pick one of the ticker menus depending on ticker type selection
+                            Menu menu = new Menu();
+
+                            menu = favoritesMenu.getMenus().get(type);
+
+                            //Search the menu for the ticker to remove
+                            for (int i = 0; i < menu.getItems().size(); i++) {
+                                MenuItem current = menu.getItems().get(i);  //Store the current menu item that's being checked
+
+                                String text = current.getText();    //Store the string contained in the menu item
+
+                                //Check if the ticker the user entered matches the current menu item
+                                if (text.contains(symbol)) {
+                                    menu.getItems().remove(current);    //Remove that ticker from the menu
+                                }
+                            }
+
+                            setStatus(removeFavoriteStatus);
+
+                            // need to set active table view data either to empty or another symbol in the list
+                            // CwacosData.setActiveData(symbol);
+
+                            return 0;
                         }
-
-                        setStatus(removeFavoriteStatus);
-
-                        // need to set active table view data either to empty or another symbol in the list
-                        // CwacosData.setActiveData(symbol);
-
-                        return null;
                     }
                 };
 
@@ -627,35 +627,11 @@ public class CwacosView extends Application {
                 // so this will be done custom
                 final ComboBox<String> callTypeList = new ComboBox<String>();
                 callTypeList.getItems().addAll("Intraday", "Daily", "Weekly", "Monthly");
-
-                // here we are using a wrapper so that the selection model can be used
-                int callType = 1;
-                var typeWrapper = new Object() {
-                    ComboBox<String> typeList = callTypeList;
-                    int type = callType;
-                };
-
-                callTypeList.setOnAction((event) -> {
-                    typeWrapper.type = typeWrapper.typeList.getSelectionModel().getSelectedIndex();
-                });
-
                 dialogContent.add(callTypeList, 0, 0);
 
                 // combo box for interval type
                 final ComboBox<String> callIntervalList = new ComboBox<String>();
                 callIntervalList.getItems().addAll("None", "1 Min.", "5 Min.", "10 Min.", "15 Min.", "30 Min.", "60 Min.");
-
-                // here we are using a wrapper so that the selection model can be used
-                int callInterval = 10;
-                var intervalWrapper = new Object() {
-                    ComboBox<String> typeList = callIntervalList;
-                    int type = callInterval;
-                };
-
-                callIntervalList.setOnAction((event) -> {
-                    intervalWrapper.type = intervalWrapper.typeList.getSelectionModel().getSelectedIndex();
-                });
-
                 dialogContent.add(callIntervalList, 0, 1);
 
                 // define function to be run when user clicks 'okay'
@@ -663,19 +639,28 @@ public class CwacosView extends Application {
                     @Override
                     public Object apply(Object o) {
 
-                        String updateStatus = CwacosData.update(typeWrapper.type, intervalWrapper.type);
+                        int type = callTypeList.getSelectionModel().getSelectedIndex();
+                        int interval = callIntervalList.getSelectionModel().getSelectedIndex();
 
-                        // if status is not null, there was an error
-                        if(updateStatus != null) {
-                            setStatus(updateStatus);
-                            return null;
+                        // check that type and interval have been chosen
+                        if((type < 0) || (interval < 0))
+                        {
+                            return -1;
+                        } else {
+                            String updateStatus = CwacosData.update(type, interval);
+
+                            // if status is not null, there was an error
+                            if (updateStatus != null) {
+                                setStatus(updateStatus);
+                                return -1;
+                            }
+
+                            // set active table view to the activeData
+
+                            setStatus("Success: Updated " + CwacosData.getActiveData());
+
+                            return 0;
                         }
-
-                        // set active table view to the activeData
-
-                        setStatus("Success: Updated " + CwacosData.getActiveData());
-
-                        return null;
                     }
                 };
 

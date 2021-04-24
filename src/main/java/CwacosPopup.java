@@ -1,4 +1,3 @@
-
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -49,8 +48,11 @@ public class CwacosPopup {
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                func.apply(null);
-                window.close();
+                int success = (int)func.apply(null);
+
+                if (success == 0){
+                    window.close();
+                }
             }
         };
     }

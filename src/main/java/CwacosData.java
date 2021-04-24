@@ -193,6 +193,7 @@ public class CwacosData {
         financeData.get(activeData).data = loaded_data;
 
         if (financeData.get(activeData).data != null) {
+            System.out.println(financeData.get(activeData).data);
             return "Success: data was loaded for " + activeData;
         } else {
             return "Error: an error occured on import";

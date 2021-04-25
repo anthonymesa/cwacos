@@ -217,7 +217,7 @@ public class CwacosView extends Application {
 
         Button saveBtn = new Button();
 
-        Image img = new Image("file:res/download.png");
+        Image img = new Image("file:res/save.png");
         ImageView view = new ImageView(img);
         view.setFitHeight(BUTTON_ICON_SIZE);
         view.setPreserveRatio(true);
@@ -252,7 +252,7 @@ public class CwacosView extends Application {
 
         Button loadBtn = new Button();
 
-        Image img = new Image("file:res/upload.png");
+        Image img = new Image("file:res/folder.png");
         ImageView view = new ImageView(img);
         view.setFitHeight(BUTTON_ICON_SIZE);
         view.setPreserveRatio(true);
@@ -899,14 +899,19 @@ public class CwacosView extends Application {
     /**
      * Populates the table with entries from the API.
      */
-    private void populateTable(TableView _table) {
-        _table.getItems().clear();
+    private void populateTable(TableView<Entry> _table) {
+        // clear table entries if there are any
+        if (!_table.getItems().isEmpty()) {
+            _table.getItems().clear();
+            _table.refresh();
+        }
 
+        // populate the table
         ArrayList<Entry> entries = CwacosData.getActiveEntryList();
 
         if(entries != null) {
-            for (int i = 0; i < entries.size(); i++) {
-                _table.getItems().add(entries.get(i));
+            for (Entry entry : entries) {
+                _table.getItems().add(entry);
             }
         }
     }

@@ -161,4 +161,12 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
                 return null;
         }
     }
+
+    public String[] getCallTypes() {
+        return new String[] { "Daily", "Weekly", "Monthly" };
+    }
+
+    public String[] getCallMarkets() {
+        return new String[] { "USD" };
+    }
 }

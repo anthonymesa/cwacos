@@ -5,6 +5,8 @@ Contributing Authors: Jack Fink, Anthony Mesa, Hyoungjin Choi
  */
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -231,10 +233,10 @@ public class CwacosView extends Application {
             public void handle(ActionEvent e) {
 
                 // Save data related to given symbol to file at given url
-                String save_status = CwacosData.saveData();
+                Response saveResponse = CwacosData.saveData();
 
                 // Set label to the output status that CwacosData gives back.
-                setStatus(save_status);
+                setStatus(saveResponse.status);
             }
         });
 
@@ -280,27 +282,56 @@ public class CwacosView extends Application {
                         //Store the string value of the ticker the user inputted.
                         String file_url = inputArea.getText();
 
+                        // do nothing if the file input is empty
+                        if(file_url.length() == 0){
+                            return -1;
+                        }
+
                         ArrayList<String> load_parameters = new ArrayList<String>(
                                 Arrays.asList(
                                         file_url
                                 )
                         );
 
-                        //ATTN: need to handle when loadData doesnt work
-                        String loadDataStatus = CwacosData.loadData(load_parameters);
+                        Response loadResponse = CwacosData.loadData(load_parameters);
 
-                        setStatus(loadDataStatus);
+                        if(!loadResponse.success) {
+                            setStatus(loadResponse.status);
+                            return -1;
+                        }
 
-                        // update table view to be populated with the data from the data loaded in the map.
+                        // This may seem redundant but this is so that in the action handler down
+                        // below, there isn't a logic error. (setting from a getter from the same class)
+                        String symbol = CwacosData.getActiveSymbol();
+                        int type = CwacosData.getActiveType();
+
+                        // Create a new menu item to be added to the appropriate
+                        // menu in the menu bar
+                        MenuItem newFavorite = new MenuItem(symbol);
+
+                        // Set callback event for clicking menu item (the favorite itself)
+                        newFavorite.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent actionEvent) {
+                                // Set the active symbol and type and update table contents
+                                CwacosData.setActiveSymbol(symbol);
+                                CwacosData.setActiveType(type);
+
+                                populateTable(entryTable);
+                                setStatus("Now viewing " + symbol);
+                            }
+                        });
+
+                        // Add menu item to the menu of the correct type in the menu bar
+                        favoritesMenu.getMenus().get(type).getItems().add(newFavorite);
+
                         populateTable(entryTable);
-
                         return 0;
                     }
                 };
 
                 // call popup with above parameters
                 CwacosPopup.display(LOAD, LOAD, CANCEL, content, testFunction);
-
             }
         });
 
@@ -363,33 +394,62 @@ public class CwacosView extends Application {
                     public Object apply(Object o) {
 
                         //Store the string value of the ticker the user inputted.
-                        String symbol = inputArea.getText();
+                        String symbol = inputArea.getText().toUpperCase();
 
                         // get int type based on position in list.
                         int type = typeSelection.getSelectionModel().getSelectedIndex();
 
                         // Checks that a type is actually selected from the dropdown
-                        if(type < 0) {
+                        if((type < 0) || (symbol.length() == 0)) {
                             return -1;
                         } else {
-                            String addFavoriteStatus = CwacosData.addFavorite(symbol, type);
 
-                            // check to see if the symbol was added to the data, if not, exit
-                            if (!CwacosData.existData(symbol)) {
-                                setStatus(addFavoriteStatus);
+                            // Add favorite and get response
+                            Response addFavoriteResponse = CwacosData.addFavorite(symbol, type);
+
+                            // Check if there was an error adding the favorite
+                            if (!addFavoriteResponse.success) {
+                                setStatus(addFavoriteResponse.status);
                                 return -1;
                             }
 
-                            //ATTN: this is dependent on the case that there are always the same number
-                            // of items in the combo box as in the menubar types (stocks, cryptos)
-                            favoritesMenu.getMenus().get(type).getItems().add(new MenuItem(symbol.toUpperCase()));
+                            // Create a new menu item to be added to the appropriate
+                            // menu in the menu bar
+                            MenuItem newFavorite = new MenuItem(symbol);
 
-                            setStatus(addFavoriteStatus);
-                            CwacosData.setActiveData(symbol);
+                            // Set callback event for clicking menu item (the favorite itself)
+                            newFavorite.setOnAction(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent actionEvent) {
+                                    // Set the active symbol and type and update table contents
+                                    CwacosData.setActiveSymbol(symbol);
+                                    CwacosData.setActiveType(type);
+
+                                    System.out.println("value 1: " + type);
+                                    System.out.println("value 2: " + CwacosData.getActiveType());
+
+                                    populateTable(entryTable);
+                                    setStatus("Now viewing " + symbol);
+                                }
+                            });
+
+                            // Add menu item to the menu of the correct type in the menu bar
+                            favoritesMenu.getMenus().get(type).getItems().add(newFavorite);
+
+                            // Now that we have completed all necessary actions, we can print the success status
+                            setStatus(addFavoriteResponse.status);
+
+                            // Set the active data to the newly added symbol
+                            CwacosData.setActiveSymbol(symbol);
+                            CwacosData.setActiveType(type);
+
+                            System.out.println("value 3: " + CwacosData.getActiveType());
+
+                            // Set table contents to newly added symbol (since no data exists for symbol yet,
+                            // this will only clear the table.
+                            populateTable(entryTable);
 
                             return 0;
-                            // update table view to be populated with the data from the data in the map.
-                            // for all intents and purposes this should create an empty table.
                         }
                     }
                 };
@@ -444,37 +504,45 @@ public class CwacosView extends Application {
                         //Get the type the user selected
                         int type = typeSelection.getSelectionModel().getSelectedIndex();
 
-                        // if type is -1, nothing in the combobox is selected
-                        if(type < 0) {
+                        // Check that combo box is selected and input has text
+                        if((type < 0) || (symbol.length() == 0)){
                             return -1;
                         } else {
-                            String removeFavoriteStatus = CwacosData.removeFavorites(symbol);
 
-                            // check to see if the symbol was properly removed
-                            if (CwacosData.existData(symbol)) {
-                                setStatus(removeFavoriteStatus);
+                            // Remove favorite and get response
+                            Response removeFavoriteResponse = CwacosData.removeFavorite(symbol, type);
+
+                            // Check if removal had errors
+                            if (!removeFavoriteResponse.success) {
+                                setStatus(removeFavoriteResponse.status);
                                 return -1;
                             }
 
-                            //Pick one of the ticker menus depending on ticker type selection
+                            // Pick one of the type menus from the menu bar depending on ticker type selection
                             Menu menu = favoritesMenu.getMenus().get(type);
 
-                            //Search the menu for the ticker to remove
+                            // Search the menu for the symbol to remove
                             for (int i = 0; i < menu.getItems().size(); i++) {
-                                MenuItem current = menu.getItems().get(i);  //Store the current menu item that's being checked
 
-                                String text = current.getText();    //Store the string contained in the menu item
+                                //Store the current menu item that's being checked
+                                MenuItem current = menu.getItems().get(i);
+
+                                //Store the string contained in the menu item
+                                String text = current.getText();
 
                                 //Check if the ticker the user entered matches the current menu item
                                 if (text.contains(symbol)) {
-                                    menu.getItems().remove(current);    //Remove that ticker from the menu
+
+                                    //Remove that ticker from the menu
+                                    menu.getItems().remove(current);
                                 }
                             }
 
-                            setStatus(removeFavoriteStatus);
+                            // Set success status
+                            setStatus(removeFavoriteResponse.status);
 
-                            // need to set active table view data either to empty or another symbol in the list
-                            // CwacosData.setActiveData(symbol);
+                            // Update table data since removal changed the value of CwacosView.activeData
+                            populateTable(entryTable);
 
                             return 0;
                         }
@@ -621,6 +689,10 @@ public class CwacosView extends Application {
         updateBtn.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
         updateBtn.setTooltip(new Tooltip("Update data for table in view"));
 
+        /**
+         * This is an anonymous function to set the handler for when the
+         * update button is clicked in the main UI
+         */
         updateBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
@@ -631,39 +703,68 @@ public class CwacosView extends Application {
                 // combo box for call type
                 // this could be done programmatically, technically, but we may not always use enums given the API we use,
                 // so this will be done custom
-                final ComboBox<String> callTypeList = createComboBox();
-                callTypeList.getItems().addAll("Intraday", "Daily", "Weekly", "Monthly");
-                dialogContent.add(callTypeList, 0, 0);
+                final ComboBox<String> callArgument1 = createComboBox();
 
-                // combo box for interval type
-                final ComboBox<String> callIntervalList = createComboBox();
-                callIntervalList.getItems().addAll("None", "1 Min.", "5 Min.", "10 Min.", "15 Min.", "30 Min.", "60 Min.");
-                dialogContent.add(callIntervalList, 0, 1);
+                // Get the call types to display in dropdown
+                String[] callTypes = CwacosData.getCallTypes();
 
-                // define function to be run when user clicks 'okay'
-                Function<Object, Object> testFunction = new Function<Object, Object>() {
+                // Add call types to combo box
+                for(int i = 0; i < callTypes.length; i++) {
+                    callArgument1.getItems().add(callTypes[i]);
+                }
+
+                // Add combo box to dialogue box.
+                dialogContent.add(callArgument1, 0, 0);
+
+                final ComboBox<String> callArgument2 = createComboBox();
+
+                switch(CwacosData.getActiveType()) {
+                    case 0: //stock
+                        String[] stockIntervals = CwacosData.getStockIntervals();
+
+                        for(int i = 0; i < stockIntervals.length; i++) {
+                            callArgument2.getItems().add(stockIntervals[i]);
+                        }
+                        break;
+
+                    case 1: // cryptos
+                        String[] cryptoMarkets = CwacosData.getCryptoMarkets();
+
+                        for(int i = 0; i < cryptoMarkets.length; i++) {
+                            callArgument2.getItems().add(cryptoMarkets[i]);
+                        }
+                        break;
+                }
+
+                dialogContent.add(callArgument2, 0, 1);
+
+                /**
+                 * This function is an anoymous function that defines the action that will
+                 * take place when the user clicks the "okay" button (or its equivalent)
+                 * in the dialogue popup generated from clicking the update button in the main UI.
+                 */
+                Function<Object, Object> desiredAction = new Function<Object, Object>() {
                     @Override
                     public Object apply(Object o) {
 
-                        int type = callTypeList.getSelectionModel().getSelectedIndex();
-                        int interval = callIntervalList.getSelectionModel().getSelectedIndex();
+                        int arg1 = callArgument1.getSelectionModel().getSelectedIndex();
+                        int arg2 = callArgument2.getSelectionModel().getSelectedIndex();
 
                         // check that type and interval have been chosen
-                        if((type < 0) || (interval < 0))
+                        if((arg1 < 0) || (arg2 < 0) || (CwacosData.getActiveSymbol() == ""))
                         {
                             return -1;
                         } else {
-                            String updateStatus = CwacosData.update(type, interval);
+                            Response updateResponse = CwacosData.update(arg1, arg2);
 
-                            // if status is not null, there was an error
-                            if (updateStatus != null) {
-                                setStatus(updateStatus);
+                            // if size of current entry list is zero, there was an error
+                            if (!updateResponse.success) {
+                                setStatus(updateResponse.status);
                                 return -1;
                             }
 
-                            // set active table view to the activeData
-
-                            setStatus("Success: Updated " + CwacosData.getActiveData());
+                            setStatus(updateResponse.status);
+                            populateTable(entryTable);
 
                             return 0;
                         }
@@ -673,7 +774,7 @@ public class CwacosView extends Application {
                 content.getChildren().add(dialogContent);
 
                 // call popup with above parameters
-                CwacosPopup.display(UPDATE, UPDATE, CANCEL, content, testFunction);
+                CwacosPopup.display(UPDATE, UPDATE, CANCEL, content, desiredAction);
             }
         });
 
@@ -703,10 +804,34 @@ public class CwacosView extends Application {
         updateAllBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                //String updateAllStatus = CwacosData.updateAll();
-                //setStatus(updateAllStatus);
+                setStatus("Updating all symbols, this will take approximately " + CwacosData.getUpdateWaitTimeAsString());
 
-                setStatus("This code is currently commented out.");
+                var responseWrapper = new Object() {
+                    Response wrappedResponse;
+                };
+
+                Task updateData = new Task<>() {
+                    @Override
+                    public String call(){
+                        responseWrapper.wrappedResponse = CwacosData.updateAll();
+
+                        Platform.runLater(new Runnable(){
+                            @Override
+                            public void run() {
+                                if(!responseWrapper.wrappedResponse.success) {
+                                    setStatus(responseWrapper.wrappedResponse.status);
+                                }
+
+                                setStatus(responseWrapper.wrappedResponse.status);
+                            }
+                        });
+
+                        return null;
+                    }
+                };
+
+                Thread updateThread = new Thread(updateData);
+                updateThread.start();
             }
         });
 
@@ -775,9 +900,14 @@ public class CwacosView extends Application {
      * Populates the table with entries from the API.
      */
     private void populateTable(TableView _table) {
+        _table.getItems().clear();
+
         ArrayList<Entry> entries = CwacosData.getActiveEntryList();
-        for (int i = 0; i < entries.size(); i++) {
-            _table.getItems().add(entries.get(i));
+
+        if(entries != null) {
+            for (int i = 0; i < entries.size(); i++) {
+                _table.getItems().add(entries.get(i));
+            }
         }
     }
 

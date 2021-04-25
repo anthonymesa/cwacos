@@ -9,7 +9,7 @@ Cwacos is a stonks projection software written in Java which uses the Alpha Vant
 * JavaFX UI
 * [Alpha Vantage API](https://www.alphavantage.co/)
 * [MaxStockPrice Algorithm](https://github.com/mcleoar/MaxStockPrice)
-* (Database)
+* Local File Storage
 
 ## Required Libraries
 * org.json
@@ -19,5 +19,5 @@ Cwacos is a stonks projection software written in Java which uses the Alpha Vant
 * Github Admin - Anthony Mesa
 * API Developer - Michael Leonard
 * UI Developer - Jack Fink
-* Persistent Storage -  Abdoul D
-* General Code Wrangler - Alan Choi
+* Persistent Storage - Alan Choi
+* General Code Wrangler - Abdoul D

@@ -5,14 +5,11 @@ Contributing Authors:
  */
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class Entry implements Comparable<Entry> {
 
-    // You can now use CwacosDateFormat.getDateFormat(); to avoid reusing of code
-    private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);
+    private DateFormat formatter = CwacosDateFormat.getDateFormat();
 
     private double open, close, low, high;
     private int volume;
@@ -68,6 +65,26 @@ public class Entry implements Comparable<Entry> {
 
     public Date getDateTime() {
         return dateTime;
+    }
+
+    public String getOpenString() {
+        return Double.toString(open);
+    }
+
+    public String getCloseString() {
+        return Double.toString(close);
+    }
+
+    public String getLowString() {
+        return Double.toString(low);
+    }
+
+    public String getHighString() {
+        return Double.toString(high);
+    }
+
+    public String getVolumeString() {
+        return Integer.toString(volume);
     }
 
     public String getDateTimeString() { return formatter.format(dateTime);}

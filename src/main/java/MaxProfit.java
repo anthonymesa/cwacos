@@ -65,12 +65,22 @@ public class MaxProfit {
         Jump maxProfit = findMaxProfit(priceChangeArray, 0, priceChangeArray.length-1);
 
         //Create String array to return from this method
-        String[] results = new String[5];
+        String[] results = new String[7];
+
+        //Overall Low price of entry data
         results[0] = String.valueOf(overallLow);
+        //Price at which you buy
         results[1] = String.valueOf(_stocks.get(maxProfit.beginJumpPosition/2).getLow());
-        results[2] = String.valueOf(overallHigh);
-        results[3] = String.valueOf(_stocks.get(maxProfit.endJumpPosition/2).getHigh());
-        results[4] = String.valueOf(maxProfit.profit);
+        //Date of buy
+        results[2] = _stocks.get(maxProfit.beginJumpPosition/2).getDateTimeString();
+        //Overall High price of entry data
+        results[3] = String.valueOf(overallHigh);
+        //Price at which you sell
+        results[4] = String.valueOf(_stocks.get(maxProfit.endJumpPosition/2).getHigh());
+        //Date of sell
+        results[5] = _stocks.get(maxProfit.beginJumpPosition/2).getDateTimeString();
+        //Value of profit
+        results[6] = String.valueOf(maxProfit.profit);
 
         return results;
     }

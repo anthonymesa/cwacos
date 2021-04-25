@@ -1,3 +1,4 @@
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +19,7 @@ public abstract class AlphaVantageConnection {
     protected static final String apiKeyAlpha = "MO9QU9JAPBBPX5T7";
 
     protected enum CallType {INTRADAY_CALL, DAILY_CALL, WEEKLY_CALL, MONTHLY_CALL}
-    protected enum CallInterval {NO_INTERVAL, MINUTE_1, MINUTE_5, MINUTE_10, MINUTE_15, MINUTE_30, MINUTE_60}
+    protected enum CallInterval {NO_INTERVAL, MINUTE_1, MINUTE_5, MINUTE_15, MINUTE_30, MINUTE_60}
 
     /**
      * Parses raw JSON information from API call and stores it in a JSONobject that is returned.
@@ -62,16 +63,16 @@ public abstract class AlphaVantageConnection {
      */
     protected static AVAPIStocksTranslator.CallType translateTypeEnum(int _callType){
         switch(_callType){
-            case 0:
+            case 1:
                 return AVAPIStocksTranslator.CallType.INTRADAY_CALL;
 
-            case 1:
+            case 2:
                 return AVAPIStocksTranslator.CallType.DAILY_CALL;
 
-            case 2:
+            case 3:
                 return AVAPIStocksTranslator.CallType.WEEKLY_CALL;
 
-            case 3:
+            case 4:
                 return AVAPIStocksTranslator.CallType.MONTHLY_CALL;
 
             default:
@@ -88,25 +89,22 @@ public abstract class AlphaVantageConnection {
      */
     protected static AVAPIStocksTranslator.CallInterval translateIntervalEnum(int _callInterval){
         switch(_callInterval){
-            case 0:
+            case 10:
                 return AVAPIStocksTranslator.CallInterval.NO_INTERVAL;
 
-            case 1:
+            case 11:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_1;
 
-            case 2:
+            case 12:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_5;
 
-            case 3:
-                return AVAPIStocksTranslator.CallInterval.MINUTE_10;
-
-            case 4:
+            case 13:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_15;
 
-            case 5:
+            case 14:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_30;
 
-            case 6:
+            case 15:
                 return AVAPIStocksTranslator.CallInterval.MINUTE_60;
 
             default:
@@ -130,9 +128,6 @@ public abstract class AlphaVantageConnection {
 
             case MINUTE_5:
                 return "5min";
-
-            case MINUTE_10:
-                return "10min";
 
             case MINUTE_15:
                 return "15min";

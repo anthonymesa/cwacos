@@ -70,6 +70,7 @@ public class Entry implements Comparable<Entry> {
         return dateTime;
     }
 
+    public String getDateTimeString() { return formatter.format(dateTime);}
     //---------------------------------SETTERS-----------------------------------//
 
 

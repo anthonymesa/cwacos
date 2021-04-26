@@ -1,10 +1,16 @@
-/*
-Last updated:
-Purpose of this class:
-Contributing Authors:
- */
+package com.cwacos;
+
 /**
- * This is necessary
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: CwacosData provides a central hub to access all of the data and data modifying functions
+ *      within Cwacos. Any state or data modifications should be made using calls to static CwacosData functions.
+ * 
+ * Contributing Authors:
+ *      Anthony Mesa
+ *      Michael Leonard
+ *      Hyoungjin Choi
+ *      Jack Fink
  */
 
 import java.time.LocalDateTime;
@@ -62,7 +68,7 @@ public class CwacosData {
                         return new Response("Symbol in settings does not match symbol in file... Aborting load state", false);
                     }
 
-                    if(!loadResponse.success) {
+                    if(!loadResponse.getSuccess()) {
                         return new Response("An error occurred while trying to load state...", false);
                     }
                 }
@@ -212,12 +218,12 @@ public class CwacosData {
 
         Response saveResponse = DataStorage.save(save_parameters, data_to_save);
 
-        if(!saveResponse.success){
+        if(!saveResponse.getSuccess()){
             return saveResponse;
         }
 
         // here we are customizing the response message a little but
-        return new Response(getActiveSymbol() + saveResponse.status, saveResponse.success);
+        return new Response(getActiveSymbol() + saveResponse.getStatus(), saveResponse.getSuccess());
     }
 
     /**
@@ -391,13 +397,13 @@ public class CwacosData {
 
         updateAllResponse = updateAllStocks();
 
-        if(!updateAllResponse.success) {
+        if(!updateAllResponse.getSuccess()) {
             return updateAllResponse;
         }
 
         updateAllResponse = updateAllCryptos();
 
-        if(!updateAllResponse.success) {
+        if(!updateAllResponse.getSuccess()) {
             return updateAllResponse;
         }
 
@@ -420,7 +426,7 @@ public class CwacosData {
                     stockData.get(nextKey).getCallInterval()
             );
 
-            if(!updateResponse.success) {
+            if(!updateResponse.getSuccess()) {
                 return new Response ("An error occurred while updating " + getActiveSymbol() + ", update all failed", false);
             }
 
@@ -449,7 +455,7 @@ public class CwacosData {
                     cryptoData.get(nextKey).getCallMarket()
             );
 
-            if(!updateResponse.success) {
+            if(!updateResponse.getSuccess()) {
                 return new Response ("An error occurred while updating " + getActiveSymbol() + ", update all failed", false);
             }
 
@@ -778,7 +784,7 @@ public class CwacosData {
 
     public static ArrayList<String> getStockSymbols() {
 
-        ArrayList<String> symbols = new ArrayList();
+        ArrayList<String> symbols = new ArrayList<String>();
 
         for (Map.Entry<String, StockDataSegment> entry : stockData.entrySet()) {
             symbols.add(entry.getKey());
@@ -789,7 +795,7 @@ public class CwacosData {
 
     public static ArrayList<String> getCryptoSymbols() {
 
-        ArrayList<String> symbols = new ArrayList();
+        ArrayList<String> symbols = new ArrayList<String>();
 
         for (Map.Entry<String, CryptoDataSegment> entry : cryptoData.entrySet()) {
             symbols.add(entry.getKey());

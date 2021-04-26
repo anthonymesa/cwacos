@@ -1,3 +1,15 @@
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: 
+ * 
+ * Contributing Authors:
+ *      Michael Leonard
+ *      Anthony Mesa
+ */
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -69,7 +81,6 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
     private static URL getStockURL(String _stock, CallInterval _interval, CallType _callType) throws MalformedURLException {
         String function;
         String interval = "";
-        String endpoint;
 
         //Translate the given interval to a string for the URL if the intraday call is being used
         if(_callType == CallType.INTRADAY_CALL)
@@ -97,7 +108,6 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
 
         String open, high, low, close, volume;
         DateFormat format;
-        Date date;
 
         //Use Special format for Intraday call, otherwise use the default format.
         if(_callType == CallType.INTRADAY_CALL)

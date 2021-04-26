@@ -1,12 +1,12 @@
-/*
-Last updated:
-Purpose of this class:
-Contributing Authors:
- */
+package com.cwacos;
 
-/*
-    Project: Cwacos
-    Author: Anthony Mesa
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: CryptoDataSegment provides a DataSegment object customized for crypto calls. 
+ * 
+ * Contributing Authors:
+ *      Anthony Mesa
  */
 
 // The purpose of this little class is so that

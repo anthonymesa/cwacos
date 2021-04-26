@@ -1,9 +1,18 @@
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+package com.cwacos;
 
 /**
- * Info to be included for all datasegments
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: DataSegment provides a template for all data segments that must be stored
+ *      in the CwacosData class. The variables in this class are required for any
+ *      financial data being worked with to be compatible with algorithms across Cwacos.
+ * 
+ * Contributing Authors:
+ *      Anthony Mesa
  */
+
+import java.util.ArrayList;
+
 public abstract class DataSegment {
 
     private String fileUrl = null;

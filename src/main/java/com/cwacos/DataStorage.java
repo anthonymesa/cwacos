@@ -1,7 +1,13 @@
-/*
-Last updated:
-Purpose of this class:
-Contributing Authors: Anthony Mesa, Hyoungjin Choi
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: DataStorage model provides a constant access point for CwacosData to access data storing functions.
+ * 
+ * Contributing Authors:
+ *      Anthony Mesa
+ *      Hyoungjin Choi
  */
 
 import java.util.ArrayList;
@@ -11,10 +17,6 @@ class DataStorage {
 
     private static StorageAdapter adapter;
 
-    /** constructor takes enum, if LOCAL is used as
-     * a parameter, initializes storage adapter
-     * as LocalFileStorage class
-     */
     public static void init() {
         adapter = new LocalStorageTranslator();
     }

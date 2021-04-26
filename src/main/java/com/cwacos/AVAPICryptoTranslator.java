@@ -1,3 +1,15 @@
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: 
+ * 
+ * Contributing Authors:
+ *      Michael Leonard
+ *      Anthony Mesa 
+ */
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -88,7 +100,6 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
 
         String open, high, low, close, volume;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        Date date;
 
         //Iterate the JSON and store all appropriate values in correct ArrayLists
         while(keys.hasNext()) {

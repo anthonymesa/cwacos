@@ -124,7 +124,7 @@ public class CwacosData {
         // these are kept separate because you cant concurrently modify
         for (Map.Entry<String, StockDataSegment> entry : stockData.entrySet()) {
             activeSymbol = entry.getKey();
-            activeType = entry.getValue().call_type;
+            activeType = entry.getValue().getCallType();
             saveData();
         }
     }
@@ -133,7 +133,7 @@ public class CwacosData {
         // these are kept separate because you cant concurrently modify
         for (Map.Entry<String, CryptoDataSegment> entry : cryptoData.entrySet()) {
             activeSymbol = entry.getKey();
-            activeType = entry.getValue().call_type;
+            activeType = entry.getValue().getCallType();
             saveData();
         }
     }
@@ -146,16 +146,22 @@ public class CwacosData {
     private static void appendStocksSettings(StringBuilder _symbols, StringBuilder _urls){
         // gather state info to save for each element in the financeData
         for (Map.Entry<String, StockDataSegment> entry : stockData.entrySet()) {
-            _symbols.append(entry.getKey() + "|");
-            _urls.append(entry.getValue().url + "|");
+
+            /* Only save to settings if file has been saved */
+            if(entry.getValue().getFileUrl() != null) {
+                _symbols.append(entry.getKey() + "|");
+                _urls.append(entry.getValue().getFileUrl() + "|");
+            }
         }
     }
 
     private static void appendCryptoSettings(StringBuilder _symbols, StringBuilder _urls) {
         // gather state info to save for each element in the financeData
         for (Map.Entry<String, CryptoDataSegment> entry : cryptoData.entrySet()) {
-            _symbols.append(entry.getKey() + "|");
-            _urls.append(entry.getValue().url + "|");
+            if(entry.getValue().getFileUrl() != null) {
+                _symbols.append(entry.getKey() + "|");
+                _urls.append(entry.getValue().getFileUrl() + "|");
+            }
         }
     }
 
@@ -183,7 +189,7 @@ public class CwacosData {
      */
     public static Response saveData() {
 
-        if (getActiveEntryList() == null) {
+        if ((getActiveEntryList() == null) || (getActiveEntryList().size() == 0)) {
             return new Response("There is no data to save...", false);
         }
 
@@ -327,46 +333,46 @@ public class CwacosData {
         }
     }
 
-    public static Response updateStock(int _call_type, int _call_interval) {
+    public static Response updateStock(int _callType, int _callInterval) {
         if (!stockData.containsKey(activeSymbol)) {
             return new Response( activeSymbol + " does not exist, update failed. ", false);
         }
 
-        ArrayList<Entry> api_call_result = Stocks.get(
-                stockData.get(activeSymbol).symbol,
-                _call_type,
-                _call_interval
+        ArrayList<Entry> apiCallResult = Stocks.get(
+                stockData.get(activeSymbol).getSymbol(),
+                _callType,
+                _callInterval
         );
 
-        if(api_call_result == null){
+        if(apiCallResult == null){
             return new Response("An error occurred while making update request. Update failed. ", false);
         }
 
-        stockData.get(activeSymbol).call_type = _call_type;
-        stockData.get(activeSymbol).call_interval = _call_interval;
-        stockData.get(activeSymbol).data = api_call_result;
+        stockData.get(activeSymbol).setCallType(_callType);
+        stockData.get(activeSymbol).setCallInterval(_callInterval);
+        stockData.get(activeSymbol).setEntryList(apiCallResult);
 
         return new Response("Updated " + getActiveSymbol(), true);
     }
 
-    public static Response updateCrypto(int _call_type, int _call_market) {
+    public static Response updateCrypto(int _callType, int _callMarket) {
         if (!cryptoData.containsKey(activeSymbol)) {
             return new Response( activeSymbol + " does not exist, update failed. ", false);
         }
 
         // This is done because at 0 (daily) it thinks it is intraday
-        _call_type++;
+        _callType++;
         ArrayList<Entry> api_call_result = Cryptos.get(
-                cryptoData.get(activeSymbol).symbol,
-                getCryptoMarkets()[_call_market],
-                _call_type
+                cryptoData.get(activeSymbol).getSymbol(),
+                getCryptoMarkets()[_callMarket],
+                _callType
         );
 
-        cryptoData.get(activeSymbol).call_type = _call_type;
-        cryptoData.get(activeSymbol).call_market = _call_market;
-        cryptoData.get(activeSymbol).data = api_call_result;
+        cryptoData.get(activeSymbol).setCallType(_callType);
+        cryptoData.get(activeSymbol).setCallMarket(_callMarket);
+        cryptoData.get(activeSymbol).setEntryList(api_call_result);
 
-        if(cryptoData.get(activeSymbol).data.size() == 0){
+        if(cryptoData.get(activeSymbol).getEntryList().size() == 0){
             return new Response("Error: An error occured while making update request. Update failed. ", false);
         } else {
             return new Response("Success: Updated " + getActiveSymbol(), true);
@@ -408,8 +414,8 @@ public class CwacosData {
             setActiveType(0);
 
             Response updateResponse = updateStock(
-                    stockData.get(nextKey).call_type,
-                    stockData.get(nextKey).call_interval
+                    stockData.get(nextKey).getCallType(),
+                    stockData.get(nextKey).getCallInterval()
             );
 
             if(!updateResponse.success) {
@@ -437,8 +443,8 @@ public class CwacosData {
             setActiveType(1);
 
             Response updateResponse = updateCrypto(
-                    cryptoData.get(nextKey).call_type,
-                    cryptoData.get(nextKey).call_market
+                    cryptoData.get(nextKey).getCallType(),
+                    cryptoData.get(nextKey).getCallMarket()
             );
 
             if(!updateResponse.success) {
@@ -510,7 +516,7 @@ public class CwacosData {
                 )
         );
 
-        stockData.get(_symbol).data = new ArrayList<>();
+        stockData.get(_symbol).setEntryList(new ArrayList<>());
 
         return new Response("Stock symbol " + _symbol + " was added.", true);
     }
@@ -540,7 +546,7 @@ public class CwacosData {
                 )
         );
 
-        cryptoData.get(_symbol).data = new ArrayList<>();
+        cryptoData.get(_symbol).setEntryList(new ArrayList<>());
 
         return new Response("Crypto symbol " + _symbol + " added successfully." , true);
     }
@@ -575,7 +581,7 @@ public class CwacosData {
 
         cryptoData.remove(_symbol);
 
-        SetNextActiveData();
+        setNextActiveData();
 
         return new Response("Crypto " + _symbol + " removed successfully.", true);
     }
@@ -587,12 +593,22 @@ public class CwacosData {
 
         stockData.remove(_symbol);
 
-        SetNextActiveData();
+        setNextActiveData();
 
         return new Response("Stock " + _symbol + " removed successfully.", true);
     }
 
-    public static void SetNextActiveData() {
+    /**
+     * Resets activeData and activeType to the first element of the
+     * data maps assuming they are not empty. The order of handling is
+     * as follows:
+     *
+     * stockData -> cryptoData
+     *
+     * Meaning, if an element in stockData exists, it will be set, else,
+     * if an element exists in cryptoData it will then be set.
+     */
+    public static void setNextActiveData() {
 
         if(stockData.keySet().size() != 0) {
             activeSymbol = (String) stockData.keySet().toArray()[0];
@@ -622,7 +638,6 @@ public class CwacosData {
     }
 
     public static String[] getCallTypes() {
-        System.out.println(CwacosData.getActiveType());
         switch(activeType) {
             case 0:
                 return Stocks.getCallTypes();
@@ -666,9 +681,9 @@ public class CwacosData {
         try {
             switch (activeType) {
                 case 0:
-                    return stockData.get(activeSymbol).data;
+                    return stockData.get(activeSymbol).getEntryList();
                 case 1:
-                    return cryptoData.get(activeSymbol).data;
+                    return cryptoData.get(activeSymbol).getEntryList();
                 default:
                     return null;
             }
@@ -683,24 +698,21 @@ public class CwacosData {
     private static void setActiveEntryList(ArrayList<Entry> _data) {
         switch(activeType) {
             case 0:
-                stockData.get(activeSymbol).data = _data;
+                stockData.get(activeSymbol).setEntryList(_data);
                 break;
             case 1:
-                cryptoData.get(activeSymbol).data = _data;
+                cryptoData.get(activeSymbol).setEntryList(_data);
                 break;
         }
     }
 
     public static void saveFileUrl(String _url) {
-
-        System.out.println(activeSymbol + " " + activeType);
-
         switch(activeType) {
             case 0:
-                stockData.get(activeSymbol).url = _url;
+                stockData.get(activeSymbol).setFileUrl(_url);
                 break;
             case 1:
-                cryptoData.get(activeSymbol).url = _url;
+                cryptoData.get(activeSymbol).setFileUrl(_url);
                 break;
         }
     }
@@ -745,5 +757,27 @@ public class CwacosData {
      */
     private static int getDataSize(){
         return stockData.size() + cryptoData.size();
+    }
+
+    public static ArrayList<String> getStockSymbols() {
+
+        ArrayList<String> symbols = new ArrayList();
+
+        for (Map.Entry<String, StockDataSegment> entry : stockData.entrySet()) {
+            symbols.add(entry.getKey());
+        }
+
+        return symbols;
+    }
+
+    public static ArrayList<String> getCryptoSymbols() {
+
+        ArrayList<String> symbols = new ArrayList();
+
+        for (Map.Entry<String, CryptoDataSegment> entry : cryptoData.entrySet()) {
+            symbols.add(entry.getKey());
+        }
+
+        return symbols;
     }
 }

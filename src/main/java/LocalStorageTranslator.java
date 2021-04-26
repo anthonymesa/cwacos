@@ -114,8 +114,8 @@ class LocalStorageTranslator implements StorageAdapter {
             File file = new File(fileName);
             PrintWriter writer = new PrintWriter(file);
 
-            writer.print(_params.get(1));
-            writer.print(_params.get(2));
+            writer.println(_params.get(1));
+            writer.println(_params.get(2));
 
             // loop through _input and write to file
             for (int i = 0; i < _input.size(); i++) {

@@ -29,88 +29,98 @@ import javafx.scene.shape.*;
 import javafx.scene.paint.*;
 
 public class CwacosView extends Application {
-    //enumerated label texts
-    private final String CWACOS = "Cwacos";
-    private final String LOAD = "Load";
-    private final String CANCEL = "Cancel";
-    private final String ADD = "Add";
-    private final String REMOVE = "Remove";
-    private final String UPDATE = "Update";
-    private final String ADD_STOCK_OR_CRYPTO = "Add Stock/Crypto";
-    private final String REMOVE_STOCK_OR_CRYPTO = "Remove Stock/Crypto";
 
-    //Color palette
-    private final String PRIMARY_COLOR = "1D1D1D";
-    private final String SECONDARY_COLOR = "4E4E4E";
-    private final String WHITE_COLOR = "FFFFFF";
-    private final String ACCENT_COLOR = "BB86FC";
+    /* Window dimensions*/
+    private static final int WINDOW_WIDTH = 1465;
+    private static final int WINDOW_HEIGHT = 1000;
 
-    //Status leading string
-    private final String STATUS_LEAD = "  ~ ";
+    /* Grid pane root for Window */
+    private GridPane root = new GridPane();
 
-    // this row index is updated every time a row is added with the current row level
-    // that the next row should be generated on;
-    private int y_row_index = 0;
+    /* Window grid dimensions */
+    private static final int GRID_X = 60;
+    private static final int GRID_Y = 60;
 
-    //Window dimensions
-    private final int WINDOWWIDTH = 1465;
-    private final int WINDOWHEIGHT = 1000;
+    /* UI Labels */
+    private static final String APPLICATION_NAME = "Cwacos";
+    private static final String LOAD = "Load";
+    private static final String CANCEL = "Cancel";
+    private static final String ADD = "Add";
+    private static final String REMOVE = "Remove";
+    private static final String UPDATE = "Update";
+    private static final String ADD_TITLE = "Add Stock/Crypto";
+    private static final String REMOVE_TITLE = "Remove Stock/Crypto";
 
-    //grid dimensions
-    private final int GRID_X = 60;
-    private final int GRID_Y = 60;
+    /* UI Colors */
+    private static final String PRIMARY_COLOR = "1D1D1D";
+    private static final String SECONDARY_COLOR = "4E4E4E";
+    private static final String WHITE_COLOR = "FFFFFF";
+    private static final String ACCENT_COLOR = "BB86FC";
 
-    //custom spacing
+    /* Leading characters for status display */
+    private static final String STATUS_LEAD = "  ~ ";
+
+    /* Custom spacing values */
     private final int BUTTON_ICON_SIZE = 20;
     private final int BUTTON_SPACING = 2;
     private final int COMPONENT_SPACING = 10;
 
-    // This label is used for outputting state messages to user. Defined at
-    // class level because it will be referenced everywhere.
-    private final Label STATUS_OUTPUT = new Label();
-    private final MenuBar favoritesMenu = new MenuBar();
-    private final TextInputDialog choiceWindow = new TextInputDialog();
+    /* yRowIndex keeps track of the grid y index that the next
+       row will be populated on when a new row is added to root. */
+    private int yRowIndex = 0;
 
-    //table view for active data
-    private TableView entryTable = new TableView();
-
-    CwacosController UI = new CwacosController();
-
-    //Parent layout
-    private GridPane root = new GridPane();
-
+    /**
+     * Begin UI
+     * @param args Arguments for UI
+     */
     public static void beginUI(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
-        // this is called from the UI so we can populate menu after settings have been loaded
-        CwacosData.loadState();
 
+        /* This is called first from the UI so we can ensure settings have been loaded. */
+        Response stateLoadResponse = CwacosData.loadState();
+
+        /* Initialize static popup class to be used for quokka fact. */
         CwacosPopup.init();
 
         VBox content = new VBox();
 
-        //Create text field that takes user input
+        /* Display random quokka fact */
         Label qfact = new Label(CwacosData.getQuakkaFact());
         content.getChildren().add(qfact);
+        CwacosPopup.display(APPLICATION_NAME, "Thanks!", content);
 
-        // call popup with above parameters
-        CwacosPopup.display(CWACOS, "Woah!", content);
-
-        primaryStage.setTitle(CWACOS);
-
-        // Changing the order of these functions will change the order these rows
-        // are displayed
+        /* Dynamically create all elements of the UI.
+           This is done in rows, and because we are using the yRowIndex variable,
+           to interchange the rows, just swap the order of the
+           generation calls. */
         generateMenuBar(3, 1, 0);
         generateActiveDataTableComponent(32, 1, 0);
         generateCandlestickGraphComponent(24, 1, 1);
         generateStatusBar(1, 1, 0);
 
+        /* Populate the menuBar with the items loaded from settings. */
+        populateStocksMenu();
+        populateCryptosMenu();
+
+        /* Set the currently active element to the first available. */
+        CwacosData.setNextActiveData();
+
+        updateView();
+
+        /* Set status based on state load. */
+        setStatus(stateLoadResponse.status);
+
+        /* Get root grid pane ready */
         setupGridPane();
-        primaryStage.setScene(new Scene(root, WINDOWWIDTH, WINDOWHEIGHT));
+
+        /* Create window and set scene. */
+        primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
         primaryStage.setResizable(false);
+        primaryStage.setTitle(APPLICATION_NAME);
         primaryStage.show();
     }
 
@@ -127,16 +137,12 @@ public class CwacosView extends Application {
     private void setupGridPane() {
         root.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");   //Background color
 
-        //Set grid spacing
-        //root.getColumnConstraints().addAll(createColumnConstraints());
-        //root.getRowConstraints().addAll(createRowConstraints());
-
         for (int i = 0; i < GRID_X; i++) {
-            root.getColumnConstraints().add(new ColumnConstraints(WINDOWWIDTH / GRID_X));
+            root.getColumnConstraints().add(new ColumnConstraints(WINDOW_WIDTH / GRID_X));
         }
 
         for (int i = 0; i < GRID_Y; i++) {
-            root.getRowConstraints().add(new RowConstraints(WINDOWHEIGHT / GRID_Y));
+            root.getRowConstraints().add(new RowConstraints(WINDOW_HEIGHT / GRID_Y));
         }
     }
 
@@ -154,13 +160,13 @@ public class CwacosView extends Application {
     private void generateMenuBar(int height, int w_margin, int h_margin) {
 
         //Add the button container to the top bar section of the GridPane
-        root.add(generateMenuBarComponentLeft(height, w_margin, h_margin), w_margin, y_row_index, (GRID_X / 2) - w_margin, height);
+        root.add(generateMenuBarComponentLeft(height, w_margin, h_margin), w_margin, yRowIndex, (GRID_X / 2) - w_margin, height);
 
         // There is an odd thing going on here, technically the width should be GRID_X / 2 - (w_margin / 2) but it isn't and I don't know why.
-        root.add(generateMenuBarComponentRight(height, w_margin, h_margin), (GRID_X / 2), y_row_index, (GRID_X / 2), height);
+        root.add(generateMenuBarComponentRight(height, w_margin, h_margin), (GRID_X / 2), yRowIndex, (GRID_X / 2), height);
 
         // update the y_index for the next row
-        y_row_index += height;
+        yRowIndex += height;
     }
 
     //=========================== LEFT MENU BAR =========================
@@ -174,7 +180,6 @@ public class CwacosView extends Application {
     private HBox generateMenuBarComponentLeft(int height, int w_margin, int h_margin) {
         HBox menuBar = new HBox();
 
-        //menuBar.setStyle("-fx-background-color: #"+ WHITE_COLOR + ";");
         menuBar.setSpacing(COMPONENT_SPACING);
 
         // Add buttons to menu bar hbox
@@ -305,27 +310,10 @@ public class CwacosView extends Application {
                         String symbol = CwacosData.getActiveSymbol();
                         int type = CwacosData.getActiveType();
 
-                        // Create a new menu item to be added to the appropriate
-                        // menu in the menu bar
-                        MenuItem newFavorite = new MenuItem(symbol);
+                        generateFavoriteMenuItem(symbol, type);
 
-                        // Set callback event for clicking menu item (the favorite itself)
-                        newFavorite.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent actionEvent) {
-                                // Set the active symbol and type and update table contents
-                                CwacosData.setActiveSymbol(symbol);
-                                CwacosData.setActiveType(type);
+                        updateView();
 
-                                populateTable(entryTable);
-                                setStatus("Now viewing " + symbol);
-                            }
-                        });
-
-                        // Add menu item to the menu of the correct type in the menu bar
-                        favoritesMenu.getMenus().get(type).getItems().add(newFavorite);
-
-                        populateTable(entryTable);
                         return 0;
                     }
                 };
@@ -349,7 +337,8 @@ public class CwacosView extends Application {
         favoritesContainer.getChildren().addAll(
                 generateAddFavoriteBtn(),
                 generateRemoveFavoriteBtn(),
-                generateStocksCryptoMenu()
+                generateStocksCryptoMenu(),
+                generateActiveTicker()
         );
 
         return favoritesContainer;
@@ -393,13 +382,14 @@ public class CwacosView extends Application {
                     @Override
                     public Object apply(Object o) {
 
-                        //Store the string value of the ticker the user inputted.
-                        String symbol = inputArea.getText().toUpperCase();
+                        // Get symbol from input box and trim trailing and ending spaces.
+                        String symbol = inputArea.getText().trim().toUpperCase();
 
-                        // get int type based on position in list.
+                        // get int type based on users's selection index in comboBox.
                         int type = typeSelection.getSelectionModel().getSelectedIndex();
 
-                        // Checks that a type is actually selected from the dropdown
+
+                        // validates type is actually selected from the dropdown
                         if((type < 0) || (symbol.length() == 0)) {
                             return -1;
                         } else {
@@ -413,28 +403,7 @@ public class CwacosView extends Application {
                                 return -1;
                             }
 
-                            // Create a new menu item to be added to the appropriate
-                            // menu in the menu bar
-                            MenuItem newFavorite = new MenuItem(symbol);
-
-                            // Set callback event for clicking menu item (the favorite itself)
-                            newFavorite.setOnAction(new EventHandler<ActionEvent>() {
-                                @Override
-                                public void handle(ActionEvent actionEvent) {
-                                    // Set the active symbol and type and update table contents
-                                    CwacosData.setActiveSymbol(symbol);
-                                    CwacosData.setActiveType(type);
-
-                                    System.out.println("value 1: " + type);
-                                    System.out.println("value 2: " + CwacosData.getActiveType());
-
-                                    populateTable(entryTable);
-                                    setStatus("Now viewing " + symbol);
-                                }
-                            });
-
-                            // Add menu item to the menu of the correct type in the menu bar
-                            favoritesMenu.getMenus().get(type).getItems().add(newFavorite);
+                            generateFavoriteMenuItem(symbol, type);
 
                             // Now that we have completed all necessary actions, we can print the success status
                             setStatus(addFavoriteResponse.status);
@@ -443,11 +412,7 @@ public class CwacosView extends Application {
                             CwacosData.setActiveSymbol(symbol);
                             CwacosData.setActiveType(type);
 
-                            System.out.println("value 3: " + CwacosData.getActiveType());
-
-                            // Set table contents to newly added symbol (since no data exists for symbol yet,
-                            // this will only clear the table.
-                            populateTable(entryTable);
+                            updateView();
 
                             return 0;
                         }
@@ -455,7 +420,7 @@ public class CwacosView extends Application {
                 };
 
                 // call popup with above parameters
-                CwacosPopup.display(ADD_STOCK_OR_CRYPTO, ADD, CANCEL, content, testFunction);
+                CwacosPopup.display(ADD_TITLE, ADD, CANCEL, content, testFunction);
             }
         });
 
@@ -519,7 +484,7 @@ public class CwacosView extends Application {
                             }
 
                             // Pick one of the type menus from the menu bar depending on ticker type selection
-                            Menu menu = favoritesMenu.getMenus().get(type);
+                            Menu menu = getFavoritesMenu().getMenus().get(type);
 
                             // Search the menu for the symbol to remove
                             for (int i = 0; i < menu.getItems().size(); i++) {
@@ -541,23 +506,36 @@ public class CwacosView extends Application {
                             // Set success status
                             setStatus(removeFavoriteResponse.status);
 
-                            // Update table data since removal changed the value of CwacosView.activeData
-                            populateTable(entryTable);
+                            updateView();
 
                             return 0;
                         }
                     }
                 };
 
-                CwacosPopup.display(REMOVE_STOCK_OR_CRYPTO, REMOVE, CANCEL, content, testFunction);
+                CwacosPopup.display(REMOVE_TITLE, REMOVE, CANCEL, content, testFunction);
             }
         });
 
         return saveBtn;
     }
 
+    /**
+     * Create the stocks / crypto menu bar.
+     *
+     * Because this function is run on load, after the state
+     * has been loaded, this function will check if there are any
+     * elements in the relevant data maps in CwacosData and add
+     * them to their respective menus before adding it to the view.
+     *
+     * @return
+     */
     private HBox generateStocksCryptoMenu() {
 
+        MenuBar favoritesMenu = new MenuBar();
+        favoritesMenu.setId("favoritesMenu");
+
+        /* Create the menus to be added to the main menu bar. */
         Menu stocks = new Menu("Stocks");
         Menu cryptos = new Menu("Cryptos");
 
@@ -569,6 +547,81 @@ public class CwacosView extends Application {
         middleOptionsLayout.setAlignment(Pos.CENTER_LEFT);
 
         return middleOptionsLayout;
+    }
+
+    /**
+     * Iterate across CryptoData.stocksData to populate menu entries
+     */
+    private void populateStocksMenu() {
+
+        final int type = 0;
+        ArrayList<String> symbols = CwacosData.getStockSymbols();
+
+        generateFavoriteMenuItems(symbols, type);
+    }
+
+    /**
+     * Iterate across CryptoData.cryptoData to populate menu entries
+     */
+    private void populateCryptosMenu() {
+
+        final int type = 1;
+        ArrayList<String> symbols = CwacosData.getCryptoSymbols();
+
+        generateFavoriteMenuItems(symbols, type);
+    }
+
+    private void generateFavoriteMenuItems(ArrayList<String> _symbols, int _type) {
+        for(String symbol : _symbols) {
+            generateFavoriteMenuItem(symbol, _type);
+        }
+    }
+
+    private void generateFavoriteMenuItem(String _symbol, int _type) {
+        MenuItem newFavorite = new MenuItem(_symbol);
+
+        // Set callback event for clicking menu item (the favorite itself)
+        newFavorite.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                // Set the active symbol and type and update table contents
+                CwacosData.setActiveSymbol(_symbol);
+                CwacosData.setActiveType(_type);
+
+                updateView();
+
+                setStatus("Now viewing " + _symbol);
+            }
+        });
+
+        // Add menu item to the menu of the correct type in the menu bar
+        getFavoritesMenu().getMenus().get(_type).getItems().add(newFavorite);
+    }
+
+    private HBox generateActiveTicker() {
+        HBox activeTicker = new HBox();
+
+        activeTicker.setAlignment(Pos.CENTER_LEFT);
+
+        activeTicker.setStyle("-fx-padding: 30, 0, 0, 0;");
+        activeTicker.setStyle("-fx-border-width: 0px; ");
+        activeTicker.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
+        activeTicker.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
+
+        Label activeTickerLabel = new Label("");
+
+        // generate label
+        activeTickerLabel.setId("activeTickerLabel");
+        activeTickerLabel.setStyle("-fx-label-padding: 30, 0, 0, 0;");
+        activeTickerLabel.setStyle("-fx-text-fill: #FFFFFF;");
+        activeTickerLabel.setAlignment(Pos.CENTER_LEFT);
+
+        // Add buttons to menu bar hbox
+        activeTicker.getChildren().addAll(
+                activeTickerLabel
+        );
+
+        return activeTicker;
     }
 
     //=========================== RIGHT MENU BAR =========================
@@ -705,6 +758,13 @@ public class CwacosView extends Application {
                 // so this will be done custom
                 final ComboBox<String> callArgument1 = createComboBox();
 
+                // Check that there is an active symbol, else there is nothing to update. Doing this here because
+                // filling the combo box requires a valid active type.
+                if(CwacosData.getActiveType() == -1){
+                    setStatus("Must be viewing data to be able to update...");
+                    return;
+                }
+
                 // Get the call types to display in dropdown
                 String[] callTypes = CwacosData.getCallTypes();
 
@@ -764,7 +824,8 @@ public class CwacosView extends Application {
                             }
 
                             setStatus(updateResponse.status);
-                            populateTable(entryTable);
+
+                            updateView();
 
                             return 0;
                         }
@@ -806,6 +867,11 @@ public class CwacosView extends Application {
             public void handle(ActionEvent e) {
                 setStatus("Updating all symbols, this will take approximately " + CwacosData.getUpdateWaitTimeAsString());
 
+                if(CwacosData.getActiveSymbol() == null) {
+                    setStatus("There is no data to update...");
+                    return;
+                }
+
                 var responseWrapper = new Object() {
                     Response wrappedResponse;
                 };
@@ -823,6 +889,8 @@ public class CwacosView extends Application {
                                 }
 
                                 setStatus(responseWrapper.wrappedResponse.status);
+
+                                updateView();
                             }
                         });
 
@@ -844,14 +912,12 @@ public class CwacosView extends Application {
     private void generateActiveDataTableComponent(int height, int w_margin, int h_margin) {
 
         StackPane activeTickerView = new StackPane();
-
         activeTickerView.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");
-
         activeTickerView.getChildren().add(createTableView(height, w_margin, h_margin));
 
-        root.add(activeTickerView, w_margin, y_row_index, GRID_X - w_margin, height);
+        root.add(activeTickerView, w_margin, yRowIndex, GRID_X - w_margin, height);
 
-        y_row_index += height;
+        yRowIndex += height;
     }
 
     /**
@@ -863,6 +929,9 @@ public class CwacosView extends Application {
      * @return TableView control
      */
     private TableView createTableView(int _height, int _wMargin, int _hMargin) {
+
+        TableView table = new TableView();
+        table.setId("dataTable");
 
         // set up columns
         TableColumn<Entry, String> openColumn = new TableColumn<>("Open");
@@ -890,20 +959,23 @@ public class CwacosView extends Application {
         dateColumn.setStyle("-fx-alignment: CENTER;");
 
         // add all the columns to the table
-        entryTable.getColumns().setAll(openColumn, closeColumn, lowColumn, highColumn, volumeColumn, dateColumn);
-        entryTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.getColumns().setAll(openColumn, closeColumn, lowColumn, highColumn, volumeColumn, dateColumn);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        return entryTable;
+        return table;
     }
 
     /**
      * Populates the table with entries from the API.
      */
-    private void populateTable(TableView<Entry> _table) {
+    private void populateTable() {
+
+        TableView table = (TableView) root.lookup("#dataTable");
+
         // clear table entries if there are any
-        if (!_table.getItems().isEmpty()) {
-            _table.getItems().clear();
-            _table.refresh();
+        if (!table.getItems().isEmpty()) {
+            table.getItems().clear();
+            table.refresh();
         }
 
         // populate the table
@@ -911,7 +983,7 @@ public class CwacosView extends Application {
 
         if(entries != null) {
             for (Entry entry : entries) {
-                _table.getItems().add(entry);
+                table.getItems().add(entry);
             }
         }
     }
@@ -941,8 +1013,8 @@ public class CwacosView extends Application {
         Rectangle tempBox = new Rectangle();
         tempBox.setFill(Paint.valueOf("4E4E4E"));
 
-        tempBox.setHeight((WINDOWHEIGHT / GRID_Y) * (height - (h_margin * 2)));
-        tempBox.setWidth((WINDOWWIDTH / GRID_X) * (GRID_X - w_margin));
+        tempBox.setHeight((WINDOW_HEIGHT / GRID_Y) * (height - (h_margin * 2)));
+        tempBox.setWidth((WINDOW_WIDTH / GRID_X) * (GRID_X - w_margin));
 
         Label candlestick = new Label();
         candlestick.setText("Candlestick graph goes here.");
@@ -951,9 +1023,9 @@ public class CwacosView extends Application {
         candlestickGraph.getChildren().addAll(tempBox, candlestick);
         candlestickGraph.setAlignment(tempBox, Pos.CENTER);
 
-        root.add(candlestickGraph, w_margin, y_row_index, GRID_X - w_margin, height);
+        root.add(candlestickGraph, w_margin, yRowIndex, GRID_X - w_margin, height);
 
-        y_row_index += height;
+        yRowIndex += height;
     }
 
     //============================= STATUS BAR =================================
@@ -962,7 +1034,7 @@ public class CwacosView extends Application {
      * Generate bottom bar for status output
      */
     private void generateStatusBar(int height, int w_margin, int h_margin) {
-        root.add(generateStatusOutputComponent(height, w_margin, h_margin), w_margin, y_row_index, GRID_X - w_margin, height);
+        root.add(generateStatusOutputComponent(height, w_margin, h_margin), w_margin, yRowIndex, GRID_X - w_margin, height);
     }
 
     private HBox generateStatusOutputComponent(int height, int w_margin, int h_margin) {
@@ -971,19 +1043,20 @@ public class CwacosView extends Application {
 
         outputContainer.setStyle("-fx-background-color: #" + WHITE_COLOR + ";");
 
-        // generate label
-        STATUS_OUTPUT.setStyle("-fx-padding: 0, 0, 0, 8;");
-        STATUS_OUTPUT.setStyle("-fx-text-fill: #000000;");
-        STATUS_OUTPUT.setAlignment(Pos.CENTER_LEFT);
+        Label statusOutput = new Label();
 
-        setStatus("Welcome to Cwacos!");
+        // generate label
+        statusOutput.setId("statusOutput");
+        statusOutput.setStyle("-fx-padding: 0, 0, 0, 8;");
+        statusOutput.setStyle("-fx-text-fill: #000000;");
+        statusOutput.setAlignment(Pos.CENTER_LEFT);
 
         // Add label to HBox
         outputContainer.getChildren().addAll(
-                STATUS_OUTPUT
+            statusOutput
         );
 
-        y_row_index += height;
+        yRowIndex += height;
 
         return outputContainer;
     }
@@ -1042,9 +1115,20 @@ public class CwacosView extends Application {
         return td;
     }
 
-    //=============================== SETTERS ===================================
+    private void updateView() {
+        populateTable();
+        setTicker();
+    }
 
     public void setStatus(String msg) {
-        STATUS_OUTPUT.setText(STATUS_LEAD + msg);
+        ((Label) root.lookup("#statusOutput")).setText(STATUS_LEAD + msg);
+    }
+
+    private void setTicker() {
+        ((Label) root.lookup("#activeTickerLabel")).setText(CwacosData.getActiveSymbol());
+    }
+
+    private MenuBar getFavoritesMenu() {
+        return (MenuBar) root.lookup("#favoritesMenu");
     }
 }

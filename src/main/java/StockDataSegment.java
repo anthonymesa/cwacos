@@ -9,23 +9,28 @@ Contributing Authors:
     Author: Anthony Mesa
  */
 
-import java.util.ArrayList;
-
 // The purpose of this little class is so that
 // we can package a stock/crypto's symbol, type
 // and entry data together in a neat package.
-public class StockDataSegment {
+public class StockDataSegment extends DataSegment{
 
-    String symbol;
-    int call_type; // see apidataget
-    int call_interval; // see apidataget
-    String url;
-    ArrayList<Entry> data;
+    private int callInterval;
 
-    StockDataSegment(String _symbol, int _call_type, int _call_interval) {
-        this.symbol = _symbol;
-        this.call_type = _call_type;
-        this.call_interval = _call_interval;
-        this.url = "";
+    StockDataSegment(String _symbol, int _callType, int _callInterval) {
+        super.setSymbol(_symbol);
+        super.setCallType(_callType);
+        this.callInterval = _callInterval;
+    }
+
+    /* Getters */
+
+    public int getCallInterval() {
+        return this.callInterval;
+    }
+
+    /* Setters */
+
+    public void setCallInterval(int _interval) {
+        this.callInterval = _interval;
     }
 }

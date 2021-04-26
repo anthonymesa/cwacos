@@ -9,23 +9,28 @@ Contributing Authors:
     Author: Anthony Mesa
  */
 
-import java.util.ArrayList;
-
 // The purpose of this little class is so that
 // we can package a stock/crypto's symbol, type
 // and entry data together in a neat package.
-public class CryptoDataSegment {
+public class CryptoDataSegment extends DataSegment{
+    
+    private int callMarket;
 
-    String symbol;
-    int call_type; // see apidataget
-    int call_market; // see apidataget
-    String url;
-    ArrayList<Entry> data;
+    CryptoDataSegment(String _symbol, int _callType, int _callMarket) {
+        super.setSymbol(_symbol);
+        super.setCallType(_callType);
+        this.callMarket = _callMarket;
+    }
 
-    CryptoDataSegment(String _symbol, int _call_type, int _call_market) {
-        this.symbol = _symbol;
-        this.call_type = _call_type;
-        this.call_market = _call_market;
-        this.url = "";
+    /* Getters */
+
+    public int getCallMarket() {
+        return this.callMarket;
+    }
+
+    /* Setters */
+
+    public void setCallMarket(int _market) {
+        this.callMarket = _market;
     }
 }

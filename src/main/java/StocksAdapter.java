@@ -5,3 +5,4 @@ public interface StocksAdapter {
     public String[] getCallTypes();
     public String[] getCallIntervals();
 }
+

@@ -685,13 +685,19 @@ public class CwacosView extends Application {
 
                 VBox content = new VBox();
 
+                String[] maxProfitData = CwacosData.getMaxProfit();
+
                 //Create text field that takes user input
-                Label low = new Label("Lowest was: ");
-                Label buy = new Label("Buy price was: ");
-                Label high = new Label("Highest was : ");
-                Label sell = new Label("Sell price was: ");
-                Label profit = new Label("Profit was: ");
-                content.getChildren().addAll(low, buy, high, sell, profit);
+                Label lowDate = new Label(maxProfitData[2]);
+                Label low = new Label("Lowest price was: " + maxProfitData[0]);
+                Label buy = new Label("Best buy price was: " + maxProfitData[1]);
+
+                Label highDate = new Label(maxProfitData[5]);
+                Label high = new Label("Highest was : " + maxProfitData[3]);
+                Label sell = new Label("Sell price was: " + maxProfitData[4]);
+
+                Label profit = new Label("Profit was: " + maxProfitData[6]);
+                content.getChildren().addAll(lowDate, low, buy, highDate, high, sell, profit);
 
                 // call popup with above parameters
                 CwacosPopup.display("Max Analysis", "Nice", content);

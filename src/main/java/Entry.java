@@ -71,26 +71,23 @@ public class Entry implements Comparable<Entry> {
         return Double.toString(open);
     }
 
-    public double getCloseString() {
-        return close;
+    public String getCloseString() {
+        return Double.toString(close);
     }
 
-    public double getLowString() {
-        return low;
+    public String getLowString() {
+        return Double.toString(low);
     }
 
-    public double getHighString() {
-        return high;
+    public String getHighString() {
+        return Double.toString(high);
     }
 
-    public int getVolumeString() {
-        return volume;
+    public String getVolumeString() {
+        return Integer.toString(volume);
     }
 
-    public Date getDateTimeString() {
-        return dateTime;
-    }
-
+    public String getDateTimeString() { return formatter.format(dateTime);}
     //---------------------------------SETTERS-----------------------------------//
 
 

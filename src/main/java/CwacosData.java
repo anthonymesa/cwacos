@@ -759,6 +759,10 @@ public class CwacosData {
         return stockData.size() + cryptoData.size();
     }
 
+    public static String[] getMaxProfit() {
+        return MaxProfit.getMaxProfit(getActiveEntryList());
+    }
+
     public static ArrayList<String> getStockSymbols() {
 
         ArrayList<String> symbols = new ArrayList();

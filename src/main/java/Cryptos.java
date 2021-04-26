@@ -20,3 +20,4 @@ public class Cryptos {
         return adapter.getCallMarkets();
     }
 }
+

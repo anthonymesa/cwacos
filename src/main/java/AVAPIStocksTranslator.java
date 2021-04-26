@@ -17,7 +17,7 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
      * @param _callType Int from 1 to 4 where,
      *                      1 = Intraday, 2 = Daily, 3 = Weekly, 4 = Monthly
      * @param _interval Int from 10 to 16 where,
-     *                      10 = No interval, 11 = One Minute, 12 = Five Minutes, 13 = Ten Minutes, 14 = Fifteen Minutes, 15 = Thirty Minutes, 16 = One Hour
+     *                      10 = No interval, 11 = One Minute, 12 = Five Minutes, 13 = Fifteen Minutes, 14 = Thirty Minutes, 15 = One Hour
      * @return ArrayList of Entry objects.
      */
     public ArrayList<Entry> getStocksData(String _stock, int _callType, int _interval){

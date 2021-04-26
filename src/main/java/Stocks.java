@@ -20,3 +20,4 @@ public class Stocks {
         return adapter.getCallIntervals();
     }
 }
+

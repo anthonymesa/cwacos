@@ -13,6 +13,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.*;
 import javafx.scene.layout.Background;
@@ -20,6 +21,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Function;
@@ -44,6 +46,7 @@ public class CwacosView extends Application {
     /* UI Labels */
     private static final String APPLICATION_NAME = "Cwacos";
     private static final String LOAD = "Load";
+    private static final String SAVE = "Save";
     private static final String CANCEL = "Cancel";
     private static final String ADD = "Add";
     private static final String REMOVE = "Remove";
@@ -237,6 +240,16 @@ public class CwacosView extends Application {
             @Override
             public void handle(ActionEvent e) {
 
+                //Create the file chooser that lets the user select the data the user wants to use
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle(SAVE);
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All File", "*.*"));
+                File selectedFile = fileChooser.showSaveDialog(new Stage());
+
+                if (selectedFile != null) {
+                    CwacosData.saveFileUrl(selectedFile.getAbsolutePath());
+                }
+
                 // Save data related to given symbol to file at given url
                 Response saveResponse = CwacosData.saveData();
 
@@ -272,54 +285,43 @@ public class CwacosView extends Application {
             @Override
             public void handle(ActionEvent e) {
 
-                HBox content = new HBox();
+                //Create the file chooser that lets the user select the data the user wants to use
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle(LOAD);
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All File", "*.*"));
+                //fileChooser.setInitialFileName(CwacosData.generateFileUrl());
+                File selectedFile = fileChooser.showOpenDialog(new Stage());
 
-                //Create text field that takes user input
-                TextField inputArea = new TextField();
-                inputArea.setPromptText("Enter file url: ");
-                content.getChildren().add(inputArea);
+                String file_url = null;
 
-                // define function to be run when user clicks 'okay'
-                Function<Object, Object> testFunction = new Function<Object, Object>() {
-                    @Override
-                    public Object apply(Object o) {
+                try {
+                    file_url = selectedFile.getAbsolutePath();
+                } catch (Exception ex){
+                    //ATTN: need to handle if the user did not select a file.
+                    System.out.println("don't forget to select a damn file");
+                }
 
-                        //Store the string value of the ticker the user inputted.
-                        String file_url = inputArea.getText();
+                ArrayList<String> load_parameters = new ArrayList<String>(
+                    Arrays.asList(
+                        file_url
+                    )
+                );
 
-                        // do nothing if the file input is empty
-                        if(file_url.length() == 0){
-                            return -1;
-                        }
+                Response loadResponse = CwacosData.loadData(load_parameters);
 
-                        ArrayList<String> load_parameters = new ArrayList<String>(
-                                Arrays.asList(
-                                        file_url
-                                )
-                        );
+                if(!loadResponse.success) {
+                    setStatus(loadResponse.status);
+                    return;
+                }
 
-                        Response loadResponse = CwacosData.loadData(load_parameters);
+                // This may seem redundant but this is so that in the action handler down
+                // below, there isn't a logic error. (setting from a getter from the same class)
+                String symbol = CwacosData.getActiveSymbol();
+                int type = CwacosData.getActiveType();
 
-                        if(!loadResponse.success) {
-                            setStatus(loadResponse.status);
-                            return -1;
-                        }
+                generateFavoriteMenuItem(symbol, type);
 
-                        // This may seem redundant but this is so that in the action handler down
-                        // below, there isn't a logic error. (setting from a getter from the same class)
-                        String symbol = CwacosData.getActiveSymbol();
-                        int type = CwacosData.getActiveType();
-
-                        generateFavoriteMenuItem(symbol, type);
-
-                        updateView();
-
-                        return 0;
-                    }
-                };
-
-                // call popup with above parameters
-                CwacosPopup.display(LOAD, LOAD, CANCEL, content, testFunction);
+                updateView();
             }
         });
 

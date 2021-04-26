@@ -181,6 +181,10 @@ public class CwacosData {
 
     //===================== DATA STORAGE ======================
 
+    public static String generateFileUrl() {
+        return  getActiveSymbol() + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(getActiveEntryList().get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) + ".cw";
+    }
+
     /**
      * Save the stock symbol's associated entry data to a file by
      * looking up that stock symbol in the finance data map and
@@ -193,11 +197,7 @@ public class CwacosData {
             return new Response("There is no data to save...", false);
         }
 
-        // generate filename and save to local folder
-        String file_url = "./../" + activeSymbol + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(getActiveEntryList().get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-
-        // save local file url to map
-        saveFileUrl(file_url);
+        String file_url = getFileUrl();
 
         // create list of save parameters to send to save function
         ArrayList<String> save_parameters = new ArrayList<String>(
@@ -253,6 +253,8 @@ public class CwacosData {
 
         // Maybe this needs to return response?
         addDataSegment();
+
+        saveFileUrl(_params.get(0));
 
         // May need to make this return a response object at some point
         setActiveEntryList(loadInfo.getData());
@@ -714,6 +716,17 @@ public class CwacosData {
             case 1:
                 cryptoData.get(activeSymbol).setFileUrl(_url);
                 break;
+        }
+    }
+
+    public static String getFileUrl() {
+        switch(activeType) {
+            case 0:
+                return stockData.get(activeSymbol).getFileUrl();
+            case 1:
+                return cryptoData.get(activeSymbol).getFileUrl();
+            default:
+                return null;
         }
     }
 

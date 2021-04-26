@@ -12,9 +12,9 @@ import java.util.Map;
  * of the list in the CwacosData class!
  */
 interface StorageAdapter {
-    void store(ArrayList<String> _params, ArrayList<String> _input);
+    Response store(ArrayList<String> _params, ArrayList<String> _input);
 
-    ArrayList<Object> load(ArrayList<String> _params);
+    LoadData load(ArrayList<String> _params) throws Exception;
 
     Map<String, String> loadSettings(ArrayList<String> _params);
 

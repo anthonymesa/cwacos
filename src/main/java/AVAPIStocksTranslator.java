@@ -17,7 +17,7 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
      * @param _callType Int from 1 to 4 where,
      *                      1 = Intraday, 2 = Daily, 3 = Weekly, 4 = Monthly
      * @param _interval Int from 10 to 16 where,
-     *                      10 = No interval, 11 = One Minute, 12 = Five Minutes, 13 = Ten Minutes, 14 = Fifteen Minutes, 15 = Thirty Minutes, 16 = One Hour
+     *                      10 = No interval, 11 = One Minute, 12 = Five Minutes, 13 = Fifteen Minutes, 14 = Thirty Minutes, 15 = One Hour
      * @return ArrayList of Entry objects.
      */
     public ArrayList<Entry> getStocksData(String _stock, int _callType, int _interval){
@@ -28,6 +28,8 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
 
             // Create the API url.
             URL url = getStockURL(_stock, intervalEnum, callEnum);
+
+            System.out.println(url.toString());
 
             // Save the main JSON file.
             JSONObject JSONFile = getJSON(url);
@@ -171,9 +173,6 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
             case MINUTE_5:
                 return base + "(5min)";
 
-            case MINUTE_10:
-                return base + "(10min)";
-
             case MINUTE_15:
                 return base + "(15min)";
 
@@ -218,4 +217,11 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
         }
     }
 
+    public String[] getCallTypes() {
+        return new String[] { "Intraday", "Daily", "Weekly", "Monthly" };
+    }
+
+    public String[] getCallIntervals() {
+        return new String[] { "None", "1 min.", "5 min.", "15 min.", "30 min.", "60 min." };
+    }
 }

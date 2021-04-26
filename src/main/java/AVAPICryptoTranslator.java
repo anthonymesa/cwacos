@@ -10,8 +10,10 @@ import java.util.*;
 
 public class AVAPICryptoTranslator extends AlphaVantageConnection implements CryptosAdapter{
 
-    /** Creates connection to API, stores JSON, parses JSON, and returns intraday data organized in an ArrayList of Entry Objects.
-     .    * Limited to 5 calls per minute and 500 calls per day.
+    /**
+     * Creates connection to API, stores JSON, parses JSON, and returns intraday data organized in an ArrayList of Entry Objects.
+     * 
+     * There is a limit on calls that can be made for AlphaVantage; 5 calls per minute and up to 500 calls per day.
      *
      * @param _crypto String with desired crypto symbol. (Example: "BTC")
      * @param _market String with the desired market/currency to return data in. (Example: "USD")
@@ -160,5 +162,13 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
                 System.out.println("Not a valid Interval.");
                 return null;
         }
+    }
+
+    public String[] getCallTypes() {
+        return new String[] { "Daily", "Weekly", "Monthly" };
+    }
+
+    public String[] getCallMarkets() {
+        return new String[] { "USD" };
     }
 }

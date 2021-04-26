@@ -102,7 +102,7 @@ class LocalStorageTranslator implements StorageAdapter {
      * @param _params Array List of String containing a single element that is a Path/URL of the text file.
      * @param _input  Array List of String containing the data from API output to be stored.
      */
-    public void store(ArrayList<String> _params, ArrayList<String> _input) {
+    public Response store(ArrayList<String> _params, ArrayList<String> _input) {
         String fileName = getFileName(_params);
         Path filePath = getPath(fileName);
 
@@ -113,6 +113,9 @@ class LocalStorageTranslator implements StorageAdapter {
         try {
             File file = new File(fileName);
             PrintWriter writer = new PrintWriter(file);
+
+            writer.println(_params.get(1));
+            writer.println(_params.get(2));
 
             // loop through _input and write to file
             for (int i = 0; i < _input.size(); i++) {
@@ -132,8 +135,10 @@ class LocalStorageTranslator implements StorageAdapter {
                 writer.close();
             }
         } catch (IOException | PrintWriterException ex) {
-            ex.printStackTrace();
+            return new Response("Failed to write data to " + fileName + "...",false);
         }
+
+        return new Response("saved successfully to " + fileName + "...", true);
     }
 
     /*
@@ -149,7 +154,7 @@ class LocalStorageTranslator implements StorageAdapter {
      * @param _storageInfo Array List of String containing a single element that is a Path/URL of the file.
      * @return Array List of Objects containing the Entries read from a desired text file.
      */
-    public ArrayList<Object> load(ArrayList<String> _storageInfo) {
+    public LoadData load(ArrayList<String> _storageInfo) throws Exception {
         ArrayList<Object> data = new ArrayList<>();
         String fileName = getFileName(_storageInfo);
 
@@ -158,6 +163,9 @@ class LocalStorageTranslator implements StorageAdapter {
         try {
             File inputFile = new File(fileName);
             Scanner read = new Scanner(inputFile);
+
+            String symbol = read.nextLine();
+            int type = Integer.parseInt(read.nextLine());
 
             // read space separated Strings back into usable data
             while (read.hasNextLine()) {
@@ -173,16 +181,17 @@ class LocalStorageTranslator implements StorageAdapter {
                 data.add(entry);
             }
 
-        } catch (FileNotFoundException e) {
-            System.out.println(fileName + " can not be found.");
-        } catch (NoSuchElementException e) {
-            System.out.println("No trailing whitespace is allowed!");
-        } catch(Exception e) {
-            System.out.println("Something went wrong.");
-            e.printStackTrace();
-        }
+            LoadData returnable = new LoadData(data, symbol, type);
 
-        return data;
+            return returnable;
+
+        } catch (FileNotFoundException e) {
+            throw new Exception(fileName + " can not be found.");
+        } catch (NoSuchElementException e) {
+            throw new Exception("No trailing whitespace is allowed!");
+        } catch(Exception e) {
+            throw new Exception("A fatal error occurred while loading");
+        }
     }
 
     /**

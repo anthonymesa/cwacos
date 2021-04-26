@@ -8,7 +8,16 @@ public class Stocks {
         adapter = new AVAPIStocksTranslator();
     }
 
-    public static ArrayList<Entry> get(String _symbol, int _call_type, int _call_interval){
+    public static ArrayList<Entry> get(String _symbol, int _call_type, int _call_interval) {
         return adapter.getStocksData(_symbol, _call_type, _call_interval);
     }
+
+    public static String[] getCallTypes() {
+        return adapter.getCallTypes();
+    }
+
+    public static String[] getCallIntervals() {
+        return adapter.getCallIntervals();
+    }
 }
+

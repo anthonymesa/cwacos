@@ -1,16 +1,19 @@
-/*
-Last updated:
-Purpose of this class:
-Contributing Authors: Anthony Mesa
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: StorageAdapter is an interface that defines the basic requirements for exporting or importing
+ *      data from or to CwacosData respectively, no matter the method.
+ * 
+ * Contributing Authors:
+ *      Anthony Mesa
+ *      Hyoungjin Choi
  */
 
 import java.util.ArrayList;
 import java.util.Map;
 
-/* be aware that Load returns an array list of Object type, the elements in this
- * array list will need to be casted to Entry type when they are being read out
- * of the list in the CwacosData class!
- */
 interface StorageAdapter {
     Response store(ArrayList<String> _params, ArrayList<String> _input);
 

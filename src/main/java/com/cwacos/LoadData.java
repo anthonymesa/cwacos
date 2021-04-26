@@ -1,17 +1,18 @@
+package com.cwacos;
+
 /**
- * Contributors: Anthony Mesa
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: LoadData is a container for passing loaded data from the LocalFileTranslator to the
+ *      CwacosData class. This is necessary because the data, symbol and data type must be
+ *      returned all at once when a file is loaded.
+ * 
+ * Contributing Authors:
+ *      Anthony Mesa
  */
 
-import jdk.jshell.execution.LoaderDelegate;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-/**
- * This class is a container for passing loaded data from the LocalFileTranslator to the
- * CwacosData class. This is necessary because the data, symbol and data type must be
- * returned all at once when a file is loaded.
- */
 public class LoadData {
 
     private ArrayList<Entry> data;

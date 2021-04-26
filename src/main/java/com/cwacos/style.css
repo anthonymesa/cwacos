@@ -1,3 +1,13 @@
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: Provide styling for table in CwacosView
+ * 
+ * Contributing Authors:
+ *      Hyoungjin Choi
+ */
+
+
 .root{
     -fx-background-color: #262626;
 }
@@ -62,4 +72,4 @@
 .table-view > .virtual-flow > .scroll-bar > .increment-button,
 .table-view > .virtual-flow > .scroll-bar > .decrement-button {
     -fx-opacity: 0;
-}*
+}

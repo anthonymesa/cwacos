@@ -1,3 +1,14 @@
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: Stocks model provides a constant access point for CwacosData to access stock data functions.
+ * 
+ * Contributing Authors:
+ *      Anthony Mesa
+ */
+
 import java.util.ArrayList;
 
 public class Stocks {

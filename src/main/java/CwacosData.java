@@ -11,49 +11,69 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class CwacosData {
 
     private static Map<String, String> settings = new HashMap<String, String>();
-    private static String file_url = "./res/cwacossettings.conf";
-    private static String activeData = "";
+    private static final String SETTINGS_URL = "./res/cwacossettings.conf";
+    private static String activeSymbol = null;
+    private static int activeType = -1;
+
+    private static final int UPDATE_WAIT_SECONDS = 13;
 
     // This map represents a mapped list of favorite data
     // Map of strings to Ticker objects
     // e.g. "GME" --> new Ticker(s, t, d)
-    private static Map<String, FinanceDataSegment> financeData = new HashMap<String, FinanceDataSegment>();
+    private static Map<String, StockDataSegment> stockData = new HashMap<String, StockDataSegment>();
+    private static Map<String, CryptoDataSegment> cryptoData = new HashMap<String, CryptoDataSegment>();
 
     //======================= STATE ===========================
 
     /**
      * Load the state of the software from local files and initialize data sources
      */
-    public static void loadState() {
+    public static Response loadState() {
         CwacosData.initDataSources();
         loadSettings();
         loadQuakkaFacts();
 
+        // Check that settings has favorites and file locations
         if((settings.get("favorites") != null) && (settings.get("fileLocations") != null)) {
 
+            // Parse the symbols and the file locations from the strings loaded into settings map
             String[] symbols = settings.get("favorites").split("\\|", 0);
             String[] fileLocations = settings.get("fileLocations").split("\\|", 0);
 
+            // Check that there are an equal amount of symbols and file locations
             if ((symbols.length == fileLocations.length) && (symbols.length != 0)) {
                 for (int i = 0; i < symbols.length; i++) {
-                    //ATTN: datatype needs to be known at this point
-                    financeData.put(symbols[i], new FinanceDataSegment(symbols[i], 0, 1, 0));
 
                     ArrayList<String> load_parameters = new ArrayList<String>(
-                            Arrays.asList(
-                                    fileLocations[i]
-                            )
+                        Arrays.asList(
+                            fileLocations[i]
+                        )
                     );
 
-                    //ATTN: possible loading issues need to be caught here
-                    CwacosData.loadData(load_parameters);
+                    // after this is run once, activeSymbol and activeType are set
+                    Response loadResponse = CwacosData.loadData(load_parameters);
+
+                    if(!symbols[i].equals(activeSymbol)){
+                        return new Response("Symbol in settings does not match symbol in file... Aborting load state", false);
+                    }
+
+                    if(!loadResponse.success) {
+                        return new Response("An error occurred while trying to load state...", false);
+                    }
                 }
+
+                return new Response("Welcome to Cwacos!", true);
             }
+
+            return new Response("Startup settings are corrupt. Prior state not loaded", false);
         }
+
+        return new Response("An error was detected in startup settings. Prior state not loaded", false);
     }
 
     /**
@@ -62,9 +82,9 @@ public class CwacosData {
     public static void loadSettings() {
 
         ArrayList<String> load_parameters = new ArrayList<String>(
-                Arrays.asList(
-                        file_url
-                )
+            Arrays.asList(
+                SETTINGS_URL
+            )
         );
 
         settings = DataStorage.loadSettings(load_parameters);
@@ -89,17 +109,10 @@ public class CwacosData {
         StringBuilder list_symbols = new StringBuilder();
         StringBuilder list_file_urls = new StringBuilder();
 
-        // these are kept seperate because you cant concurrently modify
-        for (Map.Entry<String, FinanceDataSegment> entry : financeData.entrySet()) {
-            activeData = entry.getKey();
-            saveData();
-        }
+        saveAllStocks();
+        saveAllCryptos();
 
-        // gather state info to save for each element in the financeData
-        for (Map.Entry<String, FinanceDataSegment> entry : financeData.entrySet()) {
-            list_symbols.append(entry.getKey() + "|");
-            list_file_urls.append(entry.getValue().url + "|");
-        }
+        appendSettingsStrings(list_symbols, list_file_urls);
 
         settings.put("favorites", list_symbols.toString());
         settings.put("fileLocations", list_file_urls.toString());
@@ -107,13 +120,60 @@ public class CwacosData {
         saveSettings();
     }
 
-    public static void saveSettings() {
-        String file_url = "./res/cwacossettings.conf";
+    private static void saveAllStocks() {
+        // these are kept separate because you cant concurrently modify
+        for (Map.Entry<String, StockDataSegment> entry : stockData.entrySet()) {
+            activeSymbol = entry.getKey();
+            activeType = entry.getValue().getCallType();
+            saveData();
+        }
+    }
 
+    private static void saveAllCryptos() {
+        // these are kept separate because you cant concurrently modify
+        for (Map.Entry<String, CryptoDataSegment> entry : cryptoData.entrySet()) {
+            activeSymbol = entry.getKey();
+            activeType = entry.getValue().getCallType();
+            saveData();
+        }
+    }
+
+    private static void appendSettingsStrings(StringBuilder _symbols, StringBuilder _urls) {
+        appendStocksSettings(_symbols, _urls);
+        appendCryptoSettings(_symbols, _urls);
+    }
+
+    private static void appendStocksSettings(StringBuilder _symbols, StringBuilder _urls){
+        // gather state info to save for each element in the financeData
+        for (Map.Entry<String, StockDataSegment> entry : stockData.entrySet()) {
+
+            /* Only save to settings if file has been saved */
+            if(entry.getValue().getFileUrl() != null) {
+                _symbols.append(entry.getKey() + "|");
+                _urls.append(entry.getValue().getFileUrl() + "|");
+            }
+        }
+    }
+
+    private static void appendCryptoSettings(StringBuilder _symbols, StringBuilder _urls) {
+        // gather state info to save for each element in the financeData
+        for (Map.Entry<String, CryptoDataSegment> entry : cryptoData.entrySet()) {
+            if(entry.getValue().getFileUrl() != null) {
+                _symbols.append(entry.getKey() + "|");
+                _urls.append(entry.getValue().getFileUrl() + "|");
+            }
+        }
+    }
+
+    /**
+     * This is only called at the end of saveState, so the settings should have
+     * been updated already.
+     */
+    private static void saveSettings() {
         ArrayList<String> saveParameters = new ArrayList<String>(
-                Arrays.asList(
-                        file_url
-                )
+            Arrays.asList(
+                SETTINGS_URL
+            )
         );
 
         DataStorage.saveSettings(settings, saveParameters);
@@ -121,42 +181,43 @@ public class CwacosData {
 
     //===================== DATA STORAGE ======================
 
+    public static String generateFileUrl() {
+        return  getActiveSymbol() + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(getActiveEntryList().get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) + ".cw";
+    }
+
     /**
      * Save the stock symbol's associated entry data to a file by
      * looking up that stock symbol in the finance data map and
      * saving its data attribute of ArrayList<Entry> type.
      *
      */
-    public static String saveData() {
+    public static Response saveData() {
 
-        // check if finance data contains the symbol as key
-        if (!financeData.containsKey(activeData)) {
-            return "Error: Symbol " + activeData +" is not a favorite, no file was saved.";
+        if ((getActiveEntryList() == null) || (getActiveEntryList().size() == 0)) {
+            return new Response("There is no data to save...", false);
         }
 
-        if (financeData.get(activeData).data == null) {
-            return "Error: There is no data to save.";
-        }
+        String file_url = getFileUrl();
 
-        // generate filename and save to local folder
-        String file_url = "./../" + activeData + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(financeData.get(activeData).data.get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-
-        // save local file url to map
-        financeData.get(activeData).url = file_url;
-
-        // create list of save paramaters to send to send funcition
+        // create list of save parameters to send to save function
         ArrayList<String> save_parameters = new ArrayList<String>(
-                Arrays.asList(
-                        file_url
-                )
+            Arrays.asList(
+                file_url,
+                activeSymbol,
+                Integer.toString(activeType)
+            )
         );
 
-        save_parameters.add(((Integer) financeData.get(activeData).call_type).toString());
+        ArrayList<Entry> data_to_save = getActiveEntryList();
 
-        ArrayList<Entry> data_to_save = financeData.get(activeData).data;
-        DataStorage.save(save_parameters, data_to_save);
+        Response saveResponse = DataStorage.save(save_parameters, data_to_save);
 
-        return "Data saved successfully at: " + file_url;
+        if(!saveResponse.success){
+            return saveResponse;
+        }
+
+        // here we are customizing the response message a little but
+        return new Response(getActiveSymbol() + saveResponse.status, saveResponse.success);
     }
 
     /**
@@ -170,33 +231,46 @@ public class CwacosData {
      *                current method is local file storage so _params should
      *                only contain a file url
      */
-    public static String loadData(ArrayList<String> _params) {
+    public static Response loadData(ArrayList<String> _params) {
 
-        // check if finance data contains the symbol as key
-        if (!financeData.containsKey(activeData)) {
-            return "Error: Can not load file data, symbol does not exist in favorites";
+        LoadData loadInfo;
+
+        // Using a try catch so we can create a Response object given that
+        // the load function returns a data object. We have to get our
+        // errors from somewhere...
+        try {
+            loadInfo = DataStorage.load(_params);
+        } catch (Exception e){
+            return new Response(e.toString(), false);
         }
 
-        ArrayList<Object> data = DataStorage.load(_params);
-
-        /* This is for casting the objects returned into
-         * entry objects. If we ever change Entry or use a
-         * different type in the future, this is the only
-         * thing we need to change.
-         */
-        ArrayList<Entry> loaded_data = new ArrayList<>();
-        for (Object each : data) {
-            loaded_data.add((Entry) each);
+        if(loadInfo.getData().size() == 0) {
+            return new Response("Data loaded is empty or corrupt...", false);
         }
 
-        // save the loaded data to the finance data value with symbol key
-        financeData.get(activeData).data = loaded_data;
+        activeSymbol = loadInfo.getSymbol();
+        activeType = loadInfo.getDataType();
 
-        if (financeData.get(activeData).data != null) {
-            System.out.println(financeData.get(activeData).data);
-            return "Success: data was loaded for " + activeData;
-        } else {
-            return "Error: an error occured on import";
+        // Maybe this needs to return response?
+        addDataSegment();
+
+        saveFileUrl(_params.get(0));
+
+        // May need to make this return a response object at some point
+        setActiveEntryList(loadInfo.getData());
+
+        return new Response("Data was successfully loaded for " + getActiveSymbol(), true);
+
+    }
+
+    private static void addDataSegment() {
+        switch(activeType) {
+            case 0: //stock
+                stockData.putIfAbsent(activeSymbol, new StockDataSegment(activeSymbol, activeType, 3));
+                break;
+            case 1: // crypto
+                cryptoData.putIfAbsent(activeSymbol, new CryptoDataSegment(activeSymbol, activeType, 0));
+                break;
         }
     }
 
@@ -239,62 +313,170 @@ public class CwacosData {
         }
     }
 
+
     /**
-     * this function updates an entry in the map that already exists. if the
+     * This function updates an entry in the map that already exists. if the
      * symbol doesnt exist in the map, then there is nothing to update and
      * the function exits.
      *
-     * @param _call_type     integer that matches available call types in AlphaAPIDataGet class
-     * @param _call_interval integer that matches available call intervals in AlphaAPIDataGet class
+     * @param _arg1
+     * @param _arg2
+     * @return Response object with error or success state
      */
+    public static Response update(int _arg1, int _arg2) {
 
-    // update crypto vs update stock
+        switch(activeType) {
+            case 0: //stock
+                return updateStock( _arg1, _arg2 );
+            case 1: // crypto
+                return updateCrypto( _arg1, _arg2 );
+            default:
+                return new Response("Cannot update, incorrect type...", false);
+        }
+    }
 
-    public static String update(int _call_type, int _call_interval) {
-
-        if (!financeData.containsKey(activeData)) {
-            return "Error: " + activeData + " does not exist, update failed. ";
+    public static Response updateStock(int _callType, int _callInterval) {
+        if (!stockData.containsKey(activeSymbol)) {
+            return new Response( activeSymbol + " does not exist, update failed. ", false);
         }
 
-        // make a call to the api using the data values associated with the symbol being updated.
-
-        ArrayList<Entry> api_call_result = Stocks.get(
-                financeData.get(activeData).symbol,
-                _call_type,
-                _call_interval
+        ArrayList<Entry> apiCallResult = Stocks.get(
+                stockData.get(activeSymbol).getSymbol(),
+                _callType,
+                _callInterval
         );
 
-        financeData.get(activeData).call_type = _call_type;
-        financeData.get(activeData).call_interval = _call_interval;
-        financeData.get(activeData).data = api_call_result;
-
-        if(api_call_result == null){
-            return "Error: An error occured while making update request. Update failed. ";
+        if(apiCallResult == null){
+            return new Response("An error occurred while making update request. Update failed. ", false);
         }
 
-        return null;
+        stockData.get(activeSymbol).setCallType(_callType);
+        stockData.get(activeSymbol).setCallInterval(_callInterval);
+        stockData.get(activeSymbol).setEntryList(apiCallResult);
+
+        return new Response("Updated " + getActiveSymbol(), true);
+    }
+
+    public static Response updateCrypto(int _callType, int _callMarket) {
+        if (!cryptoData.containsKey(activeSymbol)) {
+            return new Response( activeSymbol + " does not exist, update failed. ", false);
+        }
+
+        // This is done because at 0 (daily) it thinks it is intraday
+        _callType++;
+        ArrayList<Entry> api_call_result = Cryptos.get(
+                cryptoData.get(activeSymbol).getSymbol(),
+                getCryptoMarkets()[_callMarket],
+                _callType
+        );
+
+        cryptoData.get(activeSymbol).setCallType(_callType);
+        cryptoData.get(activeSymbol).setCallMarket(_callMarket);
+        cryptoData.get(activeSymbol).setEntryList(api_call_result);
+
+        if(cryptoData.get(activeSymbol).getEntryList().size() == 0){
+            return new Response("Error: An error occured while making update request. Update failed. ", false);
+        } else {
+            return new Response("Success: Updated " + getActiveSymbol(), true);
+        }
     }
 
     /**
      * Update all iterates through each symbol in the finance data map and calls
      * update using the parameters for the call saved in the FinanceDataSegment
      */
-    public static String updateAll() {
-        for (Map.Entry<String, FinanceDataSegment> each : financeData.entrySet()) {
-            String updateStatus = update(
-                    each.getValue().call_type,
-                    each.getValue().call_interval
+    public static Response updateAll() {
+
+        Response updateAllResponse;
+
+        updateAllResponse = updateAllStocks();
+
+        if(!updateAllResponse.success) {
+            return updateAllResponse;
+        }
+
+        updateAllResponse = updateAllCryptos();
+
+        if(!updateAllResponse.success) {
+            return updateAllResponse;
+        }
+
+        return new Response("All favorites were updated successfully", true);
+    }
+
+    private static Response updateAllStocks() {
+
+        for(int i = 0; i < stockData.size(); i++) {
+
+            // get next key value from stock data
+            String nextKey = (String) stockData.keySet().toArray()[i];
+
+            // set active symbol and type for update call which relies on this.
+            setActiveSymbol(nextKey);
+            setActiveType(0);
+
+            Response updateResponse = updateStock(
+                    stockData.get(nextKey).getCallType(),
+                    stockData.get(nextKey).getCallInterval()
             );
 
-            if(updateStatus != null){
-                return updateStatus + each + " could not be updated. 'Update All' failed. Only some symbols may have been updated";
+            if(!updateResponse.success) {
+                return new Response ("An error occurred while updating " + getActiveSymbol() + ", update all failed", false);
+            }
+
+            try{
+                TimeUnit.SECONDS.sleep(UPDATE_WAIT_SECONDS);
+            } catch (InterruptedException e) {
+                return new Response("An error occurred while waiting for next update. Update failed.", false);
             }
         }
 
-        return "Success: All symbols were updated.";
+        return new Response("All stocks updated", true);
+    }
+
+    private static Response updateAllCryptos() {
+        for(int i = 0; i < cryptoData.size(); i++) {
+
+            // get next key value from stock data
+            String nextKey = (String) cryptoData.keySet().toArray()[i];
+
+            // set active symbol and type for update call which relies on this.
+            setActiveSymbol(nextKey);
+            setActiveType(1);
+
+            Response updateResponse = updateCrypto(
+                    cryptoData.get(nextKey).getCallType(),
+                    cryptoData.get(nextKey).getCallMarket()
+            );
+
+            if(!updateResponse.success) {
+                return new Response ("An error occurred while updating " + getActiveSymbol() + ", update all failed", false);
+            }
+
+            try{
+                TimeUnit.SECONDS.sleep(UPDATE_WAIT_SECONDS);
+            } catch (InterruptedException e) {
+                return new Response("An error occurred while waiting for next update. Update failed.", false);
+            }
+        }
+
+        return new Response("All stocks updated", true);
     }
 
     //===================== PROGRAM DATA ======================
+
+    public static Response addFavorite(String _symbol, int type){
+
+        //ATTN: maybe this switch could be more dynamic?
+        switch(type){
+            case 0: // stock type
+                return addStock(_symbol);
+            case 1: // crypto type
+                return addCrypto(_symbol);
+            default:
+                return new Response("Favorite is of incorrect type...", false);
+        }
+    }
 
     /**
      * when a user clicks add favorite, a dialogue window should pop up
@@ -308,70 +490,311 @@ public class CwacosData {
      * with an interval of 30 minutes.
      *
      * @param _symbol   stock/crypto symbol, i.e. "IBM"
-     * @param _dataType integer for datatype. 0 = null, 1 = stock, 2 = crypto
      * @return If not null, an error message.
      */
-    public static String addFavorite(String _symbol, int _dataType) {
+    public static Response addStock(String _symbol) {
 
-        if(financeData.containsKey(_symbol)) {
-            return "Error: Symbol already exists.";
+        if(stockData.containsKey(_symbol)) {
+            return new Response("Stock symbol already exists...", false);
         }
 
-        // here we are making a call to the api to see if it returns a null array
-        // or not, which will tell us if the ticker exists or not.
         ArrayList<Entry> evaluator = Stocks.get(
                 _symbol,
                 1,
                 0
         );
 
-        // if the call returned a null array, then the favorite cant be added.
-        if (evaluator != null) {
-            financeData.putIfAbsent(
-                    _symbol,
-                    new FinanceDataSegment(
-                            _symbol,
-                            _dataType,
-                            1,
-                            0
-                    )
-            );
-            return "Success: Favorite " + _symbol + " added";
-        } else {
-            return "ERROR: CwacosData.AddFavorite - New favorite failed validation";
+        if (evaluator == null){
+            return new Response("Stock symbol could not be validated...", false);
         }
+
+        // The "ifAbsent" part here is redundant given we have already checked if it contains key
+        stockData.putIfAbsent(
+                _symbol,
+                new StockDataSegment(
+                        _symbol,
+                        0,
+                        3
+                )
+        );
+
+        stockData.get(_symbol).setEntryList(new ArrayList<>());
+
+        return new Response("Stock symbol " + _symbol + " was added.", true);
     }
+
+    public static Response addCrypto(String _symbol) {
+
+        if (cryptoData.containsKey(_symbol)){
+            return new Response("Crypto symbol already exists...", false);
+        }
+
+        ArrayList<Entry> evaluator = Cryptos.get(
+                _symbol,
+                "USD",
+                1
+        );
+
+        if (evaluator == null){
+            return new Response("Crypto symbol could not be validated...", false);
+        }
+
+        cryptoData.putIfAbsent(
+                _symbol,
+                new CryptoDataSegment(
+                        _symbol,
+                        1,
+                        0
+                )
+        );
+
+        cryptoData.get(_symbol).setEntryList(new ArrayList<>());
+
+        return new Response("Crypto symbol " + _symbol + " added successfully." , true);
+    }
+
 
     /**
      * Removes the FinanceDataSegment value associated with the _symbol
      * string key from the financeData map.
      *
+     * activeData can change here, so any UI elements relying on activeData
+     * must be updated after making this call.
+     *
      * @param _symbol stock/crypto symbol, i.e. "IBM"
      * @return If not null, an error message.
      */
-    public static String removeFavorites(String _symbol) {
-        if (!financeData.containsKey(_symbol)) {
-            return "Symbol " + _symbol + " does not exist.";
+    public static Response removeFavorite(String _symbol, int type) {
+
+        switch(type){
+            case 0: // remove stock
+                return removeStock(_symbol);
+            case 1: // remove crypto
+                return removeCrypto(_symbol);
+            default:
+                return new Response("Favorite is of incorrect type...", false);
+        }
+    }
+
+    public static Response removeCrypto(String _symbol) {
+        if(!cryptoData.containsKey(_symbol)) {
+            return new Response("Crypto does not exist, cannot be removed...", false);
         }
 
-        financeData.remove(_symbol);
+        cryptoData.remove(_symbol);
 
-        return "Success: Favorite " + _symbol + " removed";
+        setNextActiveData();
+
+        return new Response("Crypto " + _symbol + " removed successfully.", true);
     }
 
-    public static String getActiveData() {
-        return activeData;
+    public static Response removeStock(String _symbol) {
+        if(!stockData.containsKey(_symbol)) {
+            return new Response("Stock does not exist, cannot be removed...", false);
+        }
+
+        stockData.remove(_symbol);
+
+        setNextActiveData();
+
+        return new Response("Stock " + _symbol + " removed successfully.", true);
+    }
+
+    /**
+     * Resets activeData and activeType to the first element of the
+     * data maps assuming they are not empty. The order of handling is
+     * as follows:
+     *
+     * stockData -> cryptoData
+     *
+     * Meaning, if an element in stockData exists, it will be set, else,
+     * if an element exists in cryptoData it will then be set.
+     */
+    public static void setNextActiveData() {
+
+        if(stockData.keySet().size() != 0) {
+            activeSymbol = (String) stockData.keySet().toArray()[0];
+            activeType = 0;
+        } else if (cryptoData.keySet().size() != 0) {
+            activeSymbol = (String) cryptoData.keySet().toArray()[0];
+            activeType = 1;
+        } else {
+            activeSymbol = null;
+        }
+    }
+
+    public static String getActiveSymbol() {
+        return activeSymbol;
+    }
+
+    public static int getActiveType() {
+        return activeType;
     }
     
-    public static void setActiveData(String _symbol) {
-        activeData = _symbol;
+    public static void setActiveSymbol(String _symbol) {
+        activeSymbol = _symbol;
+    }
+
+    public static void setActiveType(int _type) {
+        activeType = _type;
+    }
+
+    public static String[] getCallTypes() {
+        switch(activeType) {
+            case 0:
+                return Stocks.getCallTypes();
+            case 1:
+                return Cryptos.getCallTypes();
+            default:
+                return null;
+        }
+    }
+
+    public static String[] getStockIntervals() {
+        switch(activeType) {
+            case 0:
+                return Stocks.getCallIntervals();
+            default:
+                return null;
+        }
+    }
+
+    public static String[] getCryptoMarkets() {
+        switch(activeType) {
+            case 1:
+                return Cryptos.getCallMarkets();
+            default:
+                return null;
+        }
     }
 
     public static boolean existData(String _symbol) {
-        return financeData.containsKey(_symbol);
+        switch(activeType) {
+            case 0:
+                return stockData.containsKey(_symbol);
+            case 1:
+                return cryptoData.containsKey(_symbol);
+            default:
+                return false;
+        }
     }
 
     public static ArrayList<Entry> getActiveEntryList() {
-        return financeData.get(activeData).data;
+        try {
+            switch (activeType) {
+                case 0:
+                    return stockData.get(activeSymbol).getEntryList();
+                case 1:
+                    return cryptoData.get(activeSymbol).getEntryList();
+                default:
+                    return null;
+            }
+        // the purpose of this catch is mainly for when there are no active element
+        // i.e. the activeSymbol is null. It is easier to do this than the other
+        // way I could have handled it.
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static void setActiveEntryList(ArrayList<Entry> _data) {
+        switch(activeType) {
+            case 0:
+                stockData.get(activeSymbol).setEntryList(_data);
+                break;
+            case 1:
+                cryptoData.get(activeSymbol).setEntryList(_data);
+                break;
+        }
+    }
+
+    public static void saveFileUrl(String _url) {
+        switch(activeType) {
+            case 0:
+                stockData.get(activeSymbol).setFileUrl(_url);
+                break;
+            case 1:
+                cryptoData.get(activeSymbol).setFileUrl(_url);
+                break;
+        }
+    }
+
+    public static String getFileUrl() {
+        switch(activeType) {
+            case 0:
+                return stockData.get(activeSymbol).getFileUrl();
+            case 1:
+                return cryptoData.get(activeSymbol).getFileUrl();
+            default:
+                return null;
+        }
+    }
+
+    public static String getUpdateWaitTimeAsString(){
+
+        long duration = getDataSize() * UPDATE_WAIT_SECONDS;
+
+        long days = TimeUnit.SECONDS.toDays(duration);
+        duration -= TimeUnit.DAYS.toSeconds(days);
+
+        long hours = TimeUnit.SECONDS.toHours(duration);
+        duration -= TimeUnit.HOURS.toSeconds(hours);
+
+        long minutes = TimeUnit.SECONDS.toMinutes(duration);
+        duration -= TimeUnit.MINUTES.toSeconds(minutes);
+
+        long seconds = TimeUnit.SECONDS.toSeconds(duration);
+
+        StringBuilder msg = new StringBuilder( );
+        if (days!=0) {
+            msg.append( days+" day(s)");
+        }
+        if (hours!=0) {
+            msg.append( hours+" hours(s)");
+        }
+        if (minutes!=0) {
+            msg.append( minutes+" minutes(s)");
+        }
+        if (seconds!=0) {
+            msg.append( seconds+" seconds(s)");
+        }
+        return msg.toString();
+    }
+
+    /**
+     * Gets the size of the two data stores for stocks and cryptos.
+     *
+     * If more types get added in the future, this may not be the best way to do it.
+     *
+     * @return Number of all stock and crypto symbols
+     */
+    private static int getDataSize(){
+        return stockData.size() + cryptoData.size();
+    }
+
+    public static String[] getMaxProfit() {
+        return MaxProfit.getMaxProfit(getActiveEntryList());
+    }
+
+    public static ArrayList<String> getStockSymbols() {
+
+        ArrayList<String> symbols = new ArrayList();
+
+        for (Map.Entry<String, StockDataSegment> entry : stockData.entrySet()) {
+            symbols.add(entry.getKey());
+        }
+
+        return symbols;
+    }
+
+    public static ArrayList<String> getCryptoSymbols() {
+
+        ArrayList<String> symbols = new ArrayList();
+
+        for (Map.Entry<String, CryptoDataSegment> entry : cryptoData.entrySet()) {
+            symbols.add(entry.getKey());
+        }
+
+        return symbols;
     }
 }

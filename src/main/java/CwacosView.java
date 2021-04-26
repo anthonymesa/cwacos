@@ -98,6 +98,7 @@ public class CwacosView extends Application {
         CwacosPopup.display(CWACOS, "Woah!", content);
 
         primaryStage.setTitle(CWACOS);
+        primaryStage.getIcons().add(new Image("file:res/cwacos.jpg"));
 
         // Changing the order of these functions will change the order these rows
         // are displayed

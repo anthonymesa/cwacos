@@ -1,8 +1,15 @@
-/*
-Last updated: 04/07/2021
-Purpose of this class: Translator class that is responsible for read/write operation for local storage
-Contributing Authors: Anthony Mesa, Hyoungjin Choi
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: LocalStorageTranslator
+ * 
+ * Contributing Authors:
+ *      Hyoungjin Choi
+ *      Anthony Mesa
  */
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -130,6 +137,7 @@ class LocalStorageTranslator implements StorageAdapter {
 
             // flush and check for error
             if (writer.checkError()) {
+                writer.close();
                 throw new PrintWriterException();
             } else {
                 writer.close();
@@ -182,6 +190,7 @@ class LocalStorageTranslator implements StorageAdapter {
             }
 
             LoadData returnable = new LoadData(data, symbol, type);
+            read.close();
 
             return returnable;
 

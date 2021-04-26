@@ -1,24 +1,31 @@
-import javafx.application.Application;
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: CwacosPopup defines a custom popup window that can be run from within CwacosView.
+ *      Where there are other ways of providing dialogue boxes, a custom dialoge was created for
+ *      a couple of helpful reasons:
+ * 
+ *      - Pass/Fail buttons can be set with customization, or ommitted (i.e. "Okay", "Cancel");
+ *      - Functions can be defined for "Okay" button onclick event that return with pass/fail, 
+ *          allowing improper dialog inputs to be handled accordingly.
+ *      - Call overloading, based on whether a single button or two buttons are necessary. This
+ *          could also extend to no buttons, etc.
+ * 
+ * Contributing Authors:
+ *      Jack fink
+ *      Anthony Mesa
+ */
+
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
-
-import java.util.ArrayList;
 import java.util.function.Function;
-
-import javafx.geometry.*;
-import javafx.scene.shape.*;
-import javafx.scene.paint.*;
 
 /**
  * custom static popup class that we designed so as not
@@ -26,9 +33,11 @@ import javafx.scene.paint.*;
  */
 public class CwacosPopup {
 
+    private static final int DIALOGUE_WIDTH = 500;
+
     // Window to draw.
-    public static final Stage window = new Stage();
-    public static boolean isInit = false;
+    private static final Stage window = new Stage();
+    private static boolean isInit = false;
 
     // Initialize always has to be run before
     public static void init(){
@@ -60,11 +69,11 @@ public class CwacosPopup {
     /**
      * Coming soon...
      *
-     * @param title display title of popup window
+     * @param _title display title of popup window
      * @param _content HBox of javafx contents to display in dialogue window
-     * @param func function to run when okay is clicked.
+     * @param _func function to run when okay is clicked.
      */
-    public static void display(String title, String _okayLabel, String _cancel_label, Pane _content, Function<Object, Object> func) {
+    public static void display(String _title, String _okayLabel, String _cancel_label, Pane _content, Function<Object, Object> _func) {
 
         if(!isInit){
             System.out.println("CwacosPopup must be initialized before use");
@@ -72,15 +81,16 @@ public class CwacosPopup {
         }
 
         // Block user inputs on non-pupup windows
-        window.setTitle(title);
-        window.setMinWidth(500);
+        window.setTitle(_title);
+        window.setMinWidth(DIALOGUE_WIDTH);
 
         VBox windowContents = new VBox();
         Pane changingContent = _content;
         windowContents.getChildren().add(changingContent);
 
         Button successBtn = new Button(_okayLabel);
-        successBtn.setOnAction(setOperation(func));
+        successBtn.setOnAction(setOperation(_func));
+
         windowContents.getChildren().add(successBtn);
 
         Button cancelBtn = new Button(_cancel_label);

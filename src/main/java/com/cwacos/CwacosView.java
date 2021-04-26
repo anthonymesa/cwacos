@@ -1,7 +1,14 @@
-/*
-Last updated:
-Purpose of this class:
-Contributing Authors: Jack Fink, Anthony Mesa, Hyoungjin Choi
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: CwacosView dynamically creates the UI and also defines UI actions that
+ *      run when user interacts with it. All non-UI data manipulation occurs in CwacosData. 
+ * 
+ * Contributing Authors:
+ *      Jack Fink
+ *      Anthony Mesa
  */
 
 import javafx.application.Application;
@@ -16,8 +23,6 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 
@@ -115,7 +120,7 @@ public class CwacosView extends Application {
         updateView();
 
         /* Set status based on state load. */
-        setStatus(stateLoadResponse.status);
+        setUiStatusLabel(stateLoadResponse.getStatus());
 
         /* Get root grid pane ready */
         setupGridPane();
@@ -254,7 +259,7 @@ public class CwacosView extends Application {
                 Response saveResponse = CwacosData.saveData();
 
                 // Set label to the output status that CwacosData gives back.
-                setStatus(saveResponse.status);
+                setUiStatusLabel(saveResponse.getStatus());
             }
         });
 
@@ -309,8 +314,8 @@ public class CwacosView extends Application {
 
                 Response loadResponse = CwacosData.loadData(load_parameters);
 
-                if(!loadResponse.success) {
-                    setStatus(loadResponse.status);
+                if(!loadResponse.getSuccess()) {
+                    setUiStatusLabel(loadResponse.getStatus());
                     return;
                 }
 
@@ -400,15 +405,15 @@ public class CwacosView extends Application {
                             Response addFavoriteResponse = CwacosData.addFavorite(symbol, type);
 
                             // Check if there was an error adding the favorite
-                            if (!addFavoriteResponse.success) {
-                                setStatus(addFavoriteResponse.status);
+                            if (!addFavoriteResponse.getSuccess()) {
+                                setUiStatusLabel(addFavoriteResponse.getStatus());
                                 return -1;
                             }
 
                             generateFavoriteMenuItem(symbol, type);
 
                             // Now that we have completed all necessary actions, we can print the success status
-                            setStatus(addFavoriteResponse.status);
+                            setUiStatusLabel(addFavoriteResponse.getStatus());
 
                             // Set the active data to the newly added symbol
                             CwacosData.setActiveSymbol(symbol);
@@ -480,8 +485,8 @@ public class CwacosView extends Application {
                             Response removeFavoriteResponse = CwacosData.removeFavorite(symbol, type);
 
                             // Check if removal had errors
-                            if (!removeFavoriteResponse.success) {
-                                setStatus(removeFavoriteResponse.status);
+                            if (!removeFavoriteResponse.getSuccess()) {
+                                setUiStatusLabel(removeFavoriteResponse.getStatus());
                                 return -1;
                             }
 
@@ -506,7 +511,7 @@ public class CwacosView extends Application {
                             }
 
                             // Set success status
-                            setStatus(removeFavoriteResponse.status);
+                            setUiStatusLabel(removeFavoriteResponse.getStatus());
 
                             updateView();
 
@@ -592,7 +597,7 @@ public class CwacosView extends Application {
 
                 updateView();
 
-                setStatus("Now viewing " + _symbol);
+                setUiStatusLabel("Now viewing " + _symbol);
             }
         });
 
@@ -626,7 +631,9 @@ public class CwacosView extends Application {
         return activeTicker;
     }
 
-    //=========================== RIGHT MENU BAR =========================
+    //================================================================================
+    // Right Menu Bar
+    //================================================================================
 
     /**
      * @param height
@@ -769,7 +776,7 @@ public class CwacosView extends Application {
                 // Check that there is an active symbol, else there is nothing to update. Doing this here because
                 // filling the combo box requires a valid active type.
                 if(CwacosData.getActiveType() == -1){
-                    setStatus("Must be viewing data to be able to update...");
+                    setUiStatusLabel("Must be viewing data to be able to update...");
                     return;
                 }
 
@@ -826,12 +833,12 @@ public class CwacosView extends Application {
                             Response updateResponse = CwacosData.update(arg1, arg2);
 
                             // if size of current entry list is zero, there was an error
-                            if (!updateResponse.success) {
-                                setStatus(updateResponse.status);
+                            if (!updateResponse.getSuccess()) {
+                                setUiStatusLabel(updateResponse.getStatus());
                                 return -1;
                             }
 
-                            setStatus(updateResponse.status);
+                            setUiStatusLabel(updateResponse.getStatus());
 
                             updateView();
 
@@ -873,10 +880,10 @@ public class CwacosView extends Application {
         updateAllBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                setStatus("Updating all symbols, this will take approximately " + CwacosData.getUpdateWaitTimeAsString());
+                setUiStatusLabel("Updating all symbols, this will take approximately " + CwacosData.getUpdateWaitTimeAsString());
 
                 if(CwacosData.getActiveSymbol() == null) {
-                    setStatus("There is no data to update...");
+                    setUiStatusLabel("There is no data to update...");
                     return;
                 }
 
@@ -884,7 +891,7 @@ public class CwacosView extends Application {
                     Response wrappedResponse;
                 };
 
-                Task updateData = new Task<>() {
+                Task<String> updateData = new Task<String>() {
                     @Override
                     public String call(){
                         responseWrapper.wrappedResponse = CwacosData.updateAll();
@@ -892,11 +899,11 @@ public class CwacosView extends Application {
                         Platform.runLater(new Runnable(){
                             @Override
                             public void run() {
-                                if(!responseWrapper.wrappedResponse.success) {
-                                    setStatus(responseWrapper.wrappedResponse.status);
+                                if(!responseWrapper.wrappedResponse.getSuccess()) {
+                                    setUiStatusLabel(responseWrapper.wrappedResponse.getStatus());
                                 }
 
-                                setStatus(responseWrapper.wrappedResponse.status);
+                                setUiStatusLabel(responseWrapper.wrappedResponse.getStatus());
 
                                 updateView();
                             }
@@ -936,9 +943,9 @@ public class CwacosView extends Application {
      * @param _hMargin
      * @return TableView control
      */
-    private TableView createTableView(int _height, int _wMargin, int _hMargin) {
+    private TableView<Entry> createTableView(int _height, int _wMargin, int _hMargin) {
 
-        TableView table = new TableView();
+        TableView<Entry> table = new TableView<Entry>();
         table.setId("dataTable");
 
         // set up columns
@@ -978,7 +985,7 @@ public class CwacosView extends Application {
      */
     private void populateTable() {
 
-        TableView table = (TableView) root.lookup("#dataTable");
+        TableView<Entry> table = (TableView<Entry>) root.lookup("#dataTable");
 
         // clear table entries if there are any
         if (!table.getItems().isEmpty()) {
@@ -1015,7 +1022,6 @@ public class CwacosView extends Application {
         //Create and style the background.
         StackPane candlestickGraph = new StackPane();
         candlestickGraph.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
-        //candlestickGraph.setStyle("-fx-background-color: #" + WHITE_COLOR + ";");
 
         //THE BELOW BLOCK OF CODE IS TEMPORARY
         Rectangle tempBox = new Rectangle();
@@ -1029,7 +1035,7 @@ public class CwacosView extends Application {
         candlestick.setStyle("-fx-background-color: #" + ACCENT_COLOR + ";");
 
         candlestickGraph.getChildren().addAll(tempBox, candlestick);
-        candlestickGraph.setAlignment(tempBox, Pos.CENTER);
+        StackPane.setAlignment(tempBox, Pos.CENTER);
 
         root.add(candlestickGraph, w_margin, yRowIndex, GRID_X - w_margin, height);
 
@@ -1128,7 +1134,7 @@ public class CwacosView extends Application {
         setTicker();
     }
 
-    public void setStatus(String msg) {
+    public void setUiStatusLabel(String msg) {
         ((Label) root.lookup("#statusOutput")).setText(STATUS_LEAD + msg);
     }
 

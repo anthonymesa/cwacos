@@ -1,5 +1,16 @@
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: MaxProfit
+ * 
+ * Contributing Authors:
+ *      Michael Leonard
+ */
+
+
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class MaxProfit {
 
@@ -37,17 +48,17 @@ public class MaxProfit {
         //Overall Low price of entry data
         results[0] = String.valueOf(overallLow);
         //Price at which you buy
-        results[1] = String.valueOf(_stocks.get(maxProfit.beginJumpPosition/2).getLow());
+        results[1] = String.valueOf(_stocks.get(maxProfit.getBeginJumpPosition()/2).getLow());
         //Date of buy
-        results[2] = _stocks.get(maxProfit.beginJumpPosition/2).getDateTimeString();
+        results[2] = _stocks.get(maxProfit.getBeginJumpPosition()/2).getDateTimeString();
         //Overall High price of entry data
         results[3] = String.valueOf(overallHigh);
         //Price at which you sell
-        results[4] = String.valueOf(_stocks.get(maxProfit.endJumpPosition/2).getHigh());
+        results[4] = String.valueOf(_stocks.get(maxProfit.getEndJumpPosition()/2).getHigh());
         //Date of sell
-        results[5] = _stocks.get(maxProfit.beginJumpPosition/2).getDateTimeString();
+        results[5] = _stocks.get(maxProfit.getEndJumpPosition()/2).getDateTimeString();
         //Value of profit
-        results[6] = String.valueOf(maxProfit.profit);
+        results[6] = String.valueOf(maxProfit.getProfit());
 
         return results;
     }
@@ -89,9 +100,9 @@ public class MaxProfit {
             Jump crossJump = findMaxCrossingProfit(_priceChangeArray, _firstPosition, middlePosition, _lastPosition);
 
             //Determine the maximum profit and return it.
-            if(leftJump.profit >= rightJump.profit && leftJump.profit >= crossJump.profit)
+            if(leftJump.getProfit() >= rightJump.getProfit() && leftJump.getProfit() >= crossJump.getProfit())
                 return leftJump;
-            else if(rightJump.profit >= leftJump.profit && rightJump.profit >= crossJump.profit)
+            else if(rightJump.getProfit() >= leftJump.getProfit() && rightJump.getProfit() >= crossJump.getProfit())
                 return rightJump;
             else
                 return crossJump;

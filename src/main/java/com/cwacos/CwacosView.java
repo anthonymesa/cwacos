@@ -832,6 +832,10 @@ public class CwacosView extends Application {
                         int arg1 = callArgument1.getSelectionModel().getSelectedIndex();
                         int arg2 = callArgument2.getSelectionModel().getSelectedIndex();
 
+                        if (arg1 == 0) {
+                            arg2++;
+                        }
+
                         // check that type and interval have been chosen
                         if ((arg1 < 0) || (arg2 < 0) || (CwacosData.getActiveSymbol().equals(""))) {
                             return -1;

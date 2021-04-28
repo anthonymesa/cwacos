@@ -11,7 +11,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 
 
-class Main extends Application {
+class LineCharts extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {

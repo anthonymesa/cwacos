@@ -20,6 +20,7 @@ package com.cwacos;
 
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -42,6 +43,7 @@ public class CwacosPopup {
     // Initialize always has to be run before
     public static void init(){
         window.initModality(Modality.APPLICATION_MODAL);
+        window.getIcons().add(new Image("file:res/cwacos.jpg"));
         isInit = true;
     }
 
@@ -125,6 +127,7 @@ public class CwacosPopup {
         // Block user inputs on non-pupup windows
         window.setTitle(title);
         window.setMinWidth(500);
+
 
         VBox windowContents = new VBox();
         Pane changingContent = _content;

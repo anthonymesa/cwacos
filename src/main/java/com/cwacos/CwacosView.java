@@ -75,6 +75,7 @@ public class CwacosView extends Application {
     private final int BUTTON_ICON_SIZE = 20;
     private final int BUTTON_SPACING = 2;
     private final int COMPONENT_SPACING = 10;
+    private static final int ACTIVE_LABEL_WIDTH = 50;
 
     /* yRowIndex keeps track of the grid y index that the next
        row will be populated on when a new row is added to root. */
@@ -648,13 +649,16 @@ public class CwacosView extends Application {
 
     private HBox generateActiveTicker() {
         HBox activeTicker = new HBox();
+        activeTicker.setPadding(new Insets(COMPONENT_SPACING));
 
-        activeTicker.setAlignment(Pos.CENTER_LEFT);
+        HBox activeTickerBg = new HBox();
 
-        activeTicker.setStyle("-fx-padding: 30, 0, 0, 0;");
-        activeTicker.setStyle("-fx-border-width: 0px; ");
-        activeTicker.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
-        activeTicker.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
+        activeTickerBg.setAlignment(Pos.CENTER);
+        activeTickerBg.setMinWidth(ACTIVE_LABEL_WIDTH);
+
+        activeTickerBg.setStyle("-fx-border-width: 0px; ");
+        activeTickerBg.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
+        activeTickerBg.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
 
         Label activeTickerLabel = new Label("");
 
@@ -665,9 +669,8 @@ public class CwacosView extends Application {
         activeTickerLabel.setAlignment(Pos.CENTER_LEFT);
 
         // Add buttons to menu bar hbox
-        activeTicker.getChildren().addAll(
-                activeTickerLabel
-        );
+        activeTickerBg.getChildren().add(activeTickerLabel);
+        activeTicker.getChildren().add(activeTickerBg);
 
         return activeTicker;
     }

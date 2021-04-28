@@ -2,17 +2,20 @@ package com.cwacos;
 
 /**
  * Last updated: 26-APR-2021
- * 
+ * <p>
  * Purpose: CwacosView dynamically creates the UI and also defines UI actions that
- *      run when user interacts with it. All non-UI data manipulation occurs in CwacosData. 
- * 
+ * run when user interacts with it. All non-UI data manipulation occurs in CwacosData.
+ * <p>
  * Contributing Authors:
- *      Jack Fink
- *      Anthony Mesa
+ * Jack Fink
+ * Anthony Mesa
+ * Hyoungjin Choi
  */
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -79,6 +82,7 @@ public class CwacosView extends Application {
 
     /**
      * Begin UI
+     *
      * @param args Arguments for UI
      */
     public static void beginUI(String[] args) {
@@ -129,6 +133,7 @@ public class CwacosView extends Application {
         primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
         primaryStage.setResizable(false);
         primaryStage.setTitle(APPLICATION_NAME);
+        primaryStage.getIcons().add(new Image("file:res/cwacos.jpg"));
         primaryStage.show();
     }
 
@@ -301,20 +306,20 @@ public class CwacosView extends Application {
 
                 try {
                     file_url = selectedFile.getAbsolutePath();
-                } catch (Exception ex){
+                } catch (Exception ex) {
                     //ATTN: need to handle if the user did not select a file.
                     System.out.println("don't forget to select a damn file");
                 }
 
                 ArrayList<String> load_parameters = new ArrayList<String>(
-                    Arrays.asList(
-                        file_url
-                    )
+                        Arrays.asList(
+                                file_url
+                        )
                 );
 
                 Response loadResponse = CwacosData.loadData(load_parameters);
 
-                if(!loadResponse.getSuccess()) {
+                if (!loadResponse.getSuccess()) {
                     setUiStatusLabel(loadResponse.getStatus());
                     return;
                 }
@@ -397,7 +402,7 @@ public class CwacosView extends Application {
 
 
                         // validates type is actually selected from the dropdown
-                        if((type < 0) || (symbol.length() == 0)) {
+                        if ((type < 0) || (symbol.length() == 0)) {
                             return -1;
                         } else {
 
@@ -477,7 +482,7 @@ public class CwacosView extends Application {
                         int type = typeSelection.getSelectionModel().getSelectedIndex();
 
                         // Check that combo box is selected and input has text
-                        if((type < 0) || (symbol.length() == 0)){
+                        if ((type < 0) || (symbol.length() == 0)) {
                             return -1;
                         } else {
 
@@ -529,7 +534,7 @@ public class CwacosView extends Application {
 
     /**
      * Create the stocks / crypto menu bar.
-     *
+     * <p>
      * Because this function is run on load, after the state
      * has been loaded, this function will check if there are any
      * elements in the relevant data maps in CwacosData and add
@@ -579,7 +584,7 @@ public class CwacosView extends Application {
     }
 
     private void generateFavoriteMenuItems(ArrayList<String> _symbols, int _type) {
-        for(String symbol : _symbols) {
+        for (String symbol : _symbols) {
             generateFavoriteMenuItem(symbol, _type);
         }
     }
@@ -775,7 +780,7 @@ public class CwacosView extends Application {
 
                 // Check that there is an active symbol, else there is nothing to update. Doing this here because
                 // filling the combo box requires a valid active type.
-                if(CwacosData.getActiveType() == -1){
+                if (CwacosData.getActiveType() == -1) {
                     setUiStatusLabel("Must be viewing data to be able to update...");
                     return;
                 }
@@ -784,7 +789,7 @@ public class CwacosView extends Application {
                 String[] callTypes = CwacosData.getCallTypes();
 
                 // Add call types to combo box
-                for(int i = 0; i < callTypes.length; i++) {
+                for (int i = 0; i < callTypes.length; i++) {
                     callArgument1.getItems().add(callTypes[i]);
                 }
 
@@ -793,23 +798,25 @@ public class CwacosView extends Application {
 
                 final ComboBox<String> callArgument2 = createComboBox();
 
-                switch(CwacosData.getActiveType()) {
-                    case 0: //stock
-                        String[] stockIntervals = CwacosData.getStockIntervals();
+                // detect change of selection in callArgument1 and populate callArgument2 appropriately
+                callArgument1.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+                    @Override
+                    public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
+                        switch (CwacosData.getActiveType()) {
+                            case 0: //stock
+                                pupulateStockIntervalCboBox(callArgument2, callArgument1.getValue());
+                                break;
 
-                        for(int i = 0; i < stockIntervals.length; i++) {
-                            callArgument2.getItems().add(stockIntervals[i]);
+                            case 1: // cryptos
+                                String[] cryptoMarkets = CwacosData.getCryptoMarkets();
+
+                                for (int i = 0; i < cryptoMarkets.length; i++) {
+                                    callArgument2.getItems().add(cryptoMarkets[i]);
+                                }
+                                break;
                         }
-                        break;
-
-                    case 1: // cryptos
-                        String[] cryptoMarkets = CwacosData.getCryptoMarkets();
-
-                        for(int i = 0; i < cryptoMarkets.length; i++) {
-                            callArgument2.getItems().add(cryptoMarkets[i]);
-                        }
-                        break;
-                }
+                    }
+                });
 
                 dialogContent.add(callArgument2, 0, 1);
 
@@ -826,8 +833,7 @@ public class CwacosView extends Application {
                         int arg2 = callArgument2.getSelectionModel().getSelectedIndex();
 
                         // check that type and interval have been chosen
-                        if((arg1 < 0) || (arg2 < 0) || (CwacosData.getActiveSymbol() == ""))
-                        {
+                        if ((arg1 < 0) || (arg2 < 0) || (CwacosData.getActiveSymbol().equals(""))) {
                             return -1;
                         } else {
                             Response updateResponse = CwacosData.update(arg1, arg2);
@@ -882,7 +888,7 @@ public class CwacosView extends Application {
             public void handle(ActionEvent e) {
                 setUiStatusLabel("Updating all symbols, this will take approximately " + CwacosData.getUpdateWaitTimeAsString());
 
-                if(CwacosData.getActiveSymbol() == null) {
+                if (CwacosData.getActiveSymbol() == null) {
                     setUiStatusLabel("There is no data to update...");
                     return;
                 }
@@ -893,13 +899,13 @@ public class CwacosView extends Application {
 
                 Task<String> updateData = new Task<String>() {
                     @Override
-                    public String call(){
+                    public String call() {
                         responseWrapper.wrappedResponse = CwacosData.updateAll();
 
-                        Platform.runLater(new Runnable(){
+                        Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
-                                if(!responseWrapper.wrappedResponse.getSuccess()) {
+                                if (!responseWrapper.wrappedResponse.getSuccess()) {
                                     setUiStatusLabel(responseWrapper.wrappedResponse.getStatus());
                                 }
 
@@ -996,7 +1002,7 @@ public class CwacosView extends Application {
         // populate the table
         ArrayList<Entry> entries = CwacosData.getActiveEntryList();
 
-        if(entries != null) {
+        if (entries != null) {
             for (Entry entry : entries) {
                 table.getItems().add(entry);
             }
@@ -1014,6 +1020,38 @@ public class CwacosView extends Application {
         return comboBox;
     }
 
+    /**
+     * Populates the stock interval combo box and the stock interval combo box only.
+     *
+     * @param _comboBox Stock interval combo box.
+     */
+    private void pupulateStockIntervalCboBox(ComboBox<String> _comboBox, String _type) {
+
+        // clear the combo box if there are items in it
+        if (!_comboBox.getItems().isEmpty()) {
+            _comboBox.getItems().clear();
+        }
+
+        String[] stockIntervals = CwacosData.getStockIntervals();
+
+        // skip the first element of stockIntervals for intraday calls, which is "none"
+        int k = 0;
+        if (_type.equals("Intraday")) {
+            k++;
+        }
+
+        for (int i = k; i < stockIntervals.length; i++) {
+
+            // for any type of call besides Intraday call, populate the combo box with "none"
+            // which is the first element of stockIntervals
+            if (!_type.equals("Intraday")) {
+                _comboBox.getItems().add(stockIntervals[i]);
+                break;
+            } else {
+                _comboBox.getItems().add(stockIntervals[i]);
+            }
+        }
+    }
 
     //================================= CANDLESTICK GRAPH ===============================
 
@@ -1067,7 +1105,7 @@ public class CwacosView extends Application {
 
         // Add label to HBox
         outputContainer.getChildren().addAll(
-            statusOutput
+                statusOutput
         );
 
         yRowIndex += height;

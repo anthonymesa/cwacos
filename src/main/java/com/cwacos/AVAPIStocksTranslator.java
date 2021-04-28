@@ -26,10 +26,10 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
      * Creates connection to API, stores JSON, parses JSON, and returns data organized in an ArrayList of Entry Objects.
      .    * Limited to 5 calls per minute and 500 calls per day.
      * @param _stock String with desired stock symbol. (Example: "IBM")
-     * @param _callType Int from 1 to 4 where,
-     *                      1 = Intraday, 2 = Daily, 3 = Weekly, 4 = Monthly
-     * @param _interval Int from 10 to 16 where,
-     *                      10 = No interval, 11 = One Minute, 12 = Five Minutes, 13 = Fifteen Minutes, 14 = Thirty Minutes, 15 = One Hour
+     * @param _callType Int from 0 to 3 where,
+     *                      0 = Intraday, 1 = Daily, 2 = Weekly, 3 = Monthly
+     * @param _interval Int from 0 to 5 where,
+     *                      0 = No interval, 1 = One Minute, 2 = Five Minutes, 3 = Fifteen Minutes, 4 = Thirty Minutes, 5 = One Hour
      * @return ArrayList of Entry objects.
      */
     public ArrayList<Entry> getStocksData(String _stock, int _callType, int _interval){
@@ -41,7 +41,7 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
             // Create the API url.
             URL url = getStockURL(_stock, intervalEnum, callEnum);
 
-            System.out.println(url.toString());
+            //System.out.println(url.toString());
 
             // Save the main JSON file.
             JSONObject JSONFile = getJSON(url);
@@ -64,7 +64,7 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
             return parseStockJSON(timeSeries, callEnum);
         }
         catch (Exception ex) {
-            System.out.println("Error: " + ex);
+            //System.out.println("Error: " + ex);
             return null;
         }
     }
@@ -160,7 +160,7 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
 
             default:
                 //Returns NULL for error checking and reports error.
-                System.out.println("Not a valid Call Type.");
+                //System.out.println("Not a valid Call Type.");
                 return null;
         }
     }
@@ -194,7 +194,7 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
 
             default:
                 //Returns NULL for error checking and reports error.
-                System.out.println("Not a valid Interval.");
+               //System.out.println("Not a valid Interval.");
                 return null;
         }
     }
@@ -222,7 +222,7 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
 
             default:
                 //Returns NULL for error checking and reports error.
-                System.out.println("Not a valid Interval.");
+                //System.out.println("Not a valid Interval.");
                 return null;
         }
     }

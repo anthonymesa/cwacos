@@ -58,7 +58,6 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
             return parseCryptoJSON(timeSeries, _market);
         }
         catch (Exception ex) {
-            System.out.println("Error: " + ex);
             return null;
         }
    }
@@ -76,7 +75,6 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
 
         //API function being called
         if(_callType == CallType.INTRADAY_CALL){
-            System.out.println("You cannot use an Intraday call on Crypto Currencies.");
             return null;
         }
         function = translateCryptoCallType(_callType);
@@ -141,8 +139,7 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
                 return "DIGITAL_CURRENCY_MONTHLY";
 
             default:
-                //Returns NULL for error checking and reports error.
-                System.out.println("Not a valid Call Type.");
+                //Returns NULL for error
                 return null;
         }
     }
@@ -169,8 +166,7 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
                 return base + "Monthly)";
 
             default:
-                //Returns NULL for error checking and reports error.
-                System.out.println("Not a valid Interval.");
+                //Returns NULL for error checking
                 return null;
         }
     }

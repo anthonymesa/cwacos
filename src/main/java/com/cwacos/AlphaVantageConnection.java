@@ -46,7 +46,6 @@ public abstract class AlphaVantageConnection {
         // Examine the response code.
         int status = con.getResponseCode();
         if (status != 200) {
-            System.out.print("Error: Could not load item: " + status);
             return null;
         } else {
             // Parsing input stream into a text string.
@@ -60,8 +59,6 @@ public abstract class AlphaVantageConnection {
             in.close();
             con.disconnect();
 
-            // Print out our complete JSON string. (For Testing)
-            //System.out.println("Output: " + content.toString());
 
             return new JSONObject(content.toString());
         }
@@ -69,7 +66,7 @@ public abstract class AlphaVantageConnection {
 
     /**
      * This method will take the int given by the caller and return the appropriate enum variable to continue processing the call.
-     * @param _callType Int from 1 to 4
+     * @param _callType Int from 0 to 3
      * @return CallType enum
      */
     protected static CallType translateTypeEnum(int _callType){
@@ -87,7 +84,7 @@ public abstract class AlphaVantageConnection {
                 return CallType.MONTHLY_CALL;
 
             default:
-                System.out.println("Invalid call type.");
+                //Return null for invalid call type
                 return null;
         }
 
@@ -95,7 +92,7 @@ public abstract class AlphaVantageConnection {
 
     /**
      * This method will take the int given by the caller and return the appropriate enum variable to continue processing the call.
-     * @param _callInterval Int from 10 to 16
+     * @param _callInterval Int from 0 to 5
      * @return CallInterval enum
      */
     protected static CallInterval translateIntervalEnum(int _callInterval){
@@ -119,7 +116,7 @@ public abstract class AlphaVantageConnection {
                 return CallInterval.MINUTE_60;
 
             default:
-                System.out.println("Invalid Interval.");
+                //Return null for invalid call interval
                 return null;
         }
 
@@ -150,7 +147,7 @@ public abstract class AlphaVantageConnection {
                 return "60min";
 
             default:
-                System.out.println("Not a valid Interval.");
+                //Return null for invalid interval
                 return null;
         }
     }

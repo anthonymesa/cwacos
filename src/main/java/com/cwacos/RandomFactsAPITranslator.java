@@ -46,7 +46,7 @@ public class RandomFactsAPITranslator implements QfactsAdapter {
             JSONObject JSONQuokkasFact = JSONFile.getJSONObject("contents");
             return (JSONQuokkasFact.getString("fact"));
         } catch (Exception e) {
-            System.out.println("Error!");
+            //System.out.println("Error!");
         }
         return null;
     }

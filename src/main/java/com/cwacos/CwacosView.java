@@ -1061,19 +1061,23 @@ public class CwacosView extends Application {
         StackPane candlestickGraph = new StackPane();
         candlestickGraph.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
 
+        Image img = new Image("file:res/donate.jpg");
+        ImageView view = new ImageView(img);
+        view.setPreserveRatio(true);
+
         //THE BELOW BLOCK OF CODE IS TEMPORARY
-        Rectangle tempBox = new Rectangle();
-        tempBox.setFill(Paint.valueOf("4E4E4E"));
+        //Rectangle tempBox = new Rectangle();
+        //tempBox.setFill(Paint.valueOf("4E4E4E"));
 
-        tempBox.setHeight((WINDOW_HEIGHT / GRID_Y) * (height - (h_margin * 2)));
-        tempBox.setWidth((WINDOW_WIDTH / GRID_X) * (GRID_X - w_margin));
+        //tempBox.setHeight((WINDOW_HEIGHT / GRID_Y) * (height - (h_margin * 2)));
+        //tempBox.setWidth((WINDOW_WIDTH / GRID_X) * (GRID_X - w_margin));
 
-        Label candlestick = new Label();
-        candlestick.setText("Candlestick graph goes here.");
-        candlestick.setStyle("-fx-background-color: #" + ACCENT_COLOR + ";");
+        //Label candlestick = new Label();
+        //candlestick.setText("Candlestick graph goes here.");
+        //candlestick.setStyle("-fx-background-color: #" + ACCENT_COLOR + ";");
 
-        candlestickGraph.getChildren().addAll(tempBox, candlestick);
-        StackPane.setAlignment(tempBox, Pos.CENTER);
+        candlestickGraph.getChildren().addAll(view);
+        StackPane.setAlignment(view, Pos.CENTER);
 
         root.add(candlestickGraph, w_margin, yRowIndex, GRID_X - w_margin, height);
 

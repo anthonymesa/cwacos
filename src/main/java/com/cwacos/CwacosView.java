@@ -23,6 +23,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.*;
@@ -89,6 +90,30 @@ public class CwacosView extends Application {
         launch(args);
     }
 
+    private void showCwacosFactsDialogue() {
+        VBox content = new VBox();
+
+        HBox imgHolder = new HBox();
+        Image img = new Image("file:res/cwacos.jpg");
+        ImageView view = new ImageView(img);
+        view.setFitHeight(300);
+        view.setPreserveRatio(true);
+        imgHolder.getChildren().add(view);
+        imgHolder.setAlignment(Pos.CENTER);
+        imgHolder.setPadding(new Insets(20,0,20,0));
+
+        /* Cwacos Image */
+        content.getChildren().addAll(imgHolder);
+
+        /* Display random quokka fact */
+        Label qfact = new Label("Did you know? " + CwacosData.getQuakkaFact());
+        qfact.setTextAlignment(TextAlignment.CENTER);
+        qfact.setAlignment(Pos.CENTER);
+        content.getChildren().add(qfact);
+        content.setAlignment(Pos.CENTER);
+        CwacosPopup.display(APPLICATION_NAME, "Thanks!", content);
+    }
+
     @Override
     public void start(Stage primaryStage) {
 
@@ -98,12 +123,8 @@ public class CwacosView extends Application {
         /* Initialize static popup class to be used for quokka fact. */
         CwacosPopup.init();
 
-        VBox content = new VBox();
-
-        /* Display random quokka fact */
-        Label qfact = new Label(CwacosData.getQuakkaFact());
-        content.getChildren().add(qfact);
-        CwacosPopup.display(APPLICATION_NAME, "Thanks!", content);
+        /* Show the Cwacos facts popup. */
+        showCwacosFactsDialogue();
 
         /* Dynamically create all elements of the UI.
            This is done in rows, and because we are using the yRowIndex variable,

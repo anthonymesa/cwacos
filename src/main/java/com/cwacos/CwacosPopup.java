@@ -18,6 +18,8 @@ package com.cwacos;
  *      Anthony Mesa
  */
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -35,6 +37,9 @@ import java.util.function.Function;
 public class CwacosPopup {
 
     private static final int DIALOGUE_WIDTH = 500;
+    private static final int DIALOGUE_BUTTON_SPACE = 10;
+    private static final int WINDOW_BORDER_OFFSET = 10;
+    private static final int VERTICAL_SPACE = 20;
 
     // Window to draw.
     private static final Stage window = new Stage();
@@ -90,12 +95,18 @@ public class CwacosPopup {
         Pane changingContent = _content;
         windowContents.getChildren().add(changingContent);
 
+        HBox buttons = new HBox();
+        buttons.setAlignment(Pos.CENTER_RIGHT);
+
         Button successBtn = new Button(_okayLabel);
         successBtn.setOnAction(setOperation(_func));
+        successBtn.setAlignment(Pos.CENTER);
 
-        windowContents.getChildren().add(successBtn);
+        VBox spacer = new VBox();
+        spacer.setMinWidth(DIALOGUE_BUTTON_SPACE);
 
         Button cancelBtn = new Button(_cancel_label);
+        cancelBtn.setAlignment(Pos.CENTER);
         cancelBtn.setOnAction(
             new EventHandler<ActionEvent>() {
                 @Override
@@ -104,7 +115,11 @@ public class CwacosPopup {
                 }
             }
         );
-        windowContents.getChildren().add(cancelBtn);
+
+        buttons.getChildren().addAll(cancelBtn, spacer, successBtn);
+        windowContents.getChildren().add(buttons);
+
+        windowContents.setPadding(new Insets(WINDOW_BORDER_OFFSET));
 
         Scene scene = new Scene(windowContents);
         window.setScene(scene);
@@ -114,10 +129,9 @@ public class CwacosPopup {
     /**
      * Coming soon...
      *
-     * @param title display title of popup window
      * @param _content HBox of javafx contents to display in dialogue window
      */
-    public static void display(String title, String _cancel_label, Pane _content) {
+    public static void display(String _title, String _cancel_label, Pane _content) {
 
         if(!isInit){
             System.out.println("CwacosPopup must be initialized before use");
@@ -125,15 +139,19 @@ public class CwacosPopup {
         }
 
         // Block user inputs on non-pupup windows
-        window.setTitle(title);
-        window.setMinWidth(500);
-
+        window.setTitle(_title);
+        window.setMinWidth(DIALOGUE_WIDTH);
 
         VBox windowContents = new VBox();
         Pane changingContent = _content;
         windowContents.getChildren().add(changingContent);
 
+        HBox buttons = new HBox();
+        buttons.setAlignment(Pos.CENTER);
+        buttons.setPadding(new Insets(VERTICAL_SPACE,0,0,0));
+
         Button cancelBtn = new Button(_cancel_label);
+        cancelBtn.setAlignment(Pos.CENTER);
         cancelBtn.setOnAction(
                 new EventHandler<ActionEvent>() {
                     @Override
@@ -142,7 +160,11 @@ public class CwacosPopup {
                     }
                 }
         );
-        windowContents.getChildren().add(cancelBtn);
+
+        buttons.getChildren().addAll(cancelBtn);
+        windowContents.getChildren().add(buttons);
+
+        windowContents.setPadding(new Insets(WINDOW_BORDER_OFFSET));
 
         Scene scene = new Scene(windowContents);
         window.setScene(scene);

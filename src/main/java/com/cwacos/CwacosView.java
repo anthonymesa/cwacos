@@ -804,7 +804,7 @@ public class CwacosView extends Application {
                     public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
                         switch (CwacosData.getActiveType()) {
                             case 0: //stock
-                                pupulateStockIntervalCboBox(callArgument2, callArgument1.getValue());
+                                populateStockIntervalCboBox(callArgument2, callArgument1.getValue());
                                 break;
 
                             case 1: // cryptos
@@ -1025,7 +1025,7 @@ public class CwacosView extends Application {
      *
      * @param _comboBox Stock interval combo box.
      */
-    private void pupulateStockIntervalCboBox(ComboBox<String> _comboBox, String _type) {
+    private void populateStockIntervalCboBox(ComboBox<String> _comboBox, String _type) {
 
         // clear the combo box if there are items in it
         if (!_comboBox.getItems().isEmpty()) {

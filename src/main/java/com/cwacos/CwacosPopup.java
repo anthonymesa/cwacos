@@ -36,7 +36,7 @@ import java.util.function.Function;
  */
 public class CwacosPopup {
 
-    private static final int DIALOGUE_WIDTH = 500;
+    private static final int DIALOGUE_WIDTH = 300;
     private static final int DIALOGUE_BUTTON_SPACE = 10;
     private static final int WINDOW_BORDER_OFFSET = 10;
     private static final int VERTICAL_SPACE = 20;
@@ -97,6 +97,7 @@ public class CwacosPopup {
 
         HBox buttons = new HBox();
         buttons.setAlignment(Pos.CENTER_RIGHT);
+        buttons.setPadding(new Insets(VERTICAL_SPACE, 0, 0, 0));
 
         Button successBtn = new Button(_okayLabel);
         successBtn.setOnAction(setOperation(_func));

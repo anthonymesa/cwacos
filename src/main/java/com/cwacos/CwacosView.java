@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 import javafx.geometry.*;
-import javafx.scene.shape.*;
 import javafx.scene.paint.*;
 
 public class CwacosView extends Application {
@@ -396,19 +395,27 @@ public class CwacosView extends Application {
             @Override
             public void handle(ActionEvent e) {
 
-                HBox content = new HBox();
+                VBox content = new VBox();
+                content.setAlignment(Pos.CENTER);
 
-                //Create the drop down menu for selecting which type of ticker you have
-                ComboBox<String> typeSelection = createComboBox();
-                typeSelection.getItems().addAll("Stocks", "Cryptos");
-                //typeSelection = styleDropDownMenu(typeSelection);
-                //styleDropDownMenu(typeSelection);
-                content.getChildren().add(typeSelection);
+                Label inputLabel = new Label("Symbol");
+                inputLabel.setPadding(new Insets(10,0,10,0));
+                content.getChildren().add(inputLabel);
 
                 //Create text field that takes user input
                 TextField inputArea = new TextField();
                 inputArea.setPromptText("Enter ticker: ");
+                inputArea.setMaxWidth(150);
                 content.getChildren().add(inputArea);
+
+                Label typeLabel = new Label("Type");
+                typeLabel.setPadding(new Insets(10,0,10,0));
+                content.getChildren().add(typeLabel);
+
+                //Create the drop down menu for selecting which type of ticker you have
+                ComboBox<String> typeSelection = createComboBox();
+                typeSelection.getItems().addAll("Stocks", "Cryptos");
+                content.getChildren().add(typeSelection);
 
                 // define function to be run when user clicks 'okay'
                 Function<Object, Object> testFunction = new Function<Object, Object>() {
@@ -478,17 +485,25 @@ public class CwacosView extends Application {
             @Override
             public void handle(ActionEvent e) {
 
-                HBox content = new HBox();
+                VBox content = new VBox();
+                content.setAlignment(Pos.CENTER);
+
+                Label typeLabel = new Label("Type");
+                typeLabel.setPadding(new Insets(10,0,10,0));
+                content.getChildren().add(typeLabel);
 
                 //Create the drop down menu for selecting which type of ticker you have
                 ComboBox<String> typeSelection = createComboBox();
                 typeSelection.getItems().addAll("Stocks", "Cryptos");
-                //typeSelection = styleDropDownMenu(typeSelection);
-                //styleDropDownMenu(typeSelection);
                 content.getChildren().add(typeSelection);
+
+                Label inputLabel = new Label("Symbol");
+                inputLabel.setPadding(new Insets(10,0,10,0));
+                content.getChildren().add(inputLabel);
 
                 //Create text field that takes user input
                 TextField inputArea = new TextField();
+                inputArea.setMaxWidth(150);
                 inputArea.setPromptText("Enter ticker: ");
                 content.getChildren().add(inputArea);
 
@@ -719,19 +734,26 @@ public class CwacosView extends Application {
             public void handle(ActionEvent e) {
 
                 VBox content = new VBox();
+                content.setAlignment(Pos.CENTER);
 
                 String[] maxProfitData = CwacosData.getMaxProfit();
 
                 //Create text field that takes user input
                 Label lowDate = new Label(maxProfitData[2]);
-                Label low = new Label("Lowest price was: " + maxProfitData[0]);
-                Label buy = new Label("Best buy price was: " + maxProfitData[1]);
+                lowDate.setPadding(new Insets(10,0,10,0));
+
+                Label low = new Label("Low: $" + maxProfitData[0]);
+                Label buy = new Label("Buy: $" + maxProfitData[1]);
 
                 Label highDate = new Label(maxProfitData[5]);
-                Label high = new Label("Highest was : " + maxProfitData[3]);
-                Label sell = new Label("Sell price was: " + maxProfitData[4]);
+                highDate.setPadding(new Insets(10,0,10,0));
 
-                Label profit = new Label("Profit was: " + maxProfitData[6]);
+                Label high = new Label("High: $" + maxProfitData[3]);
+                Label sell = new Label("Sell: $" + maxProfitData[4]);
+
+                Label profit = new Label("Profit: $" + maxProfitData[6]);
+                profit.setPadding(new Insets(10,0,10,0));
+
                 content.getChildren().addAll(lowDate, low, buy, highDate, high, sell, profit);
 
                 // call popup with above parameters
@@ -791,12 +813,14 @@ public class CwacosView extends Application {
             @Override
             public void handle(ActionEvent e) {
 
-                HBox content = new HBox();
-                GridPane dialogContent = new GridPane();
+                VBox content = new VBox();
+                content.setAlignment(Pos.CENTER);
+
+                Label typeLabel = new Label("Type");
+                typeLabel.setPadding(new Insets(10,0,10,0));
+                content.getChildren().add(typeLabel);
 
                 // combo box for call type
-                // this could be done programmatically, technically, but we may not always use enums given the API we use,
-                // so this will be done custom
                 final ComboBox<String> callArgument1 = createComboBox();
 
                 // Check that there is an active symbol, else there is nothing to update. Doing this here because
@@ -815,7 +839,23 @@ public class CwacosView extends Application {
                 }
 
                 // Add combo box to dialogue box.
-                dialogContent.add(callArgument1, 0, 0);
+                content.getChildren().add(callArgument1);
+
+                Label intervalLabel = new Label();
+
+                // Change the label for the second combobox based
+                // on type.
+                switch(CwacosData.getActiveType()) {
+                    case 0:
+                        intervalLabel.setText("Interval");
+                        break;
+                    case 1:
+                        intervalLabel.setText("Market");
+                        break;
+                }
+
+                intervalLabel.setPadding(new Insets(10,0,10,0));
+                content.getChildren().add(intervalLabel);
 
                 final ComboBox<String> callArgument2 = createComboBox();
 
@@ -825,7 +865,7 @@ public class CwacosView extends Application {
                     public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
                         switch (CwacosData.getActiveType()) {
                             case 0: //stock
-                                pupulateStockIntervalCboBox(callArgument2, callArgument1.getValue());
+                                populateStockIntervalComboBox(callArgument2, callArgument1.getValue());
                                 break;
 
                             case 1: // cryptos
@@ -839,7 +879,7 @@ public class CwacosView extends Application {
                     }
                 });
 
-                dialogContent.add(callArgument2, 0, 1);
+                content.getChildren().add(callArgument2);
 
                 /**
                  * This function is an anoymous function that defines the action that will
@@ -873,8 +913,6 @@ public class CwacosView extends Application {
                         }
                     }
                 };
-
-                content.getChildren().add(dialogContent);
 
                 // call popup with above parameters
                 CwacosPopup.display(UPDATE, UPDATE, CANCEL, content, desiredAction);
@@ -1046,7 +1084,7 @@ public class CwacosView extends Application {
      *
      * @param _comboBox Stock interval combo box.
      */
-    private void pupulateStockIntervalCboBox(ComboBox<String> _comboBox, String _type) {
+    private void populateStockIntervalComboBox(ComboBox<String> _comboBox, String _type) {
 
         // clear the combo box if there are items in it
         if (!_comboBox.getItems().isEmpty()) {

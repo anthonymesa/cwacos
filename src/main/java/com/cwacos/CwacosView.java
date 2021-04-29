@@ -736,6 +736,15 @@ public class CwacosView extends Application {
             @Override
             public void handle(ActionEvent e) {
 
+                // look up the table view
+                TableView<Entry> table = (TableView<Entry>) root.lookup("#dataTable");
+
+                // if table view is empty, return
+                if(table.getItems().isEmpty()) {
+                    setUiStatusLabel("Table must not be empty to be able to run max profit algorithm...");
+                    return;
+                }
+
                 VBox content = new VBox();
                 content.setAlignment(Pos.CENTER);
 

@@ -15,6 +15,6 @@ import java.util.Locale;
 
 public class CwacosDateFormat {
     public static  SimpleDateFormat getDateFormat() {
-        return new SimpleDateFormat("MM-dd-yyyy HH:mm:ss", Locale.ENGLISH);
+        return new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.ENGLISH);
     }
 }

@@ -1159,6 +1159,13 @@ public class CwacosView extends Application {
         graphPane.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
         //Create the LineChart
         LineChart<String, Number> lineChart = new LineChart<String, Number>();
+        lineChart.setTitle("Stock Data");
+
+        //Create each axis
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel("Interval");
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Stock Price");
 
         //Get ticker data
         ArrayList<Entry> entries = CwacosData.getActiveEntryList();

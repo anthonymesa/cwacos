@@ -23,6 +23,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -1151,30 +1155,67 @@ public class CwacosView extends Application {
     //Method creates the CandleStick Graph
     private void generateCandlestickGraphComponent(int height, int w_margin, int h_margin) {
         //Create and style the background.
-        StackPane candlestickGraph = new StackPane();
-        candlestickGraph.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
+        StackPane graphPane = new StackPane();
+        graphPane.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
+        //Create the LineChart
+        LineChart<String, Number> lineChart = new LineChart<String, Number>();
 
-        Image img = new Image("file:res/donate.jpg");
-        ImageView view = new ImageView(img);
-        view.setPreserveRatio(true);
+        //Get ticker data
+        ArrayList<Entry> entries = CwacosData.getActiveEntryList();
 
-        //THE BELOW BLOCK OF CODE IS TEMPORARY
-        //Rectangle tempBox = new Rectangle();
-        //tempBox.setFill(Paint.valueOf("4E4E4E"));
+        //Create lines for the line chart
+        XYChart.Series openSeries = new XYChart.Series();
+        openSeries.setName("Open");
+        XYChart.Series closeSeries = new XYChart.Series();
+        closeSeries.setName("Close");
+        XYChart.Series lowSeries = new XYChart.Series();
+        lowSeries.setName("Low");
+        XYChart.Series highSeries = new XYChart.Series();
+        highSeries.setName("High");
 
-        //tempBox.setHeight((WINDOW_HEIGHT / GRID_Y) * (height - (h_margin * 2)));
-        //tempBox.setWidth((WINDOW_WIDTH / GRID_X) * (GRID_X - w_margin));
+        //Populate each series.
+        if (entries != null) {
+            for (Entry entry : entries) {
+                //The indexOf is temporary until I setup the labels based on the 
+                openSeries.getData().add(new XYChart.Data(entries.indexOf(entry).toString(), entry.getOpen()));
+                closeSeries.getData().add(new XYChart.Data(entries.indexOf(entry), entry.getClose()));
+                lowSeries.getData().add(new XYChart.Data(entries.indexOf(entry), entry.getLow()));
+                highSeries.getData().add(new XYChart.Data(entries.indexOf(entry), entry.getHigh()));
+            }
+        }
 
-        //Label candlestick = new Label();
-        //candlestick.setText("Candlestick graph goes here.");
-        //candlestick.setStyle("-fx-background-color: #" + ACCENT_COLOR + ";");
+        //Style the lines
+        for (Data<String, Number> entry : openSeries.getData()) {      
+            entry.getNode().setStyle("-fx-background-color: black, white;\n"
+                + "    -fx-background-insets: 0, 2;\n"
+                + "    -fx-background-radius: 5px;\n"
+                + "    -fx-padding: 5px;");
+        }
+        for (Data<String, Number> entry : closeSeries.getData()) {      
+            entry.getNode().setStyle("-fx-background-color: black, white;\n"
+                + "    -fx-background-insets: 0, 2;\n"
+                + "    -fx-background-radius: 5px;\n"
+                + "    -fx-padding: 5px;");
+        }
+        for (Data<String, Number> entry : lowSeries.getData()) {      
+            entry.getNode().setStyle("-fx-background-color: black, white;\n"
+                + "    -fx-background-insets: 0, 2;\n"
+                + "    -fx-background-radius: 5px;\n"
+                + "    -fx-padding: 5px;");
+        }
+        for (Data<String, Number> entry : highSeries.getData()) {      
+            entry.getNode().setStyle("-fx-background-color: black, white;\n"
+                + "    -fx-background-insets: 0, 2;\n"
+                + "    -fx-background-radius: 5px;\n"
+                + "    -fx-padding: 5px;");
+        }
 
-        candlestickGraph.getChildren().addAll(view);
+        lineChart.getData().addAll(openSeries, closeSeries, lowSeries, highSeries);
+
+        graphPane.getChildren().addAll(lineChart);
         StackPane.setAlignment(view, Pos.CENTER);
 
-        root.add(candlestickGraph, w_margin, yRowIndex, GRID_X - w_margin, height);
-
-        yRowIndex += height;
+        root.add(graphPane, w_margin, yRowIndex, GRID_X - w_margin, height);
     }
 
     //============================= STATUS BAR =================================

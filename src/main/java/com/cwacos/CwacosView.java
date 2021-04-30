@@ -1263,6 +1263,7 @@ public class CwacosView extends Application {
 
         NumberAxis yAxis = (NumberAxis) lineChart.getYAxis();
         CategoryAxis xAxis = (CategoryAxis) lineChart.getXAxis();
+        xAxis.setAnimated(false);
         yAxis.setAutoRanging(false);
         yAxis.setUpperBound(highest);
         yAxis.setLowerBound(lowest);

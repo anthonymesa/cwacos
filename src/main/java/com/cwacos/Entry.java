@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: Entry defines a single financial data element over a single interval of time. Because this
  *      is used for all financial data manipulation and data storage, all data types (i.e. Stock, Crypto, etc.)
@@ -18,6 +18,8 @@ import java.util.Date;
 public class Entry implements Comparable<Entry> {
 
     private DateFormat formatter = CwacosDateFormat.getDateFormat();
+    private DateFormat readableFormatter = CwacosDateFormat.getHumanReadableDateFormat();
+    private DateFormat graphFormatter = CwacosDateFormat.getGraphFormat();
     private double open, close, low, high;
     private int volume;
     private Date dateTime;
@@ -45,9 +47,7 @@ public class Entry implements Comparable<Entry> {
         return this.dateTime.compareTo(_entry.dateTime);
     }
 
-    //==============================================================================
-    // Getters
-    //==============================================================================
+    //================= GETTERS ===============
 
     public DateFormat getFormatter() {
         return formatter;
@@ -97,15 +97,11 @@ public class Entry implements Comparable<Entry> {
         return Integer.toString(volume);
     }
 
-    public String getDateTimeString() { return formatter.format(dateTime);}
+    public String getDateTimeString() { return readableFormatter.format(dateTime);}
 
-    //==============================================================================
-    // Setters
-    //==============================================================================
+    public String getGraphTimeString() { return graphFormatter.format(dateTime); }
 
-    public void setFormatter(DateFormat formatter) {
-        this.formatter = formatter;
-    }
+    //================= SETTERS ===============
 
     public void setOpen(double open) {
         this.open = open;
@@ -131,5 +127,3 @@ public class Entry implements Comparable<Entry> {
         this.dateTime = dateTime;
     }
 }
-
-

@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: CryptoDataSegment provides a DataSegment object customized for crypto calls. 
  * 
@@ -22,13 +22,13 @@ public class CryptoDataSegment extends DataSegment{
         this.callMarket = _callMarket;
     }
 
-    /* Getters */
+    //================= GETTERS ===============
 
     public int getCallMarket() {
         return this.callMarket;
     }
 
-    /* Setters */
+    //================= SETTERS ===============/
 
     public void setCallMarket(int _market) {
         this.callMarket = _market;

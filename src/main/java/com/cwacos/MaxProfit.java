@@ -1,9 +1,11 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
- * Purpose: MaxProfit
+ * Purpose: This class holds the MaxProfit algorithm which can be used to determine the best buying/selling points within
+ *          a list of stock prices. It will also calculate the profit made by buying and selling at those points.
+ *          This is done efficiently by using a recursive Divide-and-Conquer algorithm that will run in O(nlog(n)) time.
  * 
  * Contributing Authors:
  *      Michael Leonard
@@ -58,7 +60,7 @@ public class MaxProfit {
         //Date of sell
         results[5] = _stocks.get(maxProfit.getEndJumpPosition()/2).getDateTimeString();
         //Value of profit
-        results[6] = String.valueOf(maxProfit.getProfit());
+        results[6] = String.format("%.2f", maxProfit.getProfit());
 
         return results;
     }
@@ -107,9 +109,6 @@ public class MaxProfit {
             else
                 return crossJump;
         }
-
-
-
     }
 
     /**
@@ -149,5 +148,4 @@ public class MaxProfit {
         //return max Profit across entire array.
         return(new Jump(startingPosition, endingPosition, leftProfit + rightProfit));
     }
-
 }

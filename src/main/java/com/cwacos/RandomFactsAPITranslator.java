@@ -1,9 +1,10 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
- * Purpose: RandomFactsAPITranslator
+ * Purpose: This class handles calls to the Randoms Facts API, as well as storing and exporting the facts it
+ *          receives in a fact list. Currently only used to make calls about Quokkas.
  * 
  * Contributing Authors:
  *      Michael Leonard
@@ -23,12 +24,13 @@ public class RandomFactsAPITranslator implements QfactsAdapter {
     protected static final String apiKeyQuokkas = "7428506839msh1141f5e6cf76abdp11775fjsn3ab3e1af2ad5";
 
     /**
-     * Calls to Rapid API's server and accesses a random fact about Quokkas to be returned.
+     * This method will make a single call to the Random Facts API to request a random fact about Quokkas.
+     * It will return the fact it receives in a String.
      * Limited to 5 calls per day.
      *
      * @return A string containing a fact about Quokkas.
      */
-    private String getQuakkaFact() {
+    private String getQuokkaFact() {
         try {
             //Build HttpRequest with correct headers and using our API key.
             HttpRequest request = HttpRequest.newBuilder()
@@ -46,21 +48,30 @@ public class RandomFactsAPITranslator implements QfactsAdapter {
             JSONObject JSONQuokkasFact = JSONFile.getJSONObject("contents");
             return (JSONQuokkasFact.getString("fact"));
         } catch (Exception e) {
-            //System.out.println("Error!");
+            return null;
         }
-        return null;
+
     }
 
+    /**
+     * This method will create an ArrayList of Strings used to hold facts about Quokkas.
+     * It will make a predefined number calls to the Random Facts API to and store each
+     * fact in the ArrayList separately, then return the list.
+     * @param _amnt The number of facts to be placed into the list of facts.
+     * @return  An ArrayList of Strings where each String is a fact about Quokkas.
+     */
     public ArrayList<String> getQfactsList(int _amnt){
         ArrayList<String> factsList = new ArrayList<String>();
+        String fact;
 
         for(int i = 0; i < _amnt; i++){
-            factsList.add(getQuakkaFact());
+            if((fact = getQuokkaFact()) != null)
+                factsList.add(fact);
+            else
+                //If the API call fails at any point, then return an empty ArrayList
+                return new ArrayList<String>();
         }
 
         return factsList;
     }
 }
-
-
-

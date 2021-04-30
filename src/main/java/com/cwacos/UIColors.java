@@ -1,4 +1,12 @@
 package com.cwacos;
+/**
+ * Last updated: 30-APR-2021
+ *
+ * Purpose: To store hex values of colors to be used in the UI.
+ *
+ * Contributing Authors:
+ *      Anthony Mesa
+ */
 
 public class UIColors {
 
@@ -7,6 +15,8 @@ public class UIColors {
     private static final String SECONDARY_COLOR = "#4E4E4E";
     private static final String FONT_COLOR = "#FFFFFF";
     private static final String ACCENT_COLOR = "#BB86FC";
+
+    //================= GETTERS ===============
 
     public static String getPrimaryColor() {
         return UIColors.PRIMARY_COLOR;

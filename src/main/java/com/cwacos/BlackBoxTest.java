@@ -1,5 +1,15 @@
 package com.cwacos;
 
+/**
+ * Last updated: 29-APR-2021
+ *
+ * Purpose: This is a testing class used to test the correctness of Stocks.get() and Crypto.get() by checking their
+ *          return values against expected results.
+ *
+ * Contributing Authors:
+ *      Michael Leonard
+ */
+
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -15,10 +25,10 @@ public class BlackBoxTest {
     /**
      * This method will test a selection of Stocks.get() calls and assess their correctness.
      */
-    public static void testGetStocks(){
+    public static void testGetStocks() {
         Stocks.init();
 
-        try{
+        try {
             //Test Symbol cases
             System.out.println("\n===================== Stocks getStocksData Test ======================");
             System.out.println("Testing Cases for Symbols: \n");
@@ -60,7 +70,7 @@ public class BlackBoxTest {
     /**
      * This method will test a selection of Cryptos.get() calls and assess their correctness.
      */
-    public static void testGetCrypto(){
+    public static void testGetCrypto() {
         Cryptos.init();
 
         try{

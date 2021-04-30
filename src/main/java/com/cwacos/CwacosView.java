@@ -39,6 +39,7 @@ import javafx.event.ActionEvent;
 import javafx.collections.ObservableList;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Function;
@@ -1173,6 +1174,9 @@ public class CwacosView extends Application {
         //Create the LineChart
         LineChart<String, Number> lineChart = new LineChart<String, Number>(xAxis, yAxis);
         lineChart.setTitle("Stock Data");
+        URL url = this.getClass().getResource("controlStyle1.css");
+        String css = url.toExternalForm();
+        lineChart.getStylesheets().add(css);
 
         //Create lines for the line chart
         XYChart.Series openSeries = new XYChart.Series();
@@ -1210,6 +1214,8 @@ public class CwacosView extends Application {
         graphPane.getChildren().addAll(lineChart);
 
         root.add(graphPane, w_margin, yRowIndex, GRID_X - w_margin, height);
+
+        yRowIndex += height;
     }
 
     private StackPane fetchChart() {

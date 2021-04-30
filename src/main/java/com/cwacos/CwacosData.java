@@ -328,9 +328,11 @@ public class CwacosData {
 
                 StringBuilder sb = new StringBuilder();
 
+                ArrayList<String> facts = Qfacts.getList(5);
+
                 //make call to quokkas api and save values
-                for (int i = 0; i < 5; i++) {
-                    //sb.append("|" + RandomFactsAPITranslator.getQuokkasFact());
+                for (int i = 0; i < facts.size(); i++) {
+                    sb.append("|" + facts.get(i));
                 }
 
                 settings.put("facts", "Quokkas are really cute!" + sb.toString());

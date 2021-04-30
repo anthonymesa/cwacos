@@ -1145,7 +1145,7 @@ public class CwacosView extends Application {
         XYChart.Series<Number,Number> series = new XYChart.Series<>();
         series.setName("Cwacos");
 
-        //populating line chart
+
         ArrayList<Entry> entries = CwacosData.getActiveEntryList();
 
         if(entries!= null){

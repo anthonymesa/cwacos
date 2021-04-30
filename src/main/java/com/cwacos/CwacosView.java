@@ -1250,12 +1250,12 @@ public class CwacosView extends Application {
 
     private void populateChart() {
         StackPane sp = fetchChart();
-
         LineChart<String, Number> lineChart = (LineChart<String, Number>) sp.getChildren().get(0);
 
-        //Get ticker data
+        //Get ticker data.
         ArrayList<Entry> entries = CwacosData.getActiveEntryList();
 
+        //Get the series for each of the lines.
         ObservableList<XYChart.Series<String, Number>> chartSeries = lineChart.getData();
         XYChart.Series<String, Number> openSeries = chartSeries.get(0);
         XYChart.Series<String, Number> closeSeries = chartSeries.get(1);
@@ -1263,20 +1263,32 @@ public class CwacosView extends Application {
         XYChart.Series<String, Number> highSeries = chartSeries.get(3);
         
         //Populate each series.
+
+        if (openSeries.getData() != null) {
+            openSeries.getData().clear();
+            closeSeries.getData().clear();
+            lowSeries.getData().clear();
+            highSeries.getData().clear();
+        }
         if (entries != null) {
             for (Entry entry : entries) {
                 //The indexOf is temporary until I setup the labels based on the 
-                openSeries.getData().add(new XYChart.Data(String.valueOf(entries.indexOf(entry)), entry.getOpen()));
-                closeSeries.getData().add(new XYChart.Data(String.valueOf(entries.indexOf(entry)), entry.getClose()));
-                lowSeries.getData().add(new XYChart.Data(String.valueOf(entries.indexOf(entry)), entry.getLow()));
-                highSeries.getData().add(new XYChart.Data(String.valueOf(entries.indexOf(entry)), entry.getHigh()));
+                openSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getOpen()));
+                closeSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getClose()));
+                lowSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getLow()));
+                highSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getHigh()));
             }
         }
     }
 
-    private void adjustYAxisScale() {
+    private void adjustAxisScales() {
         //Get ticker data to use to calculate the scale
         ArrayList<Entry> entries = CwacosData.getActiveEntryList();
+        //Get the chart
+        StackPane sp = fetchChart();
+        LineChart<String, Number> lineChart = (LineChart<String, Number>) sp.getChildren().get(0);
+
+
     }
 
     //============================= STATUS BAR =================================

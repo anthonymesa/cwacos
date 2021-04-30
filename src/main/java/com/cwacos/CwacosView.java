@@ -28,6 +28,8 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.*;
@@ -1221,6 +1223,37 @@ public class CwacosView extends Application {
 
         graphPane.getChildren().addAll(lineChart);
         StackPane.setAlignment(view, Pos.CENTER);
+
+
+
+        int offset = graphPane.getWidth() / entries.size();
+
+        ArrayList<Rectangle> rectangles = new ArrayList<Rectangle>();
+        ArrayList<Line> lines = new ArrayList<Line>();
+        double recWidth = 10;
+
+        if (entries != null) {
+            for (Entry entry : entries) {
+                //Create rectangles
+                double recHeight = entry.getHigh() - entry.getLow();
+                if (recHeight < 0) {
+                    Rectangle temp = new Rectangle(recWidth, (recHeight * -1));
+                    temp.setFill(Paint.valueOf("fc2c03"));
+                    rectangles.add(temp);
+                } else {
+                    Rectangle temp = new Rectangle(recWidth, recHeight);
+                    temp.setFill(Paint.valueOf("0ffc03"));
+                    rectangles.add(temp);
+                }
+                //Create lines
+                Line temp = new Line();
+                temp.setFill(Paint.valueOf("000000"));
+                temp.setStartY(entry.getOpen());
+                temp.setEndY(entry.getClose());
+            }
+        }
+
+        graphPane.getChildren().addAll(rectangles, lines);
 
         root.add(graphPane, w_margin, yRowIndex, GRID_X - w_margin, height);
     }

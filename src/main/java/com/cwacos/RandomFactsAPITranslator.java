@@ -28,7 +28,7 @@ public class RandomFactsAPITranslator implements QfactsAdapter {
      *
      * @return A string containing a fact about Quokkas.
      */
-    private String getQuakkaFact() {
+    private String getQuokkaFact() {
         try {
             //Build HttpRequest with correct headers and using our API key.
             HttpRequest request = HttpRequest.newBuilder()
@@ -55,7 +55,7 @@ public class RandomFactsAPITranslator implements QfactsAdapter {
         ArrayList<String> factsList = new ArrayList<String>();
 
         for(int i = 0; i < _amnt; i++){
-            factsList.add(getQuakkaFact());
+            factsList.add(getQuokkaFact());
         }
 
         return factsList;

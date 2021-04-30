@@ -98,7 +98,7 @@ public class CwacosView extends Application {
         content.getChildren().addAll(imgHolder);
 
         /* Display random quokka fact */
-        Label qfact = generateUILabel("Did you know? " + CwacosData.getQuakkaFact());
+        Label qfact = generateUILabel("Did you know? " + CwacosData.getQuokkaFact());
         qfact.setTextAlignment(TextAlignment.CENTER);
         qfact.setAlignment(Pos.CENTER);
         content.getChildren().add(qfact);

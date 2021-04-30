@@ -3,7 +3,7 @@ package com.cwacos;
 /**
  * Last updated: 30-APR-2021
  * 
- * Purpose: Qfacts model provides a constant access point for CwacosData to access quakka facts data functions.
+ * Purpose: Qfacts model provides a constant access point for CwacosData to access quokka facts data functions.
  * 
  * Contributing Authors:
  *      Anthony Mesa

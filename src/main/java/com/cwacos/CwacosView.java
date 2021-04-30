@@ -23,14 +23,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-<<<<<<< HEAD
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-=======
-import javafx.scene.text.Text;
->>>>>>> 6b2d90fbb8eb2a6c4dfacd2feaeef13d64e63610
 import javafx.scene.text.TextAlignment;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Line;
@@ -1182,9 +1178,8 @@ public class CwacosView extends Application {
     private void generateCandlestickGraphComponent(int height, int w_margin, int h_margin) {
         
         //Create and style the background.
-<<<<<<< HEAD
         StackPane graphPane = new StackPane();
-        graphPane.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
+        //graphPane.setStyle("-fx-background-color: #" + UIColors.getAccentColor() + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
         graphPane.setId("chart");
         
         //Create each axis
@@ -1196,9 +1191,6 @@ public class CwacosView extends Application {
         //Create the LineChart
         LineChart<String, Number> lineChart = new LineChart<String, Number>(xAxis, yAxis);
         lineChart.setTitle("Stock Data");
-        URL url = this.getClass().getResource("controlStyle1.css");
-        String css = url.toExternalForm();
-        lineChart.getStylesheets().add(css);
 
         //Create lines for the line chart
         XYChart.Series openSeries = new XYChart.Series();
@@ -1232,10 +1224,6 @@ public class CwacosView extends Application {
                 + "    -fx-background-insets: 0, 2;\n"
                 + "    -fx-background-radius: 5px;");
         }
-=======
-        StackPane candlestickGraph = new StackPane();
-        candlestickGraph.setStyle("-fx-background-color: " + UIColors.getPrimaryColor() + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
->>>>>>> 6b2d90fbb8eb2a6c4dfacd2feaeef13d64e63610
 
         graphPane.getChildren().addAll(lineChart);
 

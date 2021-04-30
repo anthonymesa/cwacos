@@ -1,7 +1,13 @@
-/*
-Last updated:
-Purpose of this class:
-Contributing Authors: Anthony Mesa, Hyoungjin Choi
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: DataStorage model provides a constant access point for CwacosData to access data storing functions.
+ * 
+ * Contributing Authors:
+ *      Anthony Mesa
+ *      Hyoungjin Choi
  */
 
 import java.util.ArrayList;
@@ -11,10 +17,6 @@ class DataStorage {
 
     private static StorageAdapter adapter;
 
-    /** constructor takes enum, if LOCAL is used as
-     * a parameter, initializes storage adapter
-     * as LocalFileStorage class
-     */
     public static void init() {
         adapter = new LocalStorageTranslator();
     }
@@ -25,9 +27,8 @@ class DataStorage {
      * @param _params ArrayList of Strings that will contain either the file URL/Path or the IP, Port number, etc.
      * @param _input  ArrayList of Entries to be stored to desired location.
      */
-    public static void save(ArrayList<String> _params, ArrayList<Entry> _input) {
-
-        adapter.store(_params, arraylistOfEntriesToArraylistOfStrings(_input, Integer.parseInt(_params.get(1))));
+    public static Response save(ArrayList<String> _params, ArrayList<Entry> _input) {
+        return adapter.store(_params, arraylistOfEntriesToArraylistOfStrings(_input));
     }
 
     /**
@@ -36,8 +37,12 @@ class DataStorage {
      * @param _params ArrayList of Strings that will contain either the file URL/Path or the IP, Port number, etc.
      * @return ArrayList of Objects that contain the values read from the storage.
      */
-    public static ArrayList<Object> load(ArrayList<String> _params) {
-        return adapter.load(_params);
+    public static LoadData load(ArrayList<String> _params) throws Exception{
+        try{
+            return adapter.load(_params);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     public static Map<String, String> loadSettings(ArrayList<String> _params) {
@@ -54,7 +59,7 @@ class DataStorage {
      * @param _arraylistOfEntries ArrayList of Entries to be converted to ArrayList of Strings.
      * @return ArrayList of Strings converted from ArrayList of Entries.
      */
-    private static ArrayList<String> arraylistOfEntriesToArraylistOfStrings(ArrayList<Entry> _arraylistOfEntries, int _call_type) {
+    private static ArrayList<String> arraylistOfEntriesToArraylistOfStrings(ArrayList<Entry> _arraylistOfEntries) {
         ArrayList<String> arraylistOfStrings = new ArrayList<>();
         for (Entry entry : _arraylistOfEntries) {
 

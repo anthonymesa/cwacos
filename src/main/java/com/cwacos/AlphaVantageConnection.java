@@ -1,3 +1,15 @@
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: 
+ * 
+ * Contributing Authors:
+ *      Michael Leonard
+ *      Anthony Mesa
+ */
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +30,7 @@ public abstract class AlphaVantageConnection {
     protected static final String apiKeyAlpha = "MO9QU9JAPBBPX5T7";
 
     protected enum CallType {INTRADAY_CALL, DAILY_CALL, WEEKLY_CALL, MONTHLY_CALL}
-    protected enum CallInterval {NO_INTERVAL, MINUTE_1, MINUTE_5, MINUTE_10, MINUTE_15, MINUTE_30, MINUTE_60}
+    protected enum CallInterval {NO_INTERVAL, MINUTE_1, MINUTE_5, MINUTE_15, MINUTE_30, MINUTE_60}
 
     /**
      * Parses raw JSON information from API call and stores it in a JSONobject that is returned.
@@ -34,7 +46,6 @@ public abstract class AlphaVantageConnection {
         // Examine the response code.
         int status = con.getResponseCode();
         if (status != 200) {
-            System.out.print("Error: Could not load item: " + status);
             return null;
         } else {
             // Parsing input stream into a text string.
@@ -48,8 +59,6 @@ public abstract class AlphaVantageConnection {
             in.close();
             con.disconnect();
 
-            // Print out our complete JSON string. (For Testing)
-            //System.out.println("Output: " + content.toString());
 
             return new JSONObject(content.toString());
         }
@@ -57,25 +66,25 @@ public abstract class AlphaVantageConnection {
 
     /**
      * This method will take the int given by the caller and return the appropriate enum variable to continue processing the call.
-     * @param _callType Int from 1 to 4
+     * @param _callType Int from 0 to 3
      * @return CallType enum
      */
-    protected static AVAPIStocksTranslator.CallType translateTypeEnum(int _callType){
+    protected static CallType translateTypeEnum(int _callType){
         switch(_callType){
             case 0:
-                return AVAPIStocksTranslator.CallType.INTRADAY_CALL;
+                return CallType.INTRADAY_CALL;
 
             case 1:
-                return AVAPIStocksTranslator.CallType.DAILY_CALL;
+                return CallType.DAILY_CALL;
 
             case 2:
-                return AVAPIStocksTranslator.CallType.WEEKLY_CALL;
+                return CallType.WEEKLY_CALL;
 
             case 3:
-                return AVAPIStocksTranslator.CallType.MONTHLY_CALL;
+                return CallType.MONTHLY_CALL;
 
             default:
-                System.out.println("Invalid call type.");
+                //Return null for invalid call type
                 return null;
         }
 
@@ -83,34 +92,31 @@ public abstract class AlphaVantageConnection {
 
     /**
      * This method will take the int given by the caller and return the appropriate enum variable to continue processing the call.
-     * @param _callInterval Int from 10 to 16
+     * @param _callInterval Int from 0 to 5
      * @return CallInterval enum
      */
-    protected static AVAPIStocksTranslator.CallInterval translateIntervalEnum(int _callInterval){
+    protected static CallInterval translateIntervalEnum(int _callInterval){
         switch(_callInterval){
             case 0:
-                return AVAPIStocksTranslator.CallInterval.NO_INTERVAL;
+                return CallInterval.NO_INTERVAL;
 
             case 1:
-                return AVAPIStocksTranslator.CallInterval.MINUTE_1;
+                return CallInterval.MINUTE_1;
 
             case 2:
-                return AVAPIStocksTranslator.CallInterval.MINUTE_5;
+                return CallInterval.MINUTE_5;
 
             case 3:
-                return AVAPIStocksTranslator.CallInterval.MINUTE_10;
+                return CallInterval.MINUTE_15;
 
             case 4:
-                return AVAPIStocksTranslator.CallInterval.MINUTE_15;
+                return CallInterval.MINUTE_30;
 
             case 5:
-                return AVAPIStocksTranslator.CallInterval.MINUTE_30;
-
-            case 6:
-                return AVAPIStocksTranslator.CallInterval.MINUTE_60;
+                return CallInterval.MINUTE_60;
 
             default:
-                System.out.println("Invalid Interval.");
+                //Return null for invalid call interval
                 return null;
         }
 
@@ -131,9 +137,6 @@ public abstract class AlphaVantageConnection {
             case MINUTE_5:
                 return "5min";
 
-            case MINUTE_10:
-                return "10min";
-
             case MINUTE_15:
                 return "15min";
 
@@ -144,7 +147,7 @@ public abstract class AlphaVantageConnection {
                 return "60min";
 
             default:
-                System.out.println("Not a valid Interval.");
+                //Return null for invalid interval
                 return null;
         }
     }

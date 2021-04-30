@@ -1,3 +1,15 @@
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: 
+ * 
+ * Contributing Authors:
+ *      Michael Leonard
+ *      Anthony Mesa 
+ */
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,8 +22,10 @@ import java.util.*;
 
 public class AVAPICryptoTranslator extends AlphaVantageConnection implements CryptosAdapter{
 
-    /** Creates connection to API, stores JSON, parses JSON, and returns intraday data organized in an ArrayList of Entry Objects.
-     .    * Limited to 5 calls per minute and 500 calls per day.
+    /**
+     * Creates connection to API, stores JSON, parses JSON, and returns intraday data organized in an ArrayList of Entry Objects.
+     * 
+     * There is a limit on calls that can be made for AlphaVantage; 5 calls per minute and up to 500 calls per day.
      *
      * @param _crypto String with desired crypto symbol. (Example: "BTC")
      * @param _market String with the desired market/currency to return data in. (Example: "USD")
@@ -44,7 +58,6 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
             return parseCryptoJSON(timeSeries, _market);
         }
         catch (Exception ex) {
-            System.out.println("Error: " + ex);
             return null;
         }
    }
@@ -62,7 +75,6 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
 
         //API function being called
         if(_callType == CallType.INTRADAY_CALL){
-            System.out.println("You cannot use an Intraday call on Crypto Currencies.");
             return null;
         }
         function = translateCryptoCallType(_callType);
@@ -86,7 +98,6 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
 
         String open, high, low, close, volume;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        Date date;
 
         //Iterate the JSON and store all appropriate values in correct ArrayLists
         while(keys.hasNext()) {
@@ -128,8 +139,7 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
                 return "DIGITAL_CURRENCY_MONTHLY";
 
             default:
-                //Returns NULL for error checking and reports error.
-                System.out.println("Not a valid Call Type.");
+                //Returns NULL for error
                 return null;
         }
     }
@@ -156,9 +166,16 @@ public class AVAPICryptoTranslator extends AlphaVantageConnection implements Cry
                 return base + "Monthly)";
 
             default:
-                //Returns NULL for error checking and reports error.
-                System.out.println("Not a valid Interval.");
+                //Returns NULL for error checking
                 return null;
         }
+    }
+
+    public String[] getCallTypes() {
+        return new String[] { "Daily", "Weekly", "Monthly" };
+    }
+
+    public String[] getCallMarkets() {
+        return new String[] { "USD" };
     }
 }

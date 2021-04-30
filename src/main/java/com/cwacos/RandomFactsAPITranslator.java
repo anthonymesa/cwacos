@@ -1,7 +1,12 @@
-/*
-Last updated:
-Purpose of this class:
-Contributing Authors:
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: RandomFactsAPITranslator
+ * 
+ * Contributing Authors:
+ *      Michael Leonard
  */
 
 import org.json.JSONObject;
@@ -41,7 +46,7 @@ public class RandomFactsAPITranslator implements QfactsAdapter {
             JSONObject JSONQuokkasFact = JSONFile.getJSONObject("contents");
             return (JSONQuokkasFact.getString("fact"));
         } catch (Exception e) {
-            System.out.println("Error!");
+            //System.out.println("Error!");
         }
         return null;
     }

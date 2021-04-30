@@ -1,24 +1,29 @@
-/*
-Last updated:
-Purpose of this class:
-Contributing Authors:
+package com.cwacos;
+
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: Entry defines a single financial data element over a single interval of time. Because this
+ *      is used for all financial data manipulation and data storage, all data types (i.e. Stock, Crypto, etc.)
+ *      must use an ArrayList of Entry type to store their data.
+ * 
+ * Contributing Authors:
+ *      Michael Leonard
+ *      Anthony Mesa
  */
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class Entry implements Comparable<Entry> {
 
-    // You can now use CwacosDateFormat.getDateFormat(); to avoid reusing of code
-    private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);
-
+    private DateFormat formatter = CwacosDateFormat.getDateFormat();
     private double open, close, low, high;
     private int volume;
     private Date dateTime;
 
     public Entry() {
+        this(0.0, 0.0, 0.0, 0.0, 0, new Date());
     }
 
     public Entry(double _open, double _close, double _low, double _high, int _volume, Date _dateTime) {
@@ -40,7 +45,9 @@ public class Entry implements Comparable<Entry> {
         return this.dateTime.compareTo(_entry.dateTime);
     }
 
-    //---------------------------------GETTERS-----------------------------------//
+    //==============================================================================
+    // Getters
+    //==============================================================================
 
     public DateFormat getFormatter() {
         return formatter;
@@ -70,8 +77,31 @@ public class Entry implements Comparable<Entry> {
         return dateTime;
     }
 
-    //---------------------------------SETTERS-----------------------------------//
+    public String getOpenString() {
+        return Double.toString(open);
+    }
 
+    public String getCloseString() {
+        return Double.toString(close);
+    }
+
+    public String getLowString() {
+        return Double.toString(low);
+    }
+
+    public String getHighString() {
+        return Double.toString(high);
+    }
+
+    public String getVolumeString() {
+        return Integer.toString(volume);
+    }
+
+    public String getDateTimeString() { return formatter.format(dateTime);}
+
+    //==============================================================================
+    // Setters
+    //==============================================================================
 
     public void setFormatter(DateFormat formatter) {
         this.formatter = formatter;

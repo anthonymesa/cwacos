@@ -736,6 +736,12 @@ public class CwacosView extends Application {
             @Override
             public void handle(ActionEvent e) {
 
+                // if table view is empty, return
+                if(CwacosData.getActiveEntryList() == null) {
+                    setUiStatusLabel("Table must not be empty to be able to run max profit algorithm...");
+                    return;
+                }
+
                 VBox content = new VBox();
                 content.setAlignment(Pos.CENTER);
 
@@ -896,7 +902,9 @@ public class CwacosView extends Application {
                         int arg1 = callArgument1.getSelectionModel().getSelectedIndex();
                         int arg2 = callArgument2.getSelectionModel().getSelectedIndex();
 
-                        if (arg1 == 0) {
+                        // check if selected item in argument 1 is Intraday
+                        if (callArgument1.getSelectionModel().getSelectedItem().equals("Intraday")) {
+                            // skip the 1st index of call interval, which is None
                             arg2++;
                         }
 
@@ -1057,10 +1065,10 @@ public class CwacosView extends Application {
      */
     private void populateTable() {
 
-        TableView<Entry> table = (TableView<Entry>) root.lookup("#dataTable");
+        TableView<Entry> table = fetchTable();
 
         // clear table entries if there are any
-        if (!table.getItems().isEmpty()) {
+        if (!isTableEmpty(table)) {
             table.getItems().clear();
             table.refresh();
         }
@@ -1073,6 +1081,25 @@ public class CwacosView extends Application {
                 table.getItems().add(entry);
             }
         }
+    }
+
+    /**
+     * Checks if the data table is empty.
+     *
+     * @param _table Data table to be checked.
+     * @return True if it is, false if it is not.
+     */
+    private boolean isTableEmpty(TableView<Entry> _table) {
+        return _table.getItems().isEmpty();
+    }
+
+    /**
+     * Fetches data table based on given ID.
+     *
+     * @return Fetched data table.
+     */
+    private TableView<Entry> fetchTable() {
+        return (TableView<Entry>) root.lookup("#dataTable");
     }
 
     /**

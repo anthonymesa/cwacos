@@ -205,6 +205,11 @@ public class CwacosData {
 
         String file_url = getFileUrl();
 
+        // check if the url is null
+        if (file_url == null) {
+            return new Response("The file url is null...", false);
+        }
+
         // create list of save parameters to send to save function
         ArrayList<String> save_parameters = new ArrayList<String>(
             Arrays.asList(

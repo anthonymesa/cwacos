@@ -30,11 +30,13 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Line;
+import javafx.scene.chart.XYChart.Data;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.*;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
+import javafx.collections.ObservableList;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -1153,24 +1155,24 @@ public class CwacosView extends Application {
     }
 
     //================================= CANDLESTICK GRAPH ===============================
-
+    
     //Method creates the CandleStick Graph
     private void generateCandlestickGraphComponent(int height, int w_margin, int h_margin) {
+        
         //Create and style the background.
         StackPane graphPane = new StackPane();
         graphPane.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
-        //Create the LineChart
-        LineChart<String, Number> lineChart = new LineChart<String, Number>();
-        lineChart.setTitle("Stock Data");
-
+        graphPane.setId("chart");
+        
         //Create each axis
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Interval");
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Stock Price");
 
-        //Get ticker data
-        ArrayList<Entry> entries = CwacosData.getActiveEntryList();
+        //Create the LineChart
+        LineChart<String, Number> lineChart = new LineChart<String, Number>(xAxis, yAxis);
+        lineChart.setTitle("Stock Data");
 
         //Create lines for the line chart
         XYChart.Series openSeries = new XYChart.Series();
@@ -1182,51 +1184,35 @@ public class CwacosView extends Application {
         XYChart.Series highSeries = new XYChart.Series();
         highSeries.setName("High");
 
-        //Populate each series.
-        if (entries != null) {
-            for (Entry entry : entries) {
-                //The indexOf is temporary until I setup the labels based on the 
-                openSeries.getData().add(new XYChart.Data(entries.indexOf(entry).toString(), entry.getOpen()));
-                closeSeries.getData().add(new XYChart.Data(entries.indexOf(entry), entry.getClose()));
-                lowSeries.getData().add(new XYChart.Data(entries.indexOf(entry), entry.getLow()));
-                highSeries.getData().add(new XYChart.Data(entries.indexOf(entry), entry.getHigh()));
-            }
-        }
-
-        //Style the lines
-        for (Data<String, Number> entry : openSeries.getData()) {      
-            entry.getNode().setStyle("-fx-background-color: black, white;\n"
-                + "    -fx-background-insets: 0, 2;\n"
-                + "    -fx-background-radius: 5px;\n"
-                + "    -fx-padding: 5px;");
-        }
-        for (Data<String, Number> entry : closeSeries.getData()) {      
-            entry.getNode().setStyle("-fx-background-color: black, white;\n"
-                + "    -fx-background-insets: 0, 2;\n"
-                + "    -fx-background-radius: 5px;\n"
-                + "    -fx-padding: 5px;");
-        }
-        for (Data<String, Number> entry : lowSeries.getData()) {      
-            entry.getNode().setStyle("-fx-background-color: black, white;\n"
-                + "    -fx-background-insets: 0, 2;\n"
-                + "    -fx-background-radius: 5px;\n"
-                + "    -fx-padding: 5px;");
-        }
-        for (Data<String, Number> entry : highSeries.getData()) {      
-            entry.getNode().setStyle("-fx-background-color: black, white;\n"
-                + "    -fx-background-insets: 0, 2;\n"
-                + "    -fx-background-radius: 5px;\n"
-                + "    -fx-padding: 5px;");
-        }
-
         lineChart.getData().addAll(openSeries, closeSeries, lowSeries, highSeries);
 
+        //Style the lines
+        for (XYChart.Data<String, Number> entry : (ObservableList<XYChart.Data<String,Number>>) openSeries.getData()) {
+            entry.getNode().setStyle("-fx-background-color: black, white;\n"
+                + "    -fx-background-insets: 0, 2;\n"
+                + "    -fx-background-radius: 5px;");
+        }
+        for (XYChart.Data<String, Number> entry : (ObservableList<XYChart.Data<String,Number>>) closeSeries.getData()) {      
+            entry.getNode().setStyle("-fx-background-color: black, white;\n"
+                + "    -fx-background-insets: 0, 2;");
+        }
+        for (XYChart.Data<String, Number> entry : (ObservableList<XYChart.Data<String,Number>>) lowSeries.getData()) {      
+            entry.getNode().setStyle("-fx-background-color: black, white;\n"
+                + "    -fx-background-insets: 0, 2;\n"
+                + "    -fx-background-radius: 5px;");
+        }
+        for (XYChart.Data<String, Number> entry : (ObservableList<XYChart.Data<String,Number>>) highSeries.getData()) {
+            entry.getNode().setStyle("-fx-background-color: black, white;\n"
+                + "    -fx-background-insets: 0, 2;\n"
+                + "    -fx-background-radius: 5px;");
+        }
+
         graphPane.getChildren().addAll(lineChart);
-        StackPane.setAlignment(view, Pos.CENTER);
+        //StackPane.setAlignment(view, Pos.CENTER);
 
 
 
-        int offset = graphPane.getWidth() / entries.size();
+        /*int offset = graphPane.getWidth() / entries.size();
 
         ArrayList<Rectangle> rectangles = new ArrayList<Rectangle>();
         ArrayList<Line> lines = new ArrayList<Line>();
@@ -1253,9 +1239,44 @@ public class CwacosView extends Application {
             }
         }
 
-        graphPane.getChildren().addAll(rectangles, lines);
+        graphPane.getChildren().addAll(rectangles, lines);*/
 
         root.add(graphPane, w_margin, yRowIndex, GRID_X - w_margin, height);
+    }
+
+    private StackPane fetchChart() {
+        return (StackPane) root.lookup("#chart");
+    }
+
+    private void populateChart() {
+        StackPane sp = fetchChart();
+
+        LineChart<String, Number> lineChart = (LineChart<String, Number>) sp.getChildren().get(0);
+
+        //Get ticker data
+        ArrayList<Entry> entries = CwacosData.getActiveEntryList();
+
+        ObservableList<XYChart.Series<String, Number>> chartSeries = lineChart.getData();
+        XYChart.Series<String, Number> openSeries = chartSeries.get(0);
+        XYChart.Series<String, Number> closeSeries = chartSeries.get(1);
+        XYChart.Series<String, Number> lowSeries = chartSeries.get(2);
+        XYChart.Series<String, Number> highSeries = chartSeries.get(3);
+        
+        //Populate each series.
+        if (entries != null) {
+            for (Entry entry : entries) {
+                //The indexOf is temporary until I setup the labels based on the 
+                openSeries.getData().add(new XYChart.Data(String.valueOf(entries.indexOf(entry)), entry.getOpen()));
+                closeSeries.getData().add(new XYChart.Data(String.valueOf(entries.indexOf(entry)), entry.getClose()));
+                lowSeries.getData().add(new XYChart.Data(String.valueOf(entries.indexOf(entry)), entry.getLow()));
+                highSeries.getData().add(new XYChart.Data(String.valueOf(entries.indexOf(entry)), entry.getHigh()));
+            }
+        }
+    }
+
+    private void adjustYAxisScale() {
+        //Get ticker data to use to calculate the scale
+        ArrayList<Entry> entries = CwacosData.getActiveEntryList();
     }
 
     //============================= STATUS BAR =================================
@@ -1347,6 +1368,7 @@ public class CwacosView extends Application {
 
     private void updateView() {
         populateTable();
+        populateChart();
         setTicker();
     }
 

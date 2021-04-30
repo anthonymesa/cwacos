@@ -3,7 +3,9 @@ package com.cwacos;
 /**
  * Last updated: 26-APR-2021
  * 
- * Purpose: 
+ * Purpose: This Class is the model used to get stock information from the AlphaVantage API.
+ *          It will create the URL needed to make the specified call, make the call to the API using that URL,
+ *          then parse the JSON returned by the API call into an ArrayList of Entry Objects.
  * 
  * Contributing Authors:
  *      Michael Leonard
@@ -41,8 +43,6 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
             // Create the API url.
             URL url = getStockURL(_stock, intervalEnum, callEnum);
 
-            //System.out.println(url.toString());
-
             // Save the main JSON file.
             JSONObject JSONFile = getJSON(url);
 
@@ -64,7 +64,6 @@ public class AVAPIStocksTranslator extends AlphaVantageConnection implements Sto
             return parseStockJSON(timeSeries, callEnum);
         }
         catch (Exception ex) {
-            //System.out.println("Error: " + ex);
             return null;
         }
     }

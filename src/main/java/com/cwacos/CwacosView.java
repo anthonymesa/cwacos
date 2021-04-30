@@ -1305,6 +1305,8 @@ public class CwacosView extends Application {
             Rectangle rect = new Rectangle(0, 0);
             rect.setVisible(false);
 
+            lineChart.setVisible(true);
+
             for (Entry entry : entries) {
                 if (entries.indexOf(entry)==0) {
                     highest = entry.getHigh();
@@ -1330,14 +1332,11 @@ public class CwacosView extends Application {
                 }
             }
         } else {
-            openSeries.getData().removeAll();
-            closeSeries.getData().removeAll();
-            lowSeries.getData().removeAll();
-            highSeries.getData().removeAll();
             openSeries.getData().clear();
             closeSeries.getData().clear();
             lowSeries.getData().clear();
             highSeries.getData().clear();
+            lineChart.setVisible(false);
         }
 
         NumberAxis yAxis = (NumberAxis) lineChart.getYAxis();

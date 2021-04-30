@@ -23,6 +23,9 @@ public class CwacosData {
 
     private static Map<String, String> settings = new HashMap<String, String>();
     private static final String SETTINGS_URL = "./res/cwacossettings.conf";
+
+    public static final String TEMP_FOLDER = "tmp";
+
     private static String activeSymbol = null;
     private static int activeType = -1;
 
@@ -73,13 +76,13 @@ public class CwacosData {
                     }
                 }
 
-                return new Response("Welcome to Cwacos!", true);
+                return new Response("Loading previous session. Welcome to Cwacos!", true);
             }
 
             return new Response("Startup settings are corrupt. Prior state not loaded", false);
         }
 
-        return new Response("An error was detected in startup settings. Prior state not loaded", false);
+        return new Response("Starting new session. Welcome to Cwacos!", false);
     }
 
     /**
@@ -188,7 +191,15 @@ public class CwacosData {
     //===================== DATA STORAGE ======================
 
     public static String generateFileUrl() {
-        return  getActiveSymbol() + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(getActiveEntryList().get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) + ".cw";
+        if (!dataAvailable()) {
+            return null;
+        }
+
+        return getActiveSymbol() + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(getActiveEntryList().get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) + ".cw";
+    }
+
+    public static String generatedDefaultUrl() {
+        return "./" + TEMP_FOLDER + "/" + generateFileUrl();
     }
 
     /**
@@ -199,7 +210,7 @@ public class CwacosData {
      */
     public static Response saveData() {
 
-        if ((getActiveEntryList() == null) || (getActiveEntryList().size() == 0)) {
+        if (!dataAvailable()) {
             return new Response("There is no data to save...", false);
         }
 
@@ -207,7 +218,9 @@ public class CwacosData {
 
         // check if the url is null
         if (file_url == null) {
-            return new Response("The file url is null...", false);
+            file_url = generatedDefaultUrl();
+            saveFileUrl(file_url);
+            System.out.println(file_url);
         }
 
         // create list of save parameters to send to save function
@@ -807,5 +820,15 @@ public class CwacosData {
         }
 
         return symbols;
+    }
+
+    /**
+     * Query if data is available. i.e. is there data for the current financial
+     * symbol being viewed.
+     *
+     * @return boolean representing if data exists
+     */
+    public static boolean dataAvailable() {
+        return !((getActiveEntryList() == null) || (getActiveEntryList().size() == 0));
     }
 }

@@ -119,6 +119,7 @@ public class CwacosPopup {
 
         buttons.getChildren().addAll(cancelBtn, spacer, successBtn);
         windowContents.getChildren().add(buttons);
+        windowContents.setStyle("-fx-background-color: " + UIColors.getPrimaryColor() + ";");   //Background color
 
         windowContents.setPadding(new Insets(WINDOW_BORDER_OFFSET));
 
@@ -166,6 +167,7 @@ public class CwacosPopup {
         windowContents.getChildren().add(buttons);
 
         windowContents.setPadding(new Insets(WINDOW_BORDER_OFFSET));
+        windowContents.setStyle("-fx-background-color: " + UIColors.getPrimaryColor() + ";");   //Background color
 
         Scene scene = new Scene(windowContents);
         window.setScene(scene);

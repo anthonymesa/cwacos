@@ -23,6 +23,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -62,12 +63,6 @@ public class CwacosView extends Application {
     private static final String ADD_TITLE = "Add Stock/Crypto";
     private static final String REMOVE_TITLE = "Remove Stock/Crypto";
 
-    /* UI Colors */
-    private static final String PRIMARY_COLOR = "1D1D1D";
-    private static final String SECONDARY_COLOR = "4E4E4E";
-    private static final String WHITE_COLOR = "FFFFFF";
-    private static final String ACCENT_COLOR = "BB86FC";
-
     /* Leading characters for status display */
     private static final String STATUS_LEAD = "  ~ ";
 
@@ -106,7 +101,7 @@ public class CwacosView extends Application {
         content.getChildren().addAll(imgHolder);
 
         /* Display random quokka fact */
-        Label qfact = new Label("Did you know? " + CwacosData.getQuakkaFact());
+        Label qfact = generateUILabel("Did you know? " + CwacosData.getQuakkaFact());
         qfact.setTextAlignment(TextAlignment.CENTER);
         qfact.setAlignment(Pos.CENTER);
         content.getChildren().add(qfact);
@@ -169,7 +164,7 @@ public class CwacosView extends Application {
      *
      */
     private void setupGridPane() {
-        root.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");   //Background color
+        root.setStyle("-fx-background-color: " + UIColors.getPrimaryColor() + ";");   //Background color
 
         for (int i = 0; i < GRID_X; i++) {
             root.getColumnConstraints().add(new ColumnConstraints(WINDOW_WIDTH / GRID_X));
@@ -262,18 +257,24 @@ public class CwacosView extends Application {
         view.setPreserveRatio(true);
         saveBtn.setGraphic(view);
 
-        saveBtn.setStyle("-fx-border-width: 0px; ");
-        saveBtn.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
-        saveBtn.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
+        saveBtn.setStyle("-fx-border-width: 2px; ");
+        saveBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
+        saveBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         saveBtn.setTooltip(new Tooltip("Save data to file"));
 
         saveBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
 
+                if (CwacosData.getActiveSymbol() == null) {
+                    setUiStatusLabel("There is no data to save...");
+                    return;
+                }
+
                 //Create the file chooser that lets the user select the data the user wants to use
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle(SAVE);
+                fileChooser.setInitialFileName(CwacosData.generateFileUrl());
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All File", "*.*"));
                 File selectedFile = fileChooser.showSaveDialog(new Stage());
 
@@ -307,9 +308,9 @@ public class CwacosView extends Application {
         view.setPreserveRatio(true);
         loadBtn.setGraphic(view);
 
-        loadBtn.setStyle("-fx-border-width: 0px; ");
-        loadBtn.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
-        loadBtn.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
+        loadBtn.setStyle("-fx-border-width: 2px; ");
+        loadBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
+        loadBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         loadBtn.setTooltip(new Tooltip("Load data from file"));
 
         loadBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -328,8 +329,8 @@ public class CwacosView extends Application {
                 try {
                     file_url = selectedFile.getAbsolutePath();
                 } catch (Exception ex) {
-                    //ATTN: need to handle if the user did not select a file.
-                    System.out.println("don't forget to select a damn file");
+                    // User exited or an issue occured.
+                    return;
                 }
 
                 ArrayList<String> load_parameters = new ArrayList<String>(
@@ -351,6 +352,8 @@ public class CwacosView extends Application {
                 int type = CwacosData.getActiveType();
 
                 generateFavoriteMenuItem(symbol, type);
+
+                setUiStatusLabel(symbol + " loaded successfully!");
 
                 updateView();
             }
@@ -387,8 +390,8 @@ public class CwacosView extends Application {
         addBtn.setGraphic(view);
 
         addBtn.setStyle("-fx-border-width: 0px; ");
-        addBtn.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
-        addBtn.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
+        addBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
+        addBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         addBtn.setTooltip(new Tooltip("Add favorite"));
 
         // Set action for clicking 'add favorite'
@@ -399,7 +402,7 @@ public class CwacosView extends Application {
                 VBox content = new VBox();
                 content.setAlignment(Pos.CENTER);
 
-                Label inputLabel = new Label("Symbol");
+                Label inputLabel = generateUILabel("Symbol");
                 inputLabel.setPadding(new Insets(10,0,10,0));
                 content.getChildren().add(inputLabel);
 
@@ -409,7 +412,7 @@ public class CwacosView extends Application {
                 inputArea.setMaxWidth(150);
                 content.getChildren().add(inputArea);
 
-                Label typeLabel = new Label("Type");
+                Label typeLabel = generateUILabel("Type");
                 typeLabel.setPadding(new Insets(10,0,10,0));
                 content.getChildren().add(typeLabel);
 
@@ -477,9 +480,9 @@ public class CwacosView extends Application {
         view.setPreserveRatio(true);
         saveBtn.setGraphic(view);
 
-        saveBtn.setStyle("-fx-border-width: 0px; ");
-        saveBtn.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
-        saveBtn.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
+        saveBtn.setStyle("-fx-border-width: 2px; ");
+        saveBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
+        saveBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         saveBtn.setTooltip(new Tooltip("Remove favorite"));
 
         saveBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -489,7 +492,7 @@ public class CwacosView extends Application {
                 VBox content = new VBox();
                 content.setAlignment(Pos.CENTER);
 
-                Label typeLabel = new Label("Type");
+                Label typeLabel = generateUILabel("Type");
                 typeLabel.setPadding(new Insets(10,0,10,0));
                 content.getChildren().add(typeLabel);
 
@@ -498,7 +501,7 @@ public class CwacosView extends Application {
                 typeSelection.getItems().addAll("Stocks", "Cryptos");
                 content.getChildren().add(typeSelection);
 
-                Label inputLabel = new Label("Symbol");
+                Label inputLabel = generateUILabel("Symbol");
                 inputLabel.setPadding(new Insets(10,0,10,0));
                 content.getChildren().add(inputLabel);
 
@@ -627,6 +630,15 @@ public class CwacosView extends Application {
     }
 
     private void generateFavoriteMenuItem(String _symbol, int _type) {
+
+        // This checks that the favorite exists in the menu. If it does, it doesnt need
+        // to create a new ticker.
+        for(MenuItem each : getFavoritesMenu().getMenus().get(_type).getItems()) {
+            if (each.getText().equals(_symbol)) {
+                return;
+            }
+        }
+
         MenuItem newFavorite = new MenuItem(_symbol);
 
         // Set callback event for clicking menu item (the favorite itself)
@@ -656,16 +668,14 @@ public class CwacosView extends Application {
         activeTickerBg.setAlignment(Pos.CENTER);
         activeTickerBg.setMinWidth(ACTIVE_LABEL_WIDTH);
 
-        activeTickerBg.setStyle("-fx-border-width: 0px; ");
-        activeTickerBg.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
-        activeTickerBg.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
+        activeTickerBg.setStyle("-fx-border-width: 2px; ");
+        activeTickerBg.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
+        activeTickerBg.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
 
-        Label activeTickerLabel = new Label("");
+        Label activeTickerLabel = generateUILabel("");
 
         // generate label
         activeTickerLabel.setId("activeTickerLabel");
-        activeTickerLabel.setStyle("-fx-label-padding: 30, 0, 0, 0;");
-        activeTickerLabel.setStyle("-fx-text-fill: #FFFFFF;");
         activeTickerLabel.setAlignment(Pos.CENTER_LEFT);
 
         // Add buttons to menu bar hbox
@@ -716,6 +726,12 @@ public class CwacosView extends Application {
         return buttonContainer;
     }
 
+    public Label generateUILabel(String _input) {
+        Label label = new Label(_input);
+        label.setStyle("-fx-text-fill: " + UIColors.getFontColor() + ";");
+        return label;
+    }
+
     private Button generateMaxProfitButton() {
 
         Button maxProfitBtn = new Button();
@@ -726,9 +742,9 @@ public class CwacosView extends Application {
         view.setPreserveRatio(true);
         maxProfitBtn.setGraphic(view);
 
-        maxProfitBtn.setStyle("-fx-border-width: 0px; ");
-        maxProfitBtn.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
-        maxProfitBtn.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
+        maxProfitBtn.setStyle("-fx-border-width: 2px; ");
+        maxProfitBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
+        maxProfitBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         maxProfitBtn.setTooltip(new Tooltip("Run MaxProfit algorithm"));
 
         // Set action for clicking 'add favorite'
@@ -737,8 +753,8 @@ public class CwacosView extends Application {
             public void handle(ActionEvent e) {
 
                 // if table view is empty, return
-                if(CwacosData.getActiveEntryList() == null) {
-                    setUiStatusLabel("Table must not be empty to be able to run max profit algorithm...");
+                if(!CwacosData.dataAvailable()) {
+                    setUiStatusLabel("Max profit analysis requires data to be loaded...");
                     return;
                 }
 
@@ -748,19 +764,19 @@ public class CwacosView extends Application {
                 String[] maxProfitData = CwacosData.getMaxProfit();
 
                 //Create text field that takes user input
-                Label lowDate = new Label(maxProfitData[2]);
+                Label lowDate = generateUILabel(maxProfitData[2]);
                 lowDate.setPadding(new Insets(10,0,10,0));
 
-                Label low = new Label("Low: $" + maxProfitData[0]);
-                Label buy = new Label("Buy: $" + maxProfitData[1]);
+                Label low = generateUILabel("Low: $" + maxProfitData[0]);
+                Label buy = generateUILabel("Buy: $" + maxProfitData[1]);
 
-                Label highDate = new Label(maxProfitData[5]);
+                Label highDate = generateUILabel(maxProfitData[5]);
                 highDate.setPadding(new Insets(10,0,10,0));
 
-                Label high = new Label("High: $" + maxProfitData[3]);
-                Label sell = new Label("Sell: $" + maxProfitData[4]);
+                Label high = generateUILabel("High: $" + maxProfitData[3]);
+                Label sell = generateUILabel("Sell: $" + maxProfitData[4]);
 
-                Label profit = new Label("Profit: $" + maxProfitData[6]);
+                Label profit = generateUILabel("Profit: $" + maxProfitData[6]);
                 profit.setPadding(new Insets(10,0,10,0));
 
                 content.getChildren().addAll(lowDate, low, buy, highDate, high, sell, profit);
@@ -809,9 +825,9 @@ public class CwacosView extends Application {
         view.setPreserveRatio(true);
         updateBtn.setGraphic(view);
 
-        updateBtn.setStyle("-fx-border-width: 0px; ");
-        updateBtn.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
-        updateBtn.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
+        updateBtn.setStyle("-fx-border-width: 2px; ");
+        updateBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
+        updateBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         updateBtn.setTooltip(new Tooltip("Update data for table in view"));
 
         /**
@@ -822,10 +838,15 @@ public class CwacosView extends Application {
             @Override
             public void handle(ActionEvent e) {
 
+                if (CwacosData.getActiveSymbol() == null) {
+                    setUiStatusLabel("There is no data to update...");
+                    return;
+                }
+
                 VBox content = new VBox();
                 content.setAlignment(Pos.CENTER);
 
-                Label typeLabel = new Label("Type");
+                Label typeLabel = generateUILabel("Type");
                 typeLabel.setPadding(new Insets(10,0,10,0));
                 content.getChildren().add(typeLabel);
 
@@ -850,7 +871,7 @@ public class CwacosView extends Application {
                 // Add combo box to dialogue box.
                 content.getChildren().add(callArgument1);
 
-                Label intervalLabel = new Label();
+                Label intervalLabel = generateUILabel("");
 
                 // Change the label for the second combobox based
                 // on type.
@@ -952,9 +973,9 @@ public class CwacosView extends Application {
         view.setPreserveRatio(true);
         updateAllBtn.setGraphic(view);
 
-        updateAllBtn.setStyle("-fx-border-width: 0px; ");
-        updateAllBtn.setStyle("-fx-border-color: #" + SECONDARY_COLOR + ";");
-        updateAllBtn.setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
+        updateAllBtn.setStyle("-fx-border-width: 2px; ");
+        updateAllBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
+        updateAllBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         updateAllBtn.setTooltip(new Tooltip("Update all data"));
 
         updateAllBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -1007,8 +1028,8 @@ public class CwacosView extends Application {
     private void generateActiveDataTableComponent(int height, int w_margin, int h_margin) {
 
         StackPane activeTickerView = new StackPane();
-        activeTickerView.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");
-        activeTickerView.getChildren().add(createTableView(height, w_margin, h_margin));
+        activeTickerView.setStyle("-fx-background-color: " + UIColors.getPrimaryColor() + ";");
+        activeTickerView.getChildren().add(createTableView());
 
         root.add(activeTickerView, w_margin, yRowIndex, GRID_X - w_margin, height);
 
@@ -1018,12 +1039,9 @@ public class CwacosView extends Application {
     /**
      * Creates and returns the TableView control
      *
-     * @param _height
-     * @param _wMargin
-     * @param _hMargin
      * @return TableView control
      */
-    private TableView<Entry> createTableView(int _height, int _wMargin, int _hMargin) {
+    private TableView<Entry> createTableView() {
 
         TableView<Entry> table = new TableView<Entry>();
         table.setId("dataTable");
@@ -1152,7 +1170,7 @@ public class CwacosView extends Application {
     private void generateCandlestickGraphComponent(int height, int w_margin, int h_margin) {
         //Create and style the background.
         StackPane candlestickGraph = new StackPane();
-        candlestickGraph.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
+        candlestickGraph.setStyle("-fx-background-color: " + UIColors.getPrimaryColor() + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
 
         Image img = new Image("file:res/donate.jpg");
         ImageView view = new ImageView(img);
@@ -1190,14 +1208,14 @@ public class CwacosView extends Application {
 
         HBox outputContainer = new HBox();
 
-        outputContainer.setStyle("-fx-background-color: #" + WHITE_COLOR + ";");
+        outputContainer.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
 
         Label statusOutput = new Label();
 
         // generate label
         statusOutput.setId("statusOutput");
-        statusOutput.setStyle("-fx-padding: 0, 0, 0, 8;");
-        statusOutput.setStyle("-fx-text-fill: #000000;");
+        statusOutput.setStyle("-fx-text-fill: " + UIColors.getFontColor() + ";");
+        statusOutput.setPadding(new Insets(COMPONENT_SPACING,0,COMPONENT_SPACING,0));
         statusOutput.setAlignment(Pos.CENTER_LEFT);
 
         // Add label to HBox
@@ -1227,8 +1245,8 @@ public class CwacosView extends Application {
                                 if (item != null) {
                                     //Style the cell
                                     setText(item);
-                                    setTextFill(Paint.valueOf(WHITE_COLOR));
-                                    setBackground(new Background(new BackgroundFill(Paint.valueOf(SECONDARY_COLOR), null, null)));
+                                    setTextFill(Paint.valueOf(UIColors.getFontColor()));
+                                    setBackground(new Background(new BackgroundFill(Paint.valueOf(UIColors.getSecondaryColor()), null, null)));
                                 } else {
 
                                 }
@@ -1239,29 +1257,6 @@ public class CwacosView extends Application {
                 });
 
         //return cb;
-    }
-
-    //Meethod styles the dialog window
-    private TextInputDialog styleChoiceDialog(TextInputDialog td) {
-        td.getDialogPane().getContent().setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");
-        td.getDialogPane().setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");
-        td.setHeaderText(null);
-        td.setGraphic(null);
-
-        GridPane gp = (GridPane) td.getDialogPane().getContent();
-        //Style the text field
-        gp.getChildren().get(1).setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";"
-                + "-fx-text-fill: #" + WHITE_COLOR + ";");
-        //Style the type drop down menu
-        gp.getChildren().get(0).setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";");
-        //Style the remove/add button
-        gp.getChildren().get(2).setStyle("-fx-background-color: #" + SECONDARY_COLOR + ";"
-                + "-fx-text-fill: #" + WHITE_COLOR + ";");
-        //Add padding between buttons
-        gp.setHgap(10);
-
-        td.getDialogPane().setContent(gp);
-        return td;
     }
 
     private void updateView() {

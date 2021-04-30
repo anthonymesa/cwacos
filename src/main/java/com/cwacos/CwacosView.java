@@ -1208,38 +1208,6 @@ public class CwacosView extends Application {
         }
 
         graphPane.getChildren().addAll(lineChart);
-        //StackPane.setAlignment(view, Pos.CENTER);
-
-
-
-        /*int offset = graphPane.getWidth() / entries.size();
-
-        ArrayList<Rectangle> rectangles = new ArrayList<Rectangle>();
-        ArrayList<Line> lines = new ArrayList<Line>();
-        double recWidth = 10;
-
-        if (entries != null) {
-            for (Entry entry : entries) {
-                //Create rectangles
-                double recHeight = entry.getHigh() - entry.getLow();
-                if (recHeight < 0) {
-                    Rectangle temp = new Rectangle(recWidth, (recHeight * -1));
-                    temp.setFill(Paint.valueOf("fc2c03"));
-                    rectangles.add(temp);
-                } else {
-                    Rectangle temp = new Rectangle(recWidth, recHeight);
-                    temp.setFill(Paint.valueOf("0ffc03"));
-                    rectangles.add(temp);
-                }
-                //Create lines
-                Line temp = new Line();
-                temp.setFill(Paint.valueOf("000000"));
-                temp.setStartY(entry.getOpen());
-                temp.setEndY(entry.getClose());
-            }
-        }
-
-        graphPane.getChildren().addAll(rectangles, lines);*/
 
         root.add(graphPane, w_margin, yRowIndex, GRID_X - w_margin, height);
     }
@@ -1261,6 +1229,9 @@ public class CwacosView extends Application {
         XYChart.Series<String, Number> closeSeries = chartSeries.get(1);
         XYChart.Series<String, Number> lowSeries = chartSeries.get(2);
         XYChart.Series<String, Number> highSeries = chartSeries.get(3);
+
+        double highest = 0;
+        double lowest = 0;
         
         //Populate each series.
 
@@ -1272,23 +1243,29 @@ public class CwacosView extends Application {
         }
         if (entries != null) {
             for (Entry entry : entries) {
-                //The indexOf is temporary until I setup the labels based on the 
+                if (entries.indexOf(entry)==0) {
+                    highest = entry.getHigh();
+                    lowest = entry.getLow();
+                }
+
                 openSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getOpen()));
                 closeSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getClose()));
                 lowSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getLow()));
                 highSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getHigh()));
+                if (entry.getHigh() > highest) {
+                    highest = entry.getHigh();
+                }
+                if (entry.getLow() < lowest) {
+                    lowest = entry.getLow();
+                }   
             }
         }
-    }
 
-    private void adjustAxisScales() {
-        //Get ticker data to use to calculate the scale
-        ArrayList<Entry> entries = CwacosData.getActiveEntryList();
-        //Get the chart
-        StackPane sp = fetchChart();
-        LineChart<String, Number> lineChart = (LineChart<String, Number>) sp.getChildren().get(0);
-
-
+        NumberAxis yAxis = (NumberAxis) lineChart.getYAxis();
+        CategoryAxis xAxis = (CategoryAxis) lineChart.getXAxis();
+        yAxis.setAutoRanging(false);
+        yAxis.setUpperBound(highest);
+        yAxis.setLowerBound(lowest);
     }
 
     //============================= STATUS BAR =================================

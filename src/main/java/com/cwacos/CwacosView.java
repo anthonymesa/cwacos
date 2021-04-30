@@ -1228,37 +1228,6 @@ public class CwacosView extends Application {
         return outputContainer;
     }
 
-    //============================== STYLE SETTERS =============================
-
-    //Style the type drop down menu in the dialog window
-    private void styleDropDownMenu(ComboBox<String> cb) {
-        //CellFactory that styles each item in the drop down menu
-        cb.setCellFactory(
-                new Callback<ListView<String>, ListCell<String>>() {
-                    @Override
-                    public ListCell<String> call(ListView<String> param) {
-                        final ListCell<String> cell = new ListCell<String>() {
-                            @Override
-                            public void updateItem(String item,
-                                                   boolean empty) {
-                                super.updateItem(item, empty);
-                                if (item != null) {
-                                    //Style the cell
-                                    setText(item);
-                                    setTextFill(Paint.valueOf(UIColors.getFontColor()));
-                                    setBackground(new Background(new BackgroundFill(Paint.valueOf(UIColors.getSecondaryColor()), null, null)));
-                                } else {
-
-                                }
-                            }
-                        };
-                        return cell;
-                    }
-                });
-
-        //return cb;
-    }
-
     private void updateView() {
         populateTable();
         setTicker();

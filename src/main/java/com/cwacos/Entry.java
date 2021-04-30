@@ -17,7 +17,7 @@ import java.util.Date;
 
 public class Entry implements Comparable<Entry> {
 
-    private DateFormat formatter = CwacosDateFormat.getDateFormat();
+    private DateFormat formatter = CwacosDateFormat.getHumanReadableDateFormat();
     private double open, close, low, high;
     private int volume;
     private Date dateTime;

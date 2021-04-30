@@ -17,4 +17,8 @@ public class CwacosDateFormat {
     public static  SimpleDateFormat getDateFormat() {
         return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);
     }
+
+    public static SimpleDateFormat getHumanReadableDateFormat(){
+        return new SimpleDateFormat("MM/dd/yyyy HH:mm:ss",Locale.ENGLISH);
+    }
 }

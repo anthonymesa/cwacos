@@ -3,7 +3,9 @@ package com.cwacos;
 /**
  * Last updated: 26-APR-2021
  * 
- * Purpose: MaxProfit
+ * Purpose: This class holds the MaxProfit algorithm which can be used to determine the best buying/selling points within
+ *          a list of stock prices. It will also calculate the profit made by buying and selling at those points.
+ *          This is done efficiently by using a recursive Divide-and-Conquer algorithm that will run in O(nlog(n)) time.
  * 
  * Contributing Authors:
  *      Michael Leonard

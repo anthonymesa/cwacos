@@ -1,5 +1,15 @@
 package com.cwacos;
 
+/**
+ * Last updated: 29-APR-2021
+ *
+ * Purpose: This is a testing class used to test the correctness of Stocks.get() and Crypto.get() by checking their
+ *          return values against expected results.
+ *
+ * Contributing Authors:
+ *      Michael Leonard
+ */
+
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 

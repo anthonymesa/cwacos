@@ -3,7 +3,9 @@ package com.cwacos;
 /**
  * Last updated: 30-APR-2021
  * 
- * Purpose: 
+ * Purpose: This Class is the model used to get crypto currency information from the AlphaVantage API.
+ *          It will create the URL needed to make the specified call, make the call to the API using that URL,
+ *          then parse the JSON returned by the API call into an ArrayList of Entry Objects.
  * 
  * Contributing Authors:
  *      Michael Leonard

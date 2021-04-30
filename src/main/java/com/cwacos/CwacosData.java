@@ -37,7 +37,19 @@ public class CwacosData {
     private static Map<String, StockDataSegment> stockData = new HashMap<String, StockDataSegment>();
     private static Map<String, CryptoDataSegment> cryptoData = new HashMap<String, CryptoDataSegment>();
 
-    //======================= STATE ===========================
+    /**
+     * Initializes static datastorage and datasources
+     */
+    public static void initDataSources(){
+        DataStorage.init();
+        Stocks.init();
+        Cryptos.init();
+        Qfacts.init();
+    }
+
+    //=========================================================================
+    // Loading and Saving State
+    //=========================================================================
 
     /**
      * Load the state of the software from local files and initialize data sources
@@ -75,38 +87,11 @@ public class CwacosData {
                         return new Response("An error occurred while trying to load state...", false);
                     }
                 }
-
                 return new Response("Loading previous session. Welcome to Cwacos!", true);
             }
-
             return new Response("Startup settings are corrupt. Prior state not loaded", false);
         }
-
         return new Response("Starting new session. Welcome to Cwacos!", false);
-    }
-
-    /**
-     * Loads the settings from local files
-     */
-    public static void loadSettings() {
-
-        ArrayList<String> load_parameters = new ArrayList<String>(
-            Arrays.asList(
-                SETTINGS_URL
-            )
-        );
-
-        settings = DataStorage.loadSettings(load_parameters);
-    }
-
-    /**
-     * Initializes static datastorage and datasources
-     */
-    public static void initDataSources(){
-        DataStorage.init();
-        Stocks.init();
-        Cryptos.init();
-        Qfacts.init();
     }
 
     /**
@@ -129,29 +114,50 @@ public class CwacosData {
         saveSettings();
     }
 
-    private static void saveAllStocks() {
-        // these are kept separate because you cant concurrently modify
-        for (Map.Entry<String, StockDataSegment> entry : stockData.entrySet()) {
-            activeSymbol = entry.getKey();
-            activeType = entry.getValue().getCallType();
-            saveData();
-        }
+    //=========================================================================
+    // Settings Manipulation
+    //=========================================================================
+
+    /**
+     * Loads the settings from local files
+     */
+    public static void loadSettings() {
+
+        ArrayList<String> load_parameters = new ArrayList<String>(
+                Arrays.asList(
+                        SETTINGS_URL
+                )
+        );
+
+        settings = DataStorage.loadSettings(load_parameters);
     }
 
-    private static void saveAllCryptos() {
-        // these are kept separate because you cant concurrently modify
-        for (Map.Entry<String, CryptoDataSegment> entry : cryptoData.entrySet()) {
-            activeSymbol = entry.getKey();
-            activeType = entry.getValue().getCallType();
-            saveData();
-        }
+    /**
+     * This is only called at the end of saveState, so the settings should have
+     * been updated already.
+     */
+    private static void saveSettings() {
+        ArrayList<String> saveParameters = new ArrayList<String>(
+                Arrays.asList(
+                        SETTINGS_URL
+                )
+        );
+
+        DataStorage.saveSettings(settings, saveParameters);
     }
 
+    /**
+     * Build the strings for the settings object
+     */
     private static void appendSettingsStrings(StringBuilder _symbols, StringBuilder _urls) {
         appendStocksSettings(_symbols, _urls);
         appendCryptoSettings(_symbols, _urls);
     }
 
+    /**
+     * Iterate through all the stock data segments in the stocks map and save
+     * based on their symbols
+     */
     private static void appendStocksSettings(StringBuilder _symbols, StringBuilder _urls){
         // gather state info to save for each element in the financeData
         for (Map.Entry<String, StockDataSegment> entry : stockData.entrySet()) {
@@ -164,6 +170,10 @@ public class CwacosData {
         }
     }
 
+    /**
+     * Iterate through all the crypto data segments in the cryptos map and save
+     * based on their symbols
+     */
     private static void appendCryptoSettings(StringBuilder _symbols, StringBuilder _urls) {
         // gather state info to save for each element in the financeData
         for (Map.Entry<String, CryptoDataSegment> entry : cryptoData.entrySet()) {
@@ -174,32 +184,34 @@ public class CwacosData {
         }
     }
 
+    //=========================================================================
+    // Saving and Loading functions
+    //=========================================================================
+
     /**
-     * This is only called at the end of saveState, so the settings should have
-     * been updated already.
+     * Iterate through all the stock data segments in the stocks map and save
+     * based on their symbols
      */
-    private static void saveSettings() {
-        ArrayList<String> saveParameters = new ArrayList<String>(
-            Arrays.asList(
-                SETTINGS_URL
-            )
-        );
-
-        DataStorage.saveSettings(settings, saveParameters);
-    }
-
-    //===================== DATA STORAGE ======================
-
-    public static String generateFileUrl() {
-        if (!dataAvailable()) {
-            return null;
+    private static void saveAllStocks() {
+        // these are kept separate because you cant concurrently modify
+        for (Map.Entry<String, StockDataSegment> entry : stockData.entrySet()) {
+            activeSymbol = entry.getKey();
+            activeType = entry.getValue().getCallType();
+            saveData();
         }
-
-        return getActiveSymbol() + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(getActiveEntryList().get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) + ".cw";
     }
 
-    public static String generatedDefaultUrl() {
-        return "./" + TEMP_FOLDER + "/" + generateFileUrl();
+    /**
+     * Iterate through all the crypto data segments in the stocks map and save
+     * based on their symbols
+     */
+    private static void saveAllCryptos() {
+        // these are kept separate because you cant concurrently modify
+        for (Map.Entry<String, CryptoDataSegment> entry : cryptoData.entrySet()) {
+            activeSymbol = entry.getKey();
+            activeType = entry.getValue().getCallType();
+            saveData();
+        }
     }
 
     /**
@@ -218,25 +230,25 @@ public class CwacosData {
 
         // check if the url is null
         if (file_url == null) {
-            file_url = generatedDefaultUrl();
-            saveFileUrl(file_url);
+            file_url = generateDefaultUrl();
+            setFileUrl(file_url);
             System.out.println(file_url);
         }
 
         // create list of save parameters to send to save function
         ArrayList<String> save_parameters = new ArrayList<String>(
-            Arrays.asList(
-                file_url,
-                activeSymbol,
-                Integer.toString(activeType)
-            )
+                Arrays.asList(
+                        file_url,
+                        activeSymbol,
+                        Integer.toString(activeType)
+                )
         );
 
         ArrayList<Entry> data_to_save = getActiveEntryList();
 
         Response saveResponse = DataStorage.save(save_parameters, data_to_save);
 
-        if(!saveResponse.getSuccess()){
+        if(!saveResponse.getSuccess()) {
             return saveResponse;
         }
 
@@ -278,7 +290,7 @@ public class CwacosData {
         // Maybe this needs to return response?
         addDataSegment();
 
-        saveFileUrl(_params.get(0));
+        setFileUrl(_params.get(0));
 
         // May need to make this return a response object at some point
         setActiveEntryList(loadInfo.getData());
@@ -287,20 +299,14 @@ public class CwacosData {
 
     }
 
-    private static void addDataSegment() {
-        switch(activeType) {
-            case 0: //stock
-                stockData.putIfAbsent(activeSymbol, new StockDataSegment(activeSymbol, activeType, 3));
-                break;
-            case 1: // crypto
-                cryptoData.putIfAbsent(activeSymbol, new CryptoDataSegment(activeSymbol, activeType, 0));
-                break;
-        }
-    }
+    //=========================================================================
+    // Random Facts API Connections
+    //=========================================================================
 
-    //=================== API INTERACTION =====================
-
-    public static String getQuokkaFact() {
+    /**
+     * Gets a quakka fact based on the settings map.
+     */
+    public static String getQuakkaFact() {
         String[] facts = settings.get("facts").split("\\|", 0);
         return facts[(int) (Math.random() * facts.length)];
     }
@@ -337,6 +343,9 @@ public class CwacosData {
         }
     }
 
+    //=========================================================================
+    // Finance Data API Connections
+    //=========================================================================
 
     /**
      * This function updates an entry in the map that already exists. if the
@@ -359,6 +368,13 @@ public class CwacosData {
         }
     }
 
+    /**
+     * Update stock based off of call type and interval.
+     *
+     * @param _callType
+     * @param _callInterval
+     * @return
+     */
     public static Response updateStock(int _callType, int _callInterval) {
         if (!stockData.containsKey(activeSymbol)) {
             return new Response( activeSymbol + " does not exist, update failed. ", false);
@@ -381,6 +397,13 @@ public class CwacosData {
         return new Response("Updated " + getActiveSymbol(), true);
     }
 
+    /**
+     * Update crypto based off of call type and market.
+     *
+     * @param _callType
+     * @param _callMarket
+     * @return
+     */
     public static Response updateCrypto(int _callType, int _callMarket) {
         if (!cryptoData.containsKey(activeSymbol)) {
             return new Response( activeSymbol + " does not exist, update failed. ", false);
@@ -398,7 +421,7 @@ public class CwacosData {
         cryptoData.get(activeSymbol).setCallMarket(_callMarket);
         cryptoData.get(activeSymbol).setEntryList(api_call_result);
 
-        if(cryptoData.get(activeSymbol).getEntryList().size() == 0){
+        if(cryptoData.get(activeSymbol).getEntryList().size() == 0) {
             return new Response("Error: An error occured while making update request. Update failed. ", false);
         } else {
             return new Response("Success: Updated " + getActiveSymbol(), true);
@@ -407,7 +430,7 @@ public class CwacosData {
 
     /**
      * Update all iterates through each symbol in the finance data map and calls
-     * update using the parameters for the call saved in the FinanceDataSegment
+     * update using the parameters for the call saved in the FinanceDataSegment.
      */
     public static Response updateAll() {
 
@@ -428,6 +451,13 @@ public class CwacosData {
         return new Response("All favorites were updated successfully", true);
     }
 
+    /**
+     * Update all stocks. Each stock is updated over a predefined interval, so this
+     * can take some time. The interval keeps our program from making calls too fast
+     * and erroring out.
+     *
+     * @return
+     */
     private static Response updateAllStocks() {
 
         for(int i = 0; i < stockData.size(); i++) {
@@ -458,6 +488,13 @@ public class CwacosData {
         return new Response("All stocks updated", true);
     }
 
+    /**
+     * Update all cryptos. Each crypto is updated over a predefined interval, so this
+     * can take some time. The interval keeps our program from making calls too fast
+     * and erroring out.
+     *
+     * @return
+     */
     private static Response updateAllCryptos() {
         for(int i = 0; i < cryptoData.size(); i++) {
 
@@ -487,9 +524,18 @@ public class CwacosData {
         return new Response("All stocks updated", true);
     }
 
-    //===================== PROGRAM DATA ======================
+    //=========================================================================
+    // Cwacos Data Functions
+    //=========================================================================
 
-    public static Response addFavorite(String _symbol, int type){
+    /**
+     * Add a favorite to the data state.
+     *
+     * @param _symbol
+     * @param type
+     * @return
+     */
+    public static Response addFavorite(String _symbol, int type) {
 
         //ATTN: maybe this switch could be more dynamic?
         switch(type){
@@ -503,15 +549,8 @@ public class CwacosData {
     }
 
     /**
-     * when a user clicks add favorite, a dialogue window should pop up
-     * that lets them put in a stock ticker and choose whether it is
-     * stock or it is crypto, then this function should be run on success.
-     * <p>
-     * Could be using exceptions or something to translate errors, but honestly,
-     * these string returns will do just fine.
-     * <p>
-     * All financial data segments are initialized with call_type intraday,
-     * with an interval of 30 minutes.
+     * Adds a stock by first checking that a call can be made and is successful.
+     * Stock is then added to map if it doesnt already exist.
      *
      * @param _symbol   stock/crypto symbol, i.e. "IBM"
      * @return If not null, an error message.
@@ -528,7 +567,7 @@ public class CwacosData {
                 0
         );
 
-        if (evaluator == null){
+        if (evaluator == null) {
             return new Response("Stock symbol could not be validated...", false);
         }
 
@@ -547,6 +586,13 @@ public class CwacosData {
         return new Response("Stock symbol " + _symbol + " was added.", true);
     }
 
+    /**
+     * Adds a crypto by first checking that a call can be made and is successful.
+     * Crypto is then added to map if it doesnt already exist.
+     *
+     * @param _symbol
+     * @return
+     */
     public static Response addCrypto(String _symbol) {
 
         if (cryptoData.containsKey(_symbol)){
@@ -577,20 +623,16 @@ public class CwacosData {
         return new Response("Crypto symbol " + _symbol + " added successfully." , true);
     }
 
-
     /**
-     * Removes the FinanceDataSegment value associated with the _symbol
-     * string key from the financeData map.
-     *
-     * activeData can change here, so any UI elements relying on activeData
-     * must be updated after making this call.
+     * Removes the DataSegment value associated with the _symbol
+     * string key from the appropriate map.
      *
      * @param _symbol stock/crypto symbol, i.e. "IBM"
      * @return If not null, an error message.
      */
     public static Response removeFavorite(String _symbol, int type) {
 
-        switch(type){
+        switch(type) {
             case 0: // remove stock
                 return removeStock(_symbol);
             case 1: // remove crypto
@@ -600,6 +642,30 @@ public class CwacosData {
         }
     }
 
+    /**
+     * Remove stock from map based on symbol.
+     *
+     * @param _symbol
+     * @return
+     */
+    public static Response removeStock(String _symbol) {
+        if(!stockData.containsKey(_symbol)) {
+            return new Response("Stock does not exist, cannot be removed...", false);
+        }
+
+        stockData.remove(_symbol);
+
+        setNextActiveData();
+
+        return new Response("Stock " + _symbol + " removed successfully.", true);
+    }
+
+    /**
+     * Remove crypto from appropriate map based on symbol.
+     *
+     * @param _symbol
+     * @return
+     */
     public static Response removeCrypto(String _symbol) {
         if(!cryptoData.containsKey(_symbol)) {
             return new Response("Crypto does not exist, cannot be removed...", false);
@@ -612,16 +678,41 @@ public class CwacosData {
         return new Response("Crypto " + _symbol + " removed successfully.", true);
     }
 
-    public static Response removeStock(String _symbol) {
-        if(!stockData.containsKey(_symbol)) {
-            return new Response("Stock does not exist, cannot be removed...", false);
+    /**
+     * Generate a default url to save to in the temp folder.
+     *
+     * @return
+     */
+    public static String generateDefaultUrl() {
+        return "./" + TEMP_FOLDER + "/" + generateFileUrl();
+    }
+
+    /**
+     * Generate the file url for saving on file close. the generated url is based off
+     * of the data associated with the data being saved.
+     *
+     * @return
+     */
+    public static String generateFileUrl() {
+        if (!dataAvailable()) {
+            return null;
         }
 
-        stockData.remove(_symbol);
+        return getActiveSymbol() + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(getActiveEntryList().get(0).getDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) + ".cw";
+    }
 
-        setNextActiveData();
-
-        return new Response("Stock " + _symbol + " removed successfully.", true);
+    /**
+     * Add a new datasegment to the appropriate data map based on type.
+     */
+    private static void addDataSegment() {
+        switch(activeType) {
+            case 0: //stock
+                stockData.putIfAbsent(activeSymbol, new StockDataSegment(activeSymbol, activeType, 3));
+                break;
+            case 1: // crypto
+                cryptoData.putIfAbsent(activeSymbol, new CryptoDataSegment(activeSymbol, activeType, 0));
+                break;
+        }
     }
 
     /**
@@ -647,22 +738,44 @@ public class CwacosData {
         }
     }
 
+    //=========================================================================
+    // Data State
+    //=========================================================================
+
+    /**
+     * Query if data is available. i.e. is there data for the current financial
+     * symbol being viewed.
+     *
+     * @return boolean representing if data exists
+     */
+    public static boolean dataAvailable() {
+        return !((getActiveEntryList() == null) || (getActiveEntryList().size() == 0));
+    }
+
+    //=========================================================================
+    // GETTERS
+    //=========================================================================
+
+    /**
+     * Return active symbol.
+     * @return
+     */
     public static String getActiveSymbol() {
         return activeSymbol;
     }
 
+    /**
+     * Return active data type.
+     * @return
+     */
     public static int getActiveType() {
         return activeType;
     }
-    
-    public static void setActiveSymbol(String _symbol) {
-        activeSymbol = _symbol;
-    }
 
-    public static void setActiveType(int _type) {
-        activeType = _type;
-    }
-
+    /**
+     * Get call types from stocks or cryptos.
+     * @return
+     */
     public static String[] getCallTypes() {
         switch(activeType) {
             case 0:
@@ -674,6 +787,10 @@ public class CwacosData {
         }
     }
 
+    /**
+     * Get stock intervals.
+     * @return
+     */
     public static String[] getStockIntervals() {
         switch(activeType) {
             case 0:
@@ -683,6 +800,10 @@ public class CwacosData {
         }
     }
 
+    /**
+     * Get crypto markets.
+     * @return
+     */
     public static String[] getCryptoMarkets() {
         switch(activeType) {
             case 1:
@@ -692,17 +813,10 @@ public class CwacosData {
         }
     }
 
-    public static boolean existData(String _symbol) {
-        switch(activeType) {
-            case 0:
-                return stockData.containsKey(_symbol);
-            case 1:
-                return cryptoData.containsKey(_symbol);
-            default:
-                return false;
-        }
-    }
-
+    /**
+     * Gets ArrayList of entries for data being actively viewed.
+     * @return
+     */
     public static ArrayList<Entry> getActiveEntryList() {
         try {
             switch (activeType) {
@@ -713,36 +827,18 @@ public class CwacosData {
                 default:
                     return null;
             }
-        // the purpose of this catch is mainly for when there are no active element
-        // i.e. the activeSymbol is null. It is easier to do this than the other
-        // way I could have handled it.
+            // the purpose of this catch is mainly for when there are no active element
+            // i.e. the activeSymbol is null. It is easier to do this than the other
+            // way I could have handled it.
         } catch (Exception e) {
             return null;
         }
     }
 
-    private static void setActiveEntryList(ArrayList<Entry> _data) {
-        switch(activeType) {
-            case 0:
-                stockData.get(activeSymbol).setEntryList(_data);
-                break;
-            case 1:
-                cryptoData.get(activeSymbol).setEntryList(_data);
-                break;
-        }
-    }
-
-    public static void saveFileUrl(String _url) {
-        switch(activeType) {
-            case 0:
-                stockData.get(activeSymbol).setFileUrl(_url);
-                break;
-            case 1:
-                cryptoData.get(activeSymbol).setFileUrl(_url);
-                break;
-        }
-    }
-
+    /**
+     * Gets file url for data being viewed.
+     * @return
+     */
     public static String getFileUrl() {
         switch(activeType) {
             case 0:
@@ -754,7 +850,12 @@ public class CwacosData {
         }
     }
 
-    public static String getUpdateWaitTimeAsString(){
+    /**
+     * Gets the length of how long the user will wait as a string
+     * based on the size of the data that needs to be updated.
+     * @return
+     */
+    public static String getUpdateWaitTimeAsString() {
 
         long duration = getDataSize() * UPDATE_WAIT_SECONDS;
 
@@ -792,14 +893,24 @@ public class CwacosData {
      *
      * @return Number of all stock and crypto symbols
      */
-    private static int getDataSize(){
+    private static int getDataSize() {
         return stockData.size() + cryptoData.size();
     }
 
+    /**
+     * Get the max profit analysis as an array of strings for the
+     * currently viewed object.
+     * @return
+     */
     public static String[] getMaxProfit() {
         return MaxProfit.getMaxProfit(getActiveEntryList());
     }
 
+    /**
+     * Gets the list of stock symbols that make up the keys to the
+     * stocks map.
+     * @return
+     */
     public static ArrayList<String> getStockSymbols() {
 
         ArrayList<String> symbols = new ArrayList<String>();
@@ -811,6 +922,11 @@ public class CwacosData {
         return symbols;
     }
 
+    /**
+     * Gets the list of crypto symbols that make up the keys to the
+     * cryptos map.
+     * @return
+     */
     public static ArrayList<String> getCryptoSymbols() {
 
         ArrayList<String> symbols = new ArrayList<String>();
@@ -822,13 +938,53 @@ public class CwacosData {
         return symbols;
     }
 
+    //=========================================================================
+    // SETTERS
+    //=========================================================================
+
     /**
-     * Query if data is available. i.e. is there data for the current financial
-     * symbol being viewed.
-     *
-     * @return boolean representing if data exists
+     * Set active symbol.
+     * @param _symbol
      */
-    public static boolean dataAvailable() {
-        return !((getActiveEntryList() == null) || (getActiveEntryList().size() == 0));
+    public static void setActiveSymbol(String _symbol) {
+        activeSymbol = _symbol;
+    }
+
+    /**
+     * Set active type.
+     * @param _type
+     */
+    public static void setActiveType(int _type) {
+        activeType = _type;
+    }
+
+    /**
+     * Sets active entry list for data being viewed.
+     * @param _data
+     */
+    private static void setActiveEntryList(ArrayList<Entry> _data) {
+        switch(activeType) {
+            case 0:
+                stockData.get(activeSymbol).setEntryList(_data);
+                break;
+            case 1:
+                cryptoData.get(activeSymbol).setEntryList(_data);
+                break;
+        }
+    }
+
+    /**
+     * Sets file url for data being viewed.
+     * @param _url
+     */
+    public static void setFileUrl(String _url) {
+        switch(activeType) {
+            case 0:
+                stockData.get(activeSymbol).setFileUrl(_url);
+                break;
+            case 1:
+                cryptoData.get(activeSymbol).setFileUrl(_url);
+                break;
+        }
     }
 }

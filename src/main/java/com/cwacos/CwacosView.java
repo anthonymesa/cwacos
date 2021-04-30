@@ -7,22 +7,27 @@ package com.cwacos;
  * run when user interacts with it. All non-UI data manipulation occurs in CwacosData.
  * <p>
  * Contributing Authors:
- * Jack Fink
- * Anthony Mesa
- * Hyoungjin Choi
+*          Jack Fink
+ *      Anthony Mesa
+ *      Hyoungjin Choi
  */
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -73,8 +78,12 @@ public class CwacosView extends Application {
        row will be populated on when a new row is added to root. */
     private int yRowIndex = 0;
 
+    //=========================================================================
+    // VIEW SETUP
+    //=========================================================================
+
     /**
-     * Begin UI
+     * Begins UI
      *
      * @param args Arguments for UI
      */
@@ -82,30 +91,48 @@ public class CwacosView extends Application {
         launch(args);
     }
 
-    private void showCwacosFactsDialogue() {
-        VBox content = new VBox();
+    /**
+     * Set up the gridpane by setting the background color, and also setting the
+     * column and row widths/heights based off of predefined grid x and y values
+     * in reference to the view width and height.
+     */
+    private void setupGridPane() {
+        root.setStyle("-fx-background-color: " + UIColors.getPrimaryColor() + ";");   //Background color
 
-        HBox imgHolder = new HBox();
-        Image img = new Image("file:res/cwacos.jpg");
-        ImageView view = new ImageView(img);
-        view.setFitHeight(300);
-        view.setPreserveRatio(true);
-        imgHolder.getChildren().add(view);
-        imgHolder.setAlignment(Pos.CENTER);
-        imgHolder.setPadding(new Insets(20,0,20,0));
+        for (int i = 0; i < GRID_X; i++) {
+            root.getColumnConstraints().add(new ColumnConstraints(WINDOW_WIDTH / GRID_X));
+        }
 
-        /* Cwacos Image */
-        content.getChildren().addAll(imgHolder);
-
-        /* Display random quokka fact */
-        Label qfact = generateUILabel("Did you know? " + CwacosData.getQuokkaFact());
-        qfact.setTextAlignment(TextAlignment.CENTER);
-        qfact.setAlignment(Pos.CENTER);
-        content.getChildren().add(qfact);
-        content.setAlignment(Pos.CENTER);
-        CwacosPopup.display(APPLICATION_NAME, "Thanks!", content);
+        for (int i = 0; i < GRID_Y; i++) {
+            root.getRowConstraints().add(new RowConstraints(WINDOW_HEIGHT / GRID_Y));
+        }
     }
 
+    /**
+     * Set view closing action to save state
+     */
+    @Override
+    public void stop() {
+        CwacosData.saveState();
+    }
+
+    //=========================================================================
+    // VIEW BEGIN
+    //=========================================================================
+
+    /**
+     * Starts the application by doing a handful of things:
+     *
+     * 1. Loads the previous state
+     * 2. Initializes the popup class
+     * 3. Shows the quakka facts dialogue
+     * 4. Generates the main application view dynamically by rows
+     * 5. Populates the menus in the view (requires all dynamic rows to be drawn first)
+     * 6. Sets active data in cwacosData to the first available data (null or not)
+     * 7.
+     *
+     * @param primaryStage Window to display main application
+     */
     @Override
     public void start(Stage primaryStage) {
 
@@ -150,29 +177,45 @@ public class CwacosView extends Application {
         primaryStage.show();
     }
 
-    @Override
-    public void stop() {
-        CwacosData.saveState();
-    }
-
-    //============================== GRID SETUP =================================
-
     /**
+     * Dialogue box that shows up before the program begins.
      *
+     * Makes call to getQuakkaFact to get a random fact.
      */
-    private void setupGridPane() {
-        root.setStyle("-fx-background-color: " + UIColors.getPrimaryColor() + ";");   //Background color
+    private void showCwacosFactsDialogue() {
 
-        for (int i = 0; i < GRID_X; i++) {
-            root.getColumnConstraints().add(new ColumnConstraints(WINDOW_WIDTH / GRID_X));
-        }
+        /* Window content */
+        VBox content = new VBox();
+        content.setAlignment(Pos.CENTER);
 
-        for (int i = 0; i < GRID_Y; i++) {
-            root.getRowConstraints().add(new RowConstraints(WINDOW_HEIGHT / GRID_Y));
-        }
+        /* Placement box for image */
+        HBox imgHolder = new HBox();
+        imgHolder.setAlignment(Pos.CENTER);
+        imgHolder.setPadding(new Insets(20,0,20,0));
+
+        /* Image of mascot */
+        ImageView view = new ImageView(new Image("file:res/cwacos.jpg"));
+        view.setFitHeight(300);
+        view.setPreserveRatio(true);
+
+        imgHolder.getChildren().add(view);
+
+        /* Add placement box to window */
+        content.getChildren().addAll(imgHolder);
+
+        /* Display random quokka fact with label */
+        Label qfact = generateUILabel("Did you know? " + CwacosData.getQuakkaFact());
+        qfact.setTextAlignment(TextAlignment.CENTER);
+        qfact.setAlignment(Pos.CENTER);
+
+        content.getChildren().add(qfact);
+
+        CwacosPopup.display(APPLICATION_NAME, "Thanks!", content);
     }
 
-    //============================ MENU BAR =================================
+    //=========================================================================
+    // Generate Menu Bar
+    //=========================================================================
 
     /**
      * Generates top bar of UI
@@ -184,31 +227,26 @@ public class CwacosView extends Application {
      * @param h_margin
      */
     private void generateMenuBar(int height, int w_margin, int h_margin) {
+        /* Add the button container to the top bar section of the GridPane */
+        root.add(generateMenuBarComponentLeft(), w_margin, yRowIndex, (GRID_X / 2) - w_margin, height);
+        root.add(generateMenuBarComponentRight(), (GRID_X / 2), yRowIndex, (GRID_X / 2), height);
 
-        //Add the button container to the top bar section of the GridPane
-        root.add(generateMenuBarComponentLeft(height, w_margin, h_margin), w_margin, yRowIndex, (GRID_X / 2) - w_margin, height);
-
-        // There is an odd thing going on here, technically the width should be GRID_X / 2 - (w_margin / 2) but it isn't and I don't know why.
-        root.add(generateMenuBarComponentRight(height, w_margin, h_margin), (GRID_X / 2), yRowIndex, (GRID_X / 2), height);
-
-        // update the y_index for the next row
         yRowIndex += height;
     }
 
-    //=========================== LEFT MENU BAR =========================
+    //=========================================================================
+    // Generate Menu Bar Left
+    //=========================================================================
 
     /**
-     * @param height
-     * @param w_margin
-     * @param h_margin
-     * @return
+     * Generate the left half of the menu bar
      */
-    private HBox generateMenuBarComponentLeft(int height, int w_margin, int h_margin) {
+    private HBox generateMenuBarComponentLeft() {
         HBox menuBar = new HBox();
 
         menuBar.setSpacing(COMPONENT_SPACING);
 
-        // Add buttons to menu bar hbox
+        /* Add buttons to menu bar hbox */
         menuBar.getChildren().addAll(
                 generateSaveLoadOperationsComponent(),
                 generateFavoritesOperationsComponent()
@@ -218,10 +256,8 @@ public class CwacosView extends Application {
     }
 
     /**
-     * Creates HBox section containing buttons for
-     * saving and loading operations.
-     *
-     * @return
+     * Genereates a container for the buttons required for
+     * save/load operations
      */
     private HBox generateSaveLoadOperationsComponent() {
 
@@ -240,143 +276,154 @@ public class CwacosView extends Application {
     }
 
     /**
-     * Generate button for saving data in active view
-     *
-     * @return
+     * Generate a button for saving active data
      */
     public Button generateSaveActiveDataBtn() {
 
         Button saveBtn = new Button();
 
-        Image img = new Image("file:res/save.png");
-        ImageView view = new ImageView(img);
+        ImageView view = new ImageView(new Image("file:res/save.png"));
         view.setFitHeight(BUTTON_ICON_SIZE);
         view.setPreserveRatio(true);
         saveBtn.setGraphic(view);
 
-        saveBtn.setStyle("-fx-border-width: 2px; ");
-        saveBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
         saveBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         saveBtn.setTooltip(new Tooltip("Save data to file"));
 
-        saveBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-
-                if (CwacosData.getActiveSymbol() == null) {
-                    setUiStatusLabel("There is no data to save...");
-                    return;
-                }
-
-                //Create the file chooser that lets the user select the data the user wants to use
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle(SAVE);
-                fileChooser.setInitialFileName(CwacosData.generateFileUrl());
-                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All File", "*.*"));
-                File selectedFile = fileChooser.showSaveDialog(new Stage());
-
-                if (selectedFile != null) {
-                    CwacosData.saveFileUrl(selectedFile.getAbsolutePath());
-                }
-
-                // Save data related to given symbol to file at given url
-                Response saveResponse = CwacosData.saveData();
-
-                // Set label to the output status that CwacosData gives back.
-                setUiStatusLabel(saveResponse.getStatus());
-            }
-        });
+        saveBtn.setOnAction(getSaveActiveAction());
 
         return saveBtn;
     }
 
     /**
-     * Generate button for loading data into active view
+     * This is the handler to be applied to the save button.
      *
-     * @return
+     * A file chooser dialogue is drawn to user and the file
+     * url chosen is saved to the currently active data. The file
+     * is then saved using the url chosen.
+     */
+    private EventHandler<ActionEvent> getSaveActiveAction() {
+        return actionEvent -> {
+            if (CwacosData.getActiveSymbol() == null) {
+                setUiStatusLabel("There is no data to save...");
+                return;
+            }
+
+            /* Create the file chooser that lets the user select the data the user wants to use */
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle(SAVE);
+            fileChooser.setInitialFileName(CwacosData.generateFileUrl());
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All File", "*.*"));
+            File selectedFile = fileChooser.showSaveDialog(new Stage());
+
+            if (selectedFile != null) {
+                CwacosData.setFileUrl(selectedFile.getAbsolutePath());
+            }
+
+            /* Save data related to given symbol to file at given url. */
+            Response saveResponse = CwacosData.saveData();
+
+            /* Set label to the output status that CwacosData gives back. */
+            setUiStatusLabel(saveResponse.getStatus());
+        };
+    }
+
+    /**
+     * Generate the button for loading data into the view.
+     *
+     * @return Load file button
      */
     public Button generateLoadFileToActiveDataBtn() {
 
         Button loadBtn = new Button();
 
-        Image img = new Image("file:res/folder.png");
-        ImageView view = new ImageView(img);
+        ImageView view = new ImageView(new Image("file:res/folder.png"));
         view.setFitHeight(BUTTON_ICON_SIZE);
         view.setPreserveRatio(true);
         loadBtn.setGraphic(view);
 
-        loadBtn.setStyle("-fx-border-width: 2px; ");
-        loadBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
         loadBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         loadBtn.setTooltip(new Tooltip("Load data from file"));
 
-        loadBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-
-                //Create the file chooser that lets the user select the data the user wants to use
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle(LOAD);
-                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All File", "*.*"));
-                //fileChooser.setInitialFileName(CwacosData.generateFileUrl());
-                File selectedFile = fileChooser.showOpenDialog(new Stage());
-
-                String file_url = null;
-
-                try {
-                    file_url = selectedFile.getAbsolutePath();
-                } catch (Exception ex) {
-                    // User exited or an issue occured.
-                    return;
-                }
-
-                ArrayList<String> load_parameters = new ArrayList<String>(
-                        Arrays.asList(
-                                file_url
-                        )
-                );
-
-                Response loadResponse = CwacosData.loadData(load_parameters);
-
-                if (!loadResponse.getSuccess()) {
-                    setUiStatusLabel(loadResponse.getStatus());
-                    return;
-                }
-
-                // This may seem redundant but this is so that in the action handler down
-                // below, there isn't a logic error. (setting from a getter from the same class)
-                String symbol = CwacosData.getActiveSymbol();
-                int type = CwacosData.getActiveType();
-
-                generateFavoriteMenuItem(symbol, type);
-
-                setUiStatusLabel(symbol + " loaded successfully!");
-
-                updateView();
-            }
-        });
+        loadBtn.setOnAction(getLoadActiveAction());
 
         return loadBtn;
     }
 
+    /**
+     * This is the handler to be applied to the load button.
+     *
+     * A file chooser dialogue is drawn to user and the file
+     * url chosen is loaded to the currently active data.
+     */
+    private EventHandler<ActionEvent> getLoadActiveAction() {
+        return actionEvent -> {
+            /* Create the file chooser that lets the user select the data the user wants to use. */
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle(LOAD);
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All File", "*.*"));
+            File selectedFile = fileChooser.showOpenDialog(new Stage());
 
+            String file_url = null;
+
+            /* Get the file path to be loaded. */
+            try {
+                file_url = selectedFile.getAbsolutePath();
+            } catch (Exception ex) {
+                /* User exited or an issue occurred from the file chooser. */
+                return;
+            }
+
+            /* Set up parameters for call to loadData. */
+            ArrayList<String> load_parameters = new ArrayList<String>( Arrays.asList( file_url ));
+
+            Response loadResponse = CwacosData.loadData(load_parameters);
+
+            /* If response is bad, exit. */
+            if (!loadResponse.getSuccess()) {
+                setUiStatusLabel(loadResponse.getStatus());
+                return;
+            }
+
+        /* Get the symbol and the type of loaded favorite
+           so that it can be added to the favorites menu. */
+            String symbol = CwacosData.getActiveSymbol();
+            int type = CwacosData.getActiveType();
+
+            generateFavoriteMenuItem(symbol, type);
+            setUiStatusLabel(symbol + " loaded successfully!");
+            updateView();
+        };
+    }
+
+    /**
+     * Generates the favorites operations component to be
+     * added to the view.
+     *
+     * @return Favorite operations component
+     */
     private HBox generateFavoritesOperationsComponent() {
         HBox favoritesContainer = new HBox();
 
         favoritesContainer.setAlignment(Pos.CENTER_LEFT);
         favoritesContainer.setSpacing(BUTTON_SPACING);
 
-        // Add buttons to "Update UpdateAll" hbox
+        /* Add buttons to "Update UpdateAll" hbox. */
         favoritesContainer.getChildren().addAll(
-                generateAddFavoriteBtn(),
-                generateRemoveFavoriteBtn(),
-                generateStocksCryptoMenu(),
-                generateActiveTicker()
+            generateAddFavoriteBtn(),
+            generateRemoveFavoriteBtn(),
+            generateStocksCryptoMenu(),
+            generateActiveTicker()
         );
 
         return favoritesContainer;
     }
 
+    /**
+     * Generates the add favorite button
+     *
+     * @return Add favorite button
+     */
     private Button generateAddFavoriteBtn() {
         Button addBtn = new Button();
 
@@ -384,189 +431,205 @@ public class CwacosView extends Application {
         ImageView view = new ImageView(img);
         view.setFitHeight(BUTTON_ICON_SIZE);
         view.setPreserveRatio(true);
-        addBtn.setGraphic(view);
 
-        addBtn.setStyle("-fx-border-width: 0px; ");
-        addBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
+        addBtn.setGraphic(view);
         addBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         addBtn.setTooltip(new Tooltip("Add favorite"));
 
-        // Set action for clicking 'add favorite'
-        addBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-
-                VBox content = new VBox();
-                content.setAlignment(Pos.CENTER);
-
-                Label inputLabel = generateUILabel("Symbol");
-                inputLabel.setPadding(new Insets(10,0,10,0));
-                content.getChildren().add(inputLabel);
-
-                //Create text field that takes user input
-                TextField inputArea = new TextField();
-                inputArea.setPromptText("Enter ticker: ");
-                inputArea.setMaxWidth(150);
-                content.getChildren().add(inputArea);
-
-                Label typeLabel = generateUILabel("Type");
-                typeLabel.setPadding(new Insets(10,0,10,0));
-                content.getChildren().add(typeLabel);
-
-                //Create the drop down menu for selecting which type of ticker you have
-                ComboBox<String> typeSelection = createComboBox();
-                typeSelection.getItems().addAll("Stocks", "Cryptos");
-                content.getChildren().add(typeSelection);
-
-                // define function to be run when user clicks 'okay'
-                Function<Object, Object> testFunction = new Function<Object, Object>() {
-                    @Override
-                    public Object apply(Object o) {
-
-                        // Get symbol from input box and trim trailing and ending spaces.
-                        String symbol = inputArea.getText().trim().toUpperCase();
-
-                        // get int type based on users's selection index in comboBox.
-                        int type = typeSelection.getSelectionModel().getSelectedIndex();
-
-
-                        // validates type is actually selected from the dropdown
-                        if ((type < 0) || (symbol.length() == 0)) {
-                            return -1;
-                        } else {
-
-                            // Add favorite and get response
-                            Response addFavoriteResponse = CwacosData.addFavorite(symbol, type);
-
-                            // Check if there was an error adding the favorite
-                            if (!addFavoriteResponse.getSuccess()) {
-                                setUiStatusLabel(addFavoriteResponse.getStatus());
-                                return -1;
-                            }
-
-                            generateFavoriteMenuItem(symbol, type);
-
-                            // Now that we have completed all necessary actions, we can print the success status
-                            setUiStatusLabel(addFavoriteResponse.getStatus());
-
-                            // Set the active data to the newly added symbol
-                            CwacosData.setActiveSymbol(symbol);
-                            CwacosData.setActiveType(type);
-
-                            updateView();
-
-                            return 0;
-                        }
-                    }
-                };
-
-                // call popup with above parameters
-                CwacosPopup.display(ADD_TITLE, ADD, CANCEL, content, testFunction);
-            }
-        });
+        /* Set action for clicking 'add favorite'. */
+        addBtn.setOnAction(getAddFavoriteAction());
 
         return addBtn;
     }
 
-    private Button generateRemoveFavoriteBtn() {
-        Button saveBtn = new Button();
+    private EventHandler<ActionEvent> getAddFavoriteAction() {
+        return e -> {
+            VBox content = new VBox();
+            content.setAlignment(Pos.CENTER);
 
-        Image img = new Image("file:res/minus-square.png");
-        ImageView view = new ImageView(img);
+            popupLabel(content, "Symbol");
+
+            /* Create text field that takes user input. */
+            TextField inputArea = new TextField();
+            inputArea.setPromptText("Enter ticker: ");
+            inputArea.setMaxWidth(150);
+            content.getChildren().add(inputArea);
+
+            popupLabel(content, "type");
+
+            /* Create the drop down menu for selecting which type of ticker you have. */
+            ComboBox<String> typeSelection = generateTypeComboBox(content);
+
+            /* define function to be run when user clicks 'okay'. */
+            Function<Object, Object> testFunction = addFavoriteSuccessClicked(inputArea, typeSelection);
+
+            /* call popup with above parameters. */
+            CwacosPopup.display(ADD_TITLE, ADD, CANCEL, content, testFunction);
+        };
+    }
+
+    /**
+     * Defines the event that the 'okay' button is clicked in the addFavorite popup window.
+     *
+     * @param inputArea TextField for user input of symbol
+     * @param typeSelection ComboBox for selecting type of data
+     * @return Function to be abblied to window button
+     */
+    private Function<Object, Object> addFavoriteSuccessClicked(TextField inputArea, ComboBox<String> typeSelection) {
+        Function<Object, Object> testFunction = o -> {
+
+            /* Get symbol from input box and trim trailing and ending spaces. */
+            String symbol = inputArea.getText().trim().toUpperCase();
+
+            /* get int type based on user's selection index in comboBox. */
+            int type = typeSelection.getSelectionModel().getSelectedIndex();
+
+            /* validates type is actually selected from the dropdown. */
+            if ((type < 0) || (symbol.length() == 0)) {
+                return -1;
+            } else {
+
+                /* Add favorite and get response */
+                Response addFavoriteResponse = CwacosData.addFavorite(symbol, type);
+
+                /* Check if there was an error adding the favorite */
+                if (!addFavoriteResponse.getSuccess()) {
+                    setUiStatusLabel(addFavoriteResponse.getStatus());
+                    return -1;
+                }
+
+                generateFavoriteMenuItem(symbol, type);
+
+                /* Now that we have completed all necessary actions, we can print the success status */
+                setUiStatusLabel(addFavoriteResponse.getStatus());
+
+                // Set the active data to the newly added symbol
+                CwacosData.setActiveSymbol(symbol);
+                CwacosData.setActiveType(type);
+
+                updateView();
+
+                return 0;
+            }
+        };
+        return testFunction;
+    }
+
+    /**
+     * Generate the remove favorites button.
+     *
+     * @return Button to remove favorites
+     */
+    private Button generateRemoveFavoriteBtn() {
+        Button removeFavBtn = new Button();
+
+        ImageView view = new ImageView(new Image("file:res/minus-square.png"));
         view.setFitHeight(BUTTON_ICON_SIZE);
         view.setPreserveRatio(true);
-        saveBtn.setGraphic(view);
+        removeFavBtn.setGraphic(view);
 
-        saveBtn.setStyle("-fx-border-width: 2px; ");
-        saveBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
-        saveBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
-        saveBtn.setTooltip(new Tooltip("Remove favorite"));
+        removeFavBtn.setStyle("-fx-border-width: 2px; ");
+        removeFavBtn.setStyle("-fx-border-color: " + UIColors.getAccentColor() + ";");
+        removeFavBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
+        removeFavBtn.setTooltip(new Tooltip("Remove favorite"));
 
-        saveBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
+        removeFavBtn.setOnAction(getRemoveFavoriteEventHandler());
 
-                VBox content = new VBox();
-                content.setAlignment(Pos.CENTER);
+        return removeFavBtn;
+    }
 
-                Label typeLabel = generateUILabel("Type");
-                typeLabel.setPadding(new Insets(10,0,10,0));
-                content.getChildren().add(typeLabel);
+    /**
+     * Gets generates the action to be run when remove favorites is clicked.
+     *
+     * @return Remove favorites action
+     */
+    private EventHandler<ActionEvent> getRemoveFavoriteEventHandler() {
+        return e -> {
+            VBox content = new VBox();
+            content.setAlignment(Pos.CENTER);
 
-                //Create the drop down menu for selecting which type of ticker you have
-                ComboBox<String> typeSelection = createComboBox();
-                typeSelection.getItems().addAll("Stocks", "Cryptos");
-                content.getChildren().add(typeSelection);
+            Label typeLabel = generateUILabel("Type");
+            typeLabel.setPadding(new Insets(10, 0, 10, 0));
+            content.getChildren().add(typeLabel);
 
-                Label inputLabel = generateUILabel("Symbol");
-                inputLabel.setPadding(new Insets(10,0,10,0));
-                content.getChildren().add(inputLabel);
+            //Create the drop down menu for selecting which type of ticker you have
+            ComboBox<String> typeSelection = generateTypeComboBox(content);
 
-                //Create text field that takes user input
-                TextField inputArea = new TextField();
-                inputArea.setMaxWidth(150);
-                inputArea.setPromptText("Enter ticker: ");
-                content.getChildren().add(inputArea);
+            Label inputLabel = generateUILabel("Symbol");
+            inputLabel.setPadding(new Insets(10, 0, 10, 0));
+            content.getChildren().add(inputLabel);
 
-                Function<Object, Object> testFunction = new Function<Object, Object>() {
-                    @Override
-                    public Object apply(Object o) {
+            //Create text field that takes user input
+            TextField inputArea = new TextField();
+            inputArea.setMaxWidth(150);
+            inputArea.setPromptText("Enter ticker: ");
+            content.getChildren().add(inputArea);
 
-                        // Get string from user input
-                        String symbol = inputArea.getText().toUpperCase();
+            Function<Object, Object> testFunction = removeFavoriteSuccessClicked(typeSelection, inputArea);
 
-                        //Get the type the user selected
-                        int type = typeSelection.getSelectionModel().getSelectedIndex();
+            CwacosPopup.display(REMOVE_TITLE, REMOVE, CANCEL, content, testFunction);
+        };
+    }
 
-                        // Check that combo box is selected and input has text
-                        if ((type < 0) || (symbol.length() == 0)) {
-                            return -1;
-                        } else {
+    /**
+     * Define function for when success is clicked in remove favorite popup.
+     *
+     * @param typeSelection Combo Box for type selection
+     * @param inputArea InputArea for symbol
+     * @return Function to run on success
+     */
+    private Function<Object, Object> removeFavoriteSuccessClicked(ComboBox<String> typeSelection, TextField inputArea) {
+        Function<Object, Object> testFunction = o -> {
 
-                            // Remove favorite and get response
-                            Response removeFavoriteResponse = CwacosData.removeFavorite(symbol, type);
+            /* Get string from user input */
+            String symbol = inputArea.getText().toUpperCase();
 
-                            // Check if removal had errors
-                            if (!removeFavoriteResponse.getSuccess()) {
-                                setUiStatusLabel(removeFavoriteResponse.getStatus());
-                                return -1;
-                            }
+            /* Get the type the user selected */
+            int type = typeSelection.getSelectionModel().getSelectedIndex();
 
-                            // Pick one of the type menus from the menu bar depending on ticker type selection
-                            Menu menu = getFavoritesMenu().getMenus().get(type);
+            /* Check that combo box is selected and input has text */
+            if ((type < 0) || (symbol.length() == 0)) {
+                return -1;
+            } else {
 
-                            // Search the menu for the symbol to remove
-                            for (int i = 0; i < menu.getItems().size(); i++) {
+                /* Remove favorite and get response */
+                Response removeFavoriteResponse = CwacosData.removeFavorite(symbol, type);
 
-                                //Store the current menu item that's being checked
-                                MenuItem current = menu.getItems().get(i);
+                /* Check if removal had errors */
+                if (!removeFavoriteResponse.getSuccess()) {
+                    setUiStatusLabel(removeFavoriteResponse.getStatus());
+                    return -1;
+                }
 
-                                //Store the string contained in the menu item
-                                String text = current.getText();
+                /* Pick one of the type menus from the menu bar depending on ticker type selection */
+                Menu menu = getFavoritesMenu().getMenus().get(type);
 
-                                //Check if the ticker the user entered matches the current menu item
-                                if (text.contains(symbol)) {
+                /* Search the menu for the symbol to remove */
+                for (int i = 0; i < menu.getItems().size(); i++) {
 
-                                    //Remove that ticker from the menu
-                                    menu.getItems().remove(current);
-                                }
-                            }
+                    /* Store the current menu item that's being checked */
+                    MenuItem current = menu.getItems().get(i);
 
-                            // Set success status
-                            setUiStatusLabel(removeFavoriteResponse.getStatus());
+                    /* Store the string contained in the menu item */
+                    String text = current.getText();
 
-                            updateView();
+                    /* Check if the ticker the user entered matches the current menu item */
+                    if (text.contains(symbol)) {
 
-                            return 0;
-                        }
+                        /* Remove that ticker from the menu */
+                        menu.getItems().remove(current);
                     }
-                };
+                }
 
-                CwacosPopup.display(REMOVE_TITLE, REMOVE, CANCEL, content, testFunction);
+                /* Set success status */
+                setUiStatusLabel(removeFavoriteResponse.getStatus());
+
+                updateView();
+
+                return 0;
             }
-        });
-
-        return saveBtn;
+        };
+        return testFunction;
     }
 
     /**
@@ -590,7 +653,7 @@ public class CwacosView extends Application {
 
         favoritesMenu.getMenus().addAll(stocks, cryptos);
 
-        //Add to HBox layout to make layout look nicer
+        /* Add to HBox layout to make layout look nicer. */
         HBox middleOptionsLayout = new HBox();
         middleOptionsLayout.getChildren().add(favoritesMenu);
         middleOptionsLayout.setAlignment(Pos.CENTER_LEFT);
@@ -620,16 +683,28 @@ public class CwacosView extends Application {
         generateFavoriteMenuItems(symbols, type);
     }
 
+    /**
+     * For all symbols created, create a menuitem item for the menu.
+     *
+     * @param _symbols Symbols to append to menu
+     * @param _type Integer representing type of data
+     */
     private void generateFavoriteMenuItems(ArrayList<String> _symbols, int _type) {
         for (String symbol : _symbols) {
             generateFavoriteMenuItem(symbol, _type);
         }
     }
 
+    /**
+     * Create item to be appended to favorites menu
+     *
+     * @param _symbol Symbol to be appended
+     * @param _type Type of DataSegment
+     */
     private void generateFavoriteMenuItem(String _symbol, int _type) {
 
-        // This checks that the favorite exists in the menu. If it does, it doesnt need
-        // to create a new ticker.
+        /* This checks that the favorite exists in the menu. If it does, it doesnt need.
+           to create a new ticker. */
         for(MenuItem each : getFavoritesMenu().getMenus().get(_type).getItems()) {
             if (each.getText().equals(_symbol)) {
                 return;
@@ -638,24 +713,37 @@ public class CwacosView extends Application {
 
         MenuItem newFavorite = new MenuItem(_symbol);
 
-        // Set callback event for clicking menu item (the favorite itself)
-        newFavorite.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                // Set the active symbol and type and update table contents
-                CwacosData.setActiveSymbol(_symbol);
-                CwacosData.setActiveType(_type);
+        /* Set callback event for clicking menu item (the favorite itself). */
+        newFavorite.setOnAction(onClickFavoriteAction(_symbol, _type));
 
-                updateView();
-
-                setUiStatusLabel("Now viewing " + _symbol);
-            }
-        });
-
-        // Add menu item to the menu of the correct type in the menu bar
+        // Add menu item to the menu of the correct type in the menu bar.
         getFavoritesMenu().getMenus().get(_type).getItems().add(newFavorite);
     }
 
+    /**
+     * Action to run when a favorite is clicked in the favorites menu
+     *
+     * @param _symbol Symbol of data that is indicated by menu item
+     * @param _type Type of data indidcated by menu item
+     * @return An action that is run when favorites menu item is clicked
+     */
+    private EventHandler<ActionEvent> onClickFavoriteAction(String _symbol, int _type) {
+        return actionEvent -> {
+            /* Set the active symbol and type and update table contents. */
+            CwacosData.setActiveSymbol(_symbol);
+            CwacosData.setActiveType(_type);
+
+            updateView();
+
+            setUiStatusLabel("Now viewing " + _symbol);
+        };
+    }
+
+    /**
+     * Generate the active ticker display, showing the current data being viewed
+     *
+     * @return Hbox representing ticker object
+     */
     private HBox generateActiveTicker() {
         HBox activeTicker = new HBox();
         activeTicker.setPadding(new Insets(COMPONENT_SPACING));
@@ -671,35 +759,33 @@ public class CwacosView extends Application {
 
         Label activeTickerLabel = generateUILabel("");
 
-        // generate label
+        /* generate label. */
         activeTickerLabel.setId("activeTickerLabel");
         activeTickerLabel.setAlignment(Pos.CENTER_LEFT);
 
-        // Add buttons to menu bar hbox
+        /* Add buttons to menu bar hbox. */
         activeTickerBg.getChildren().add(activeTickerLabel);
         activeTicker.getChildren().add(activeTickerBg);
 
         return activeTicker;
     }
 
-    //================================================================================
-    // Right Menu Bar
-    //================================================================================
+    //=========================================================================
+    // Generate Menu Bar Right
+    //=========================================================================
 
     /**
-     * @param height
-     * @param w_margin
-     * @param h_margin
-     * @return
+     * Generate right side of menu bar.
+     *
+     * @return Hbox for right side of menu bar
      */
-    private HBox generateMenuBarComponentRight(int height, int w_margin, int h_margin) {
+    private HBox generateMenuBarComponentRight() {
         HBox menuBar = new HBox();
 
-        //menuBar.setStyle("-fx-background-color: #"+ WHITE_COLOR + ";");
         menuBar.setAlignment(Pos.CENTER_RIGHT);
         menuBar.setSpacing(COMPONENT_SPACING);
 
-        // Add buttons to menu bar hbox
+        /* Add buttons to menu bar hbox. */
         menuBar.getChildren().addAll(
                 generateMaxProfitComponent(),
                 generateUpdateOperationsComponent()
@@ -708,6 +794,11 @@ public class CwacosView extends Application {
         return menuBar;
     }
 
+    /**
+     * Generate max profit component of menu
+     *
+     * @return Max profit HBox component
+     */
     private HBox generateMaxProfitComponent() {
 
         HBox buttonContainer = new HBox();
@@ -715,7 +806,7 @@ public class CwacosView extends Application {
         buttonContainer.setAlignment(Pos.CENTER_RIGHT);
         buttonContainer.setSpacing(BUTTON_SPACING);
 
-        // Add buttons to "Update UpdateAll" hbox
+        /* Add buttons to "Update UpdateAll" hbox. */
         buttonContainer.getChildren().addAll(
                 generateMaxProfitButton()
         );
@@ -723,18 +814,16 @@ public class CwacosView extends Application {
         return buttonContainer;
     }
 
-    public Label generateUILabel(String _input) {
-        Label label = new Label(_input);
-        label.setStyle("-fx-text-fill: " + UIColors.getFontColor() + ";");
-        return label;
-    }
-
+    /**
+     * Generate the max profit button.
+     *
+     * @return Button for max profit
+     */
     private Button generateMaxProfitButton() {
 
         Button maxProfitBtn = new Button();
 
-        Image img = new Image("file:res/dollar-sign.png");
-        ImageView view = new ImageView(img);
+        ImageView view = new ImageView(new Image("file:res/dollar-sign.png"));
         view.setFitHeight(BUTTON_ICON_SIZE);
         view.setPreserveRatio(true);
         maxProfitBtn.setGraphic(view);
@@ -744,52 +833,57 @@ public class CwacosView extends Application {
         maxProfitBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         maxProfitBtn.setTooltip(new Tooltip("Run MaxProfit algorithm"));
 
-        // Set action for clicking 'add favorite'
-        maxProfitBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-
-                // if table view is empty, return
-                if(!CwacosData.dataAvailable()) {
-                    setUiStatusLabel("Max profit analysis requires data to be loaded...");
-                    return;
-                }
-
-                VBox content = new VBox();
-                content.setAlignment(Pos.CENTER);
-
-                String[] maxProfitData = CwacosData.getMaxProfit();
-
-                //Create text field that takes user input
-                Label lowDate = generateUILabel(maxProfitData[2]);
-                lowDate.setPadding(new Insets(10,0,10,0));
-
-                Label low = generateUILabel("Low: $" + maxProfitData[0]);
-                Label buy = generateUILabel("Buy: $" + maxProfitData[1]);
-
-                Label highDate = generateUILabel(maxProfitData[5]);
-                highDate.setPadding(new Insets(10,0,10,0));
-
-                Label high = generateUILabel("High: $" + maxProfitData[3]);
-                Label sell = generateUILabel("Sell: $" + maxProfitData[4]);
-
-                Label profit = generateUILabel("Profit: $" + maxProfitData[6]);
-                profit.setPadding(new Insets(10,0,10,0));
-
-                content.getChildren().addAll(lowDate, low, buy, highDate, high, sell, profit);
-
-                // call popup with above parameters
-                CwacosPopup.display("Max Analysis", "Nice", content);
-            }
-        });
+        /* Set action for clicking 'add favorite'. */
+        maxProfitBtn.setOnAction(getMaxProfitHandler());
 
         return maxProfitBtn;
     }
 
     /**
-     * Creates HBox section for containing data update operations
+     * Generate the handler to be run when max profit is clicked.
      *
-     * @return
+     * @return Action that should be run when max profit is clicked
+     */
+    private EventHandler<ActionEvent> getMaxProfitHandler() {
+        return e -> {
+            /* If table view is empty, return. */
+            if (!CwacosData.dataAvailable()) {
+                setUiStatusLabel("Max profit analysis requires data to be loaded...");
+                return;
+            }
+
+            VBox content = new VBox();
+            content.setAlignment(Pos.CENTER);
+
+            String[] maxProfitData = CwacosData.getMaxProfit();
+
+            //Create text field that takes user input
+            Label lowDate = generateUILabel(maxProfitData[2]);
+            lowDate.setPadding(new Insets(10, 0, 10, 0));
+
+            Label low = generateUILabel("Low: $" + maxProfitData[0]);
+            Label buy = generateUILabel("Buy: $" + maxProfitData[1]);
+
+            Label highDate = generateUILabel(maxProfitData[5]);
+            highDate.setPadding(new Insets(10, 0, 10, 0));
+
+            Label high = generateUILabel("High: $" + maxProfitData[3]);
+            Label sell = generateUILabel("Sell: $" + maxProfitData[4]);
+
+            Label profit = generateUILabel("Profit: $" + maxProfitData[6]);
+            profit.setPadding(new Insets(10, 0, 10, 0));
+
+            content.getChildren().addAll(lowDate, low, buy, highDate, high, sell, profit);
+
+            // call popup with above parameters
+            CwacosPopup.display("Max Analysis", "Nice", content);
+        };
+    }
+
+    /**
+     * Creates HBox section for containing data update operations.
+     *
+     * @return Update operation container
      */
     private HBox generateUpdateOperationsComponent() {
 
@@ -808,16 +902,15 @@ public class CwacosView extends Application {
     }
 
     /**
-     * Generate button for updating data in active view
+     * Generate button for updating data in active view.
      *
-     * @return
+     * @return Button for updating active data
      */
     public Button generateUpdateActiveDataBtn() {
 
         Button updateBtn = new Button();
 
-        Image img = new Image("file:res/rotate-cw.png");
-        ImageView view = new ImageView(img);
+        ImageView view = new ImageView(new Image("file:res/rotate-cw.png"));
         view.setFitHeight(BUTTON_ICON_SIZE);
         view.setPreserveRatio(true);
         updateBtn.setGraphic(view);
@@ -831,128 +924,152 @@ public class CwacosView extends Application {
          * This is an anonymous function to set the handler for when the
          * update button is clicked in the main UI
          */
-        updateBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-
-                if (CwacosData.getActiveSymbol() == null) {
-                    setUiStatusLabel("There is no data to update...");
-                    return;
-                }
-
-                VBox content = new VBox();
-                content.setAlignment(Pos.CENTER);
-
-                Label typeLabel = generateUILabel("Type");
-                typeLabel.setPadding(new Insets(10,0,10,0));
-                content.getChildren().add(typeLabel);
-
-                // combo box for call type
-                final ComboBox<String> callArgument1 = createComboBox();
-
-                // Check that there is an active symbol, else there is nothing to update. Doing this here because
-                // filling the combo box requires a valid active type.
-                if (CwacosData.getActiveType() == -1) {
-                    setUiStatusLabel("Must be viewing data to be able to update...");
-                    return;
-                }
-
-                // Get the call types to display in dropdown
-                String[] callTypes = CwacosData.getCallTypes();
-
-                // Add call types to combo box
-                for (int i = 0; i < callTypes.length; i++) {
-                    callArgument1.getItems().add(callTypes[i]);
-                }
-
-                // Add combo box to dialogue box.
-                content.getChildren().add(callArgument1);
-
-                Label intervalLabel = generateUILabel("");
-
-                // Change the label for the second combobox based
-                // on type.
-                switch(CwacosData.getActiveType()) {
-                    case 0:
-                        intervalLabel.setText("Interval");
-                        break;
-                    case 1:
-                        intervalLabel.setText("Market");
-                        break;
-                }
-
-                intervalLabel.setPadding(new Insets(10,0,10,0));
-                content.getChildren().add(intervalLabel);
-
-                final ComboBox<String> callArgument2 = createComboBox();
-
-                // detect change of selection in callArgument1 and populate callArgument2 appropriately
-                callArgument1.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-                    @Override
-                    public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                        switch (CwacosData.getActiveType()) {
-                            case 0: //stock
-                                populateStockIntervalComboBox(callArgument2, callArgument1.getValue());
-                                break;
-
-                            case 1: // cryptos
-                                String[] cryptoMarkets = CwacosData.getCryptoMarkets();
-
-                                for (int i = 0; i < cryptoMarkets.length; i++) {
-                                    callArgument2.getItems().add(cryptoMarkets[i]);
-                                }
-                                break;
-                        }
-                    }
-                });
-
-                content.getChildren().add(callArgument2);
-
-                /**
-                 * This function is an anoymous function that defines the action that will
-                 * take place when the user clicks the "okay" button (or its equivalent)
-                 * in the dialogue popup generated from clicking the update button in the main UI.
-                 */
-                Function<Object, Object> desiredAction = new Function<Object, Object>() {
-                    @Override
-                    public Object apply(Object o) {
-
-                        int arg1 = callArgument1.getSelectionModel().getSelectedIndex();
-                        int arg2 = callArgument2.getSelectionModel().getSelectedIndex();
-
-                        // check if selected item in argument 1 is Intraday
-                        if (callArgument1.getSelectionModel().getSelectedItem().equals("Intraday")) {
-                            // skip the 1st index of call interval, which is None
-                            arg2++;
-                        }
-
-                        // check that type and interval have been chosen
-                        if ((arg1 < 0) || (arg2 < 0) || (CwacosData.getActiveSymbol().equals(""))) {
-                            return -1;
-                        } else {
-                            Response updateResponse = CwacosData.update(arg1, arg2);
-
-                            // if size of current entry list is zero, there was an error
-                            if (!updateResponse.getSuccess()) {
-                                setUiStatusLabel(updateResponse.getStatus());
-                                return -1;
-                            }
-
-                            setUiStatusLabel(updateResponse.getStatus());
-
-                            updateView();
-
-                            return 0;
-                        }
-                    }
-                };
-
-                // call popup with above parameters
-                CwacosPopup.display(UPDATE, UPDATE, CANCEL, content, desiredAction);
-            }
-        });
+        updateBtn.setOnAction(getUpdateActiveHandler());
 
         return updateBtn;
+    }
+
+    /**
+     * Get handler that should be called when updating active data.
+     *
+     * @return Event handler for updating active data
+     */
+    private EventHandler<ActionEvent> getUpdateActiveHandler() {
+        return e -> {
+
+            if (CwacosData.getActiveSymbol() == null) {
+                setUiStatusLabel("There is no data to update...");
+                return;
+            }
+
+            VBox content = new VBox();
+            content.setAlignment(Pos.CENTER);
+
+            Label typeLabel = generateUILabel("Type");
+            typeLabel.setPadding(new Insets(10, 0, 10, 0));
+            content.getChildren().add(typeLabel);
+
+            // combo box for call type
+            final ComboBox<String> callArgument1 = createComboBox();
+
+            // Check that there is an active symbol, else there is nothing to update. Doing this here because
+            // filling the combo box requires a valid active type.
+            if (CwacosData.getActiveType() == -1) {
+                setUiStatusLabel("Must be viewing data to be able to update...");
+                return;
+            }
+
+            // Get the call types to display in dropdown
+            String[] callTypes = CwacosData.getCallTypes();
+
+            // Add call types to combo box
+            for (int i = 0; i < callTypes.length; i++) {
+                callArgument1.getItems().add(callTypes[i]);
+            }
+
+            // Add combo box to dialogue box.
+            content.getChildren().add(callArgument1);
+
+            Label intervalLabel = generateUILabel("");
+
+            // Change the label for the second combobox based
+            // on type.
+            switch (CwacosData.getActiveType()) {
+                case 0:
+                    intervalLabel.setText("Interval");
+                    break;
+                case 1:
+                    intervalLabel.setText("Market");
+                    break;
+            }
+
+            intervalLabel.setPadding(new Insets(10, 0, 10, 0));
+            content.getChildren().add(intervalLabel);
+
+            final ComboBox<String> callArgument2 = createComboBox();
+
+            // detect change of selection in callArgument1 and populate callArgument2 appropriately
+            callArgument1.getSelectionModel().selectedItemProperty().addListener(getChangeListener(callArgument1, callArgument2));
+
+            content.getChildren().add(callArgument2);
+
+            Function<Object, Object> desiredAction = getUpdateSuccessFunction(callArgument1, callArgument2);
+
+            // call popup with above parameters
+            CwacosPopup.display(UPDATE, UPDATE, CANCEL, content, desiredAction);
+        };
+    }
+
+    /**
+     * This function is an anoymous function that defines the action that will
+     * take place when the user clicks the "okay" button (or its equivalent)
+     * in the dialogue popup generated from clicking the update button in the main UI.
+     *
+     * @param callArgument1
+     * @param callArgument2
+     * @return
+     */
+    private Function<Object, Object> getUpdateSuccessFunction(ComboBox<String> callArgument1, ComboBox<String> callArgument2) {
+        Function<Object, Object> desiredAction = new Function<Object, Object>() {
+            @Override
+            public Object apply(Object o) {
+
+                int arg1 = callArgument1.getSelectionModel().getSelectedIndex();
+                int arg2 = callArgument2.getSelectionModel().getSelectedIndex();
+
+                // check if selected item in argument 1 is Intraday
+                if (callArgument1.getSelectionModel().getSelectedItem().equals("Intraday")) {
+                    // skip the 1st index of call interval, which is None
+                    arg2++;
+                }
+
+                // check that type and interval have been chosen
+                if ((arg1 < 0) || (arg2 < 0) || (CwacosData.getActiveSymbol().equals(""))) {
+                    return -1;
+                } else {
+                    Response updateResponse = CwacosData.update(arg1, arg2);
+
+                    // if size of current entry list is zero, there was an error
+                    if (!updateResponse.getSuccess()) {
+                        setUiStatusLabel(updateResponse.getStatus());
+                        return -1;
+                    }
+
+                    setUiStatusLabel(updateResponse.getStatus());
+
+                    updateView();
+
+                    return 0;
+                }
+            }
+        };
+        return desiredAction;
+    }
+
+    /**
+     * This changes the state of combo box 2 depending on the selected state of combo box 1 in
+     * the update popup view.
+     *
+     * @param callArgument1 combo box of call types
+     * @param callArgument2 combo box of call intervals
+     * @return Event handler to fire when new combo box menu item clicked
+     */
+    private ChangeListener<String> getChangeListener(ComboBox<String> callArgument1, ComboBox<String> callArgument2) {
+        return (observableValue, s, t1) -> {
+            switch (CwacosData.getActiveType()) {
+                case 0: //stock
+                    populateStockIntervalComboBox(callArgument2, callArgument1.getValue());
+                    break;
+
+                case 1: // cryptos
+                    String[] cryptoMarkets = CwacosData.getCryptoMarkets();
+
+                    for (int i = 0; i < cryptoMarkets.length; i++) {
+                        callArgument2.getItems().add(cryptoMarkets[i]);
+                    }
+                    break;
+            }
+        };
     }
 
     /**
@@ -975,53 +1092,79 @@ public class CwacosView extends Application {
         updateAllBtn.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
         updateAllBtn.setTooltip(new Tooltip("Update all data"));
 
-        updateAllBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                setUiStatusLabel("Updating all symbols, this will take approximately " + CwacosData.getUpdateWaitTimeAsString());
-
-                if (CwacosData.getActiveSymbol() == null) {
-                    setUiStatusLabel("There is no data to update...");
-                    return;
-                }
-
-                var responseWrapper = new Object() {
-                    Response wrappedResponse;
-                };
-
-                Task<String> updateData = new Task<String>() {
-                    @Override
-                    public String call() {
-                        responseWrapper.wrappedResponse = CwacosData.updateAll();
-
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!responseWrapper.wrappedResponse.getSuccess()) {
-                                    setUiStatusLabel(responseWrapper.wrappedResponse.getStatus());
-                                }
-
-                                setUiStatusLabel(responseWrapper.wrappedResponse.getStatus());
-
-                                updateView();
-                            }
-                        });
-
-                        return null;
-                    }
-                };
-
-                Thread updateThread = new Thread(updateData);
-                updateThread.start();
-            }
-        });
+        updateAllBtn.setOnAction(getUpdateAllHandler());
 
         return updateAllBtn;
     }
 
-    //================================= ACTIVE DATA TABLE ===============================
+    /**
+     * Get Handler to be run when update all is clicked.
+     *
+     * @return EventHandler for update all action
+     */
+    private EventHandler<ActionEvent> getUpdateAllHandler() {
+        return e -> {
 
-    //Method creates the view box for the active ticker.
+            setUiStatusLabel("Updating all symbols, this will take approximately " + CwacosData.getUpdateWaitTimeAsString());
+
+            if (CwacosData.getActiveSymbol() == null) {
+                setUiStatusLabel("There is no data to update...");
+                return;
+            }
+
+            /* update all takes some time and needs to run in a thread beside the ui */
+            Task<String> updateData = getUpdateAllThread();
+
+            /* We defined the thread above, now we can run it.*/
+            Thread updateThread = new Thread(updateData);
+            updateThread.start();
+        };
+    }
+
+    /**
+     * Defines the thread to be run when update all is called.
+     *
+     * @return Thread for updating all data
+     */
+    private Task<String> getUpdateAllThread() {
+        Task<String> updateData = new Task<String>() {
+            @Override
+            public String call() {
+                Response updateAllResponse = CwacosData.updateAll();
+
+                /* Because we are in a thread, we can not affect the ui state
+                   unless we call this and add to it what we want to change when
+                   updating all is complete. */
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!updateAllResponse.getSuccess()) {
+                            setUiStatusLabel(updateAllResponse.getStatus());
+                        }
+
+                        setUiStatusLabel(updateAllResponse.getStatus());
+
+                        updateView();
+                    }
+                });
+
+                return null;
+            }
+        };
+        return updateData;
+    }
+
+    //=========================================================================
+    // Generate Active Data Table
+    //=========================================================================
+
+    /**
+     * Generate Component to hold data table stack pane and add it to root.
+     *
+     * @param height height of row in grid spaces
+     * @param w_margin width of component margin in grid spaces
+     * @param h_margin height of component margin in grid spaces
+     */
     private void generateActiveDataTableComponent(int height, int w_margin, int h_margin) {
 
         StackPane activeTickerView = new StackPane();
@@ -1075,6 +1218,180 @@ public class CwacosView extends Application {
         return table;
     }
 
+    //=========================================================================
+    // Generate Candle Stick Graph
+    //=========================================================================
+
+    /**
+     * Generate the candle stick graph to be displayed
+     *
+     * @param height height of graph in grid units
+     * @param w_margin width margin of graph in grid units
+     * @param h_margin heigh margin of graph in grid units
+     */
+    private void generateCandlestickGraphComponent(int height, int w_margin, int h_margin) {
+
+        //Create and style the background.
+        StackPane graphPane = new StackPane();
+        //graphPane.setStyle("-fx-background-color: #" + UIColors.getAccentColor() + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
+        graphPane.setId("chart");
+
+        //Create each axis
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel("Interval");
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Stock Price");
+
+        //Create the LineChart
+        LineChart<String, Number> lineChart = new LineChart<String, Number>(xAxis, yAxis);
+        lineChart.setTitle("Stock Data");
+
+        lineChart.getStylesheets().add("file:res/style.css");
+
+        //Create lines for the line chart
+        XYChart.Series openSeries = new XYChart.Series();
+        openSeries.setName("Open");
+        XYChart.Series closeSeries = new XYChart.Series();
+        closeSeries.setName("Close");
+        XYChart.Series lowSeries = new XYChart.Series();
+        lowSeries.setName("Low");
+        XYChart.Series highSeries = new XYChart.Series();
+        highSeries.setName("High");
+
+        lineChart.getData().addAll(openSeries, closeSeries, lowSeries, highSeries);
+
+        graphPane.getChildren().addAll(lineChart);
+
+        root.add(graphPane, w_margin, yRowIndex, GRID_X - w_margin, height);
+
+        yRowIndex += height;
+    }
+
+    /**
+     * Get chart by lookup value.
+     */
+    private StackPane fetchChart() {
+        return (StackPane) root.lookup("#chart");
+    }
+
+    /**
+     * Populate chart dynamically based on data being actively viewed.
+     */
+    private void populateChart() {
+        StackPane sp = fetchChart();
+        LineChart<String, Number> lineChart = (LineChart<String, Number>) sp.getChildren().get(0);
+
+        //Get ticker data.
+        ArrayList<Entry> entries = CwacosData.getActiveEntryList();
+
+        //Get the series for each of the lines.
+        ObservableList<XYChart.Series<String, Number>> chartSeries = lineChart.getData();
+        XYChart.Series<String, Number> openSeries = chartSeries.get(0);
+        XYChart.Series<String, Number> closeSeries = chartSeries.get(1);
+        XYChart.Series<String, Number> lowSeries = chartSeries.get(2);
+        XYChart.Series<String, Number> highSeries = chartSeries.get(3);
+
+        double highest = 0;
+        double lowest = 0;
+
+        //Clears the graph if there was something there before.
+        if (openSeries.getData() != null) {
+            openSeries.getData().clear();
+            closeSeries.getData().clear();
+            lowSeries.getData().clear();
+            highSeries.getData().clear();
+        }
+        if (CwacosData.dataAvailable()) {
+            //This is an invisible rectangle that will get rid of the dumb dots that represent points on the line graph.
+            Rectangle rect = new Rectangle(0, 0);
+            rect.setVisible(false);
+
+            for (Entry entry : entries) {
+                if (entries.indexOf(entry)==0) {
+                    highest = entry.getHigh();
+                    lowest = entry.getLow();
+                }
+
+                //Add the entry data with the rectangle to their respective lines.
+                openSeries.getData().add(new XYChart.Data(entry.getGraphTimeString(), entry.getOpen()));
+                openSeries.getData().get(entries.indexOf(entry)).setNode(rect);
+                closeSeries.getData().add(new XYChart.Data(entry.getGraphTimeString(), entry.getClose()));
+                closeSeries.getData().get(entries.indexOf(entry)).setNode(rect);
+                lowSeries.getData().add(new XYChart.Data(entry.getGraphTimeString(), entry.getLow()));
+                lowSeries.getData().get(entries.indexOf(entry)).setNode(rect);
+                highSeries.getData().add(new XYChart.Data(entry.getGraphTimeString(), entry.getHigh()));
+                highSeries.getData().get(entries.indexOf(entry)).setNode(rect);
+
+                //Checks if the current data point is the new highest/lowest of the data set.
+                if (entry.getHigh() > highest) {
+                    highest = entry.getHigh();
+                }
+                if (entry.getLow() < lowest) {
+                    lowest = entry.getLow();
+                }
+            }
+        } else {
+            openSeries.getData().clear();
+            closeSeries.getData().clear();
+            lowSeries.getData().clear();
+            highSeries.getData().clear();
+        }
+
+        NumberAxis yAxis = (NumberAxis) lineChart.getYAxis();
+        CategoryAxis xAxis = (CategoryAxis) lineChart.getXAxis();
+        xAxis.setAnimated(false);
+        yAxis.setAutoRanging(false);
+        yAxis.setUpperBound(highest);
+        yAxis.setLowerBound(lowest);
+    }
+
+    //=========================================================================
+    // Generate Status Bar
+    //=========================================================================
+
+    /**
+     * Generate bottom bar for status output
+     */
+    private void generateStatusBar(int height, int w_margin, int h_margin) {
+        root.add(generateStatusOutputComponent(height, w_margin, h_margin), w_margin, yRowIndex, GRID_X - w_margin, height);
+    }
+
+    /**
+     * Generate status bar component
+     *
+     * @param height
+     * @param w_margin
+     * @param h_margin
+     * @return
+     */
+    private HBox generateStatusOutputComponent(int height, int w_margin, int h_margin) {
+
+        HBox outputContainer = new HBox();
+
+        outputContainer.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
+
+        Label statusOutput = new Label();
+
+        // generate label
+        statusOutput.setId("statusOutput");
+        statusOutput.setStyle("-fx-text-fill: " + UIColors.getFontColor() + ";");
+        statusOutput.setPadding(new Insets(COMPONENT_SPACING/2,0,COMPONENT_SPACING/2,0));
+        statusOutput.setAlignment(Pos.CENTER_LEFT);
+
+        // Add label to HBox
+        outputContainer.getChildren().addAll(
+                statusOutput
+        );
+
+        yRowIndex += height;
+
+        return outputContainer;
+    }
+
+    //=========================================================================
+    // General helper functions for the view
+    //=========================================================================
+
     /**
      * Populates the table with entries from the API.
      */
@@ -1118,7 +1435,7 @@ public class CwacosView extends Application {
     }
 
     /**
-     * Creates then returns a Combo Box.
+     * Creates a combo box
      *
      * @return Combo Box with a prompt text.
      */
@@ -1129,7 +1446,8 @@ public class CwacosView extends Application {
     }
 
     /**
-     * Populates the stock interval combo box and the stock interval combo box only.
+     * Populates the stock interval combo box and the stock interval combo box only based
+     * on the call type combo box selection.
      *
      * @param _comboBox Stock interval combo box.
      */
@@ -1161,84 +1479,73 @@ public class CwacosView extends Application {
         }
     }
 
-    //================================= CANDLESTICK GRAPH ===============================
-
-    //Method creates the CandleStick Graph
-    private void generateCandlestickGraphComponent(int height, int w_margin, int h_margin) {
-        //Create and style the background.
-        StackPane candlestickGraph = new StackPane();
-        candlestickGraph.setStyle("-fx-background-color: " + UIColors.getPrimaryColor() + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
-
-        Image img = new Image("file:res/donate.jpg");
-        ImageView view = new ImageView(img);
-        view.setPreserveRatio(true);
-
-        //THE BELOW BLOCK OF CODE IS TEMPORARY
-        //Rectangle tempBox = new Rectangle();
-        //tempBox.setFill(Paint.valueOf("4E4E4E"));
-
-        //tempBox.setHeight((WINDOW_HEIGHT / GRID_Y) * (height - (h_margin * 2)));
-        //tempBox.setWidth((WINDOW_WIDTH / GRID_X) * (GRID_X - w_margin));
-
-        //Label candlestick = new Label();
-        //candlestick.setText("Candlestick graph goes here.");
-        //candlestick.setStyle("-fx-background-color: #" + ACCENT_COLOR + ";");
-
-        candlestickGraph.getChildren().addAll(view);
-        StackPane.setAlignment(view, Pos.CENTER);
-
-        root.add(candlestickGraph, w_margin, yRowIndex, GRID_X - w_margin, height);
-
-        yRowIndex += height;
-    }
-
-    //============================= STATUS BAR =================================
-
     /**
-     * Generate bottom bar for status output
+     * Effectively used as a refresh function. Refreshes data-based view components.
      */
-    private void generateStatusBar(int height, int w_margin, int h_margin) {
-        root.add(generateStatusOutputComponent(height, w_margin, h_margin), w_margin, yRowIndex, GRID_X - w_margin, height);
-    }
-
-    private HBox generateStatusOutputComponent(int height, int w_margin, int h_margin) {
-
-        HBox outputContainer = new HBox();
-
-        outputContainer.setStyle("-fx-background-color: " + UIColors.getSecondaryColor() + ";");
-
-        Label statusOutput = new Label();
-
-        // generate label
-        statusOutput.setId("statusOutput");
-        statusOutput.setStyle("-fx-text-fill: " + UIColors.getFontColor() + ";");
-        statusOutput.setPadding(new Insets(COMPONENT_SPACING,0,COMPONENT_SPACING,0));
-        statusOutput.setAlignment(Pos.CENTER_LEFT);
-
-        // Add label to HBox
-        outputContainer.getChildren().addAll(
-                statusOutput
-        );
-
-        yRowIndex += height;
-
-        return outputContainer;
-    }
-
     private void updateView() {
         populateTable();
+        populateChart();
         setTicker();
     }
 
+    /**
+     * Sets the UI status for the view
+     *
+     * @param msg
+     */
     public void setUiStatusLabel(String msg) {
         ((Label) root.lookup("#statusOutput")).setText(STATUS_LEAD + msg);
     }
 
+    /**
+     * Set the ticker to the symbol of the data being viewed.
+     */
     private void setTicker() {
         ((Label) root.lookup("#activeTickerLabel")).setText(CwacosData.getActiveSymbol());
     }
 
+    /**
+     * Get the favorites menu via lookup.
+     * @return
+     */
     private MenuBar getFavoritesMenu() {
         return (MenuBar) root.lookup("#favoritesMenu");
+    }
+
+    /**
+     * Generate a combo box for selecting type of DataSegment.
+     *
+     * @param content
+     * @return
+     */
+    private ComboBox<String> generateTypeComboBox(VBox content) {
+        ComboBox<String> typeSelection = createComboBox();
+        typeSelection.getItems().addAll("Stocks", "Cryptos");
+        content.getChildren().add(typeSelection);
+        return typeSelection;
+    }
+
+    /**
+     * Generate a popup label to display any text
+     *
+     * @param content
+     * @param _text
+     */
+    private void popupLabel(VBox content, String _text) {
+        Label typeLabel = generateUILabel(_text);
+        typeLabel.setPadding(new Insets(10,0,10,0));
+        content.getChildren().add(typeLabel);
+    };
+
+    /**
+     * Generate a UI specific label that is common throught the UI.
+     *
+     * @param _input
+     * @return
+     */
+    public Label generateUILabel(String _input) {
+        Label label = new Label(_input);
+        label.setStyle("-fx-text-fill: " + UIColors.getFontColor() + ";");
+        return label;
     }
 }

@@ -3,8 +3,9 @@ package com.cwacos;
 /**
  * Last updated: 30-APR-2021
  * 
- * Purpose: This class provides connection info and re-usable functions for connecting to the
- *          AlphaVantage API for stock and crypto data.
+ * Purpose: This is a supporting class used by AVAPIStocksTranslator and AVAPICryptoTranslator that consolidates shared
+ *          methods. It is used to make an API call to AlphaVantage API given a valid URL and also handles transforming
+ *          the given call types and intervals into proper Enum objects.
  * 
  * Contributing Authors:
  *      Michael Leonard

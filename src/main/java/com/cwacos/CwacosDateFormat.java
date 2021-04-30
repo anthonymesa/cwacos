@@ -8,6 +8,7 @@ package com.cwacos;
  * 
  * Contributing Authors:
  *      Hyoungjin Choi
+ *      Michael Leonard
  */
 
 import java.text.SimpleDateFormat;
@@ -17,4 +18,13 @@ public class CwacosDateFormat {
     public static  SimpleDateFormat getDateFormat() {
         return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH);
     }
+
+    public static SimpleDateFormat getHumanReadableDateFormat(){
+        return new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+    }
+
+    public static  SimpleDateFormat getGraphFormat() {
+        return new SimpleDateFormat("dd MM yyyy HH:mm", Locale.ENGLISH);
+    }
 }
+

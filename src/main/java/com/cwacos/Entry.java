@@ -127,5 +127,3 @@ public class Entry implements Comparable<Entry> {
         this.dateTime = dateTime;
     }
 }
-
-

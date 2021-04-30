@@ -20,6 +20,6 @@ public class CwacosDateFormat {
     }
 
     public static SimpleDateFormat getHumanReadableDateFormat(){
-        return new SimpleDateFormat("MM/dd/yyyy HH:mm:ss",Locale.ENGLISH);
+        return new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy",Locale.ENGLISH);
     }
 }

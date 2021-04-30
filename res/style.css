@@ -1,0 +1,44 @@
+/**
+ * Last updated: 26-APR-2021
+ * 
+ * Purpose: Provide styling for table in CwacosView
+ * 
+ * Contributing Authors:
+ *      Hyoungjin Choi
+ */
+ 
+ .chart-plot-background {
+    -fx-background-color: "#4E4E4E";
+ }
+
+ .axis-label {
+    -fx-text-fill: #FFFFFF;
+ }
+
+ .chart-title {
+    -fx-text-fill: #FFFFFF;
+ }
+
+ .axis-tick-mark {
+    -fx-stroke: #FFFFFF;
+ }
+ .axis-minor-tick-mark {
+    -fx-stroke: #FFFFFF;
+ }
+
+ .chart-series-line {    
+    -fx-stroke-width: 2px;
+    -fx-effect: null;
+ }
+ .chart-legend {
+    -fx-background-color:  transparent;
+    -fx-padding: 20px;
+ }
+  
+ .chart-legend-item-symbol{
+    -fx-background-radius: 0;
+ }
+  
+ .chart-legend-item{
+     -fx-text-fill: #FFFFFF;
+ }

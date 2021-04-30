@@ -1192,6 +1192,8 @@ public class CwacosView extends Application {
         LineChart<String, Number> lineChart = new LineChart<String, Number>(xAxis, yAxis);
         lineChart.setTitle("Stock Data");
 
+        lineChart.getStylesheets().add("file:res/style.css");
+
         //Create lines for the line chart
         XYChart.Series openSeries = new XYChart.Series();
         openSeries.setName("Open");
@@ -1203,27 +1205,6 @@ public class CwacosView extends Application {
         highSeries.setName("High");
 
         lineChart.getData().addAll(openSeries, closeSeries, lowSeries, highSeries);
-
-        //Style the lines
-        for (XYChart.Data<String, Number> entry : (ObservableList<XYChart.Data<String,Number>>) openSeries.getData()) {
-            entry.getNode().setStyle("-fx-background-color: black, white;\n"
-                + "    -fx-background-insets: 0, 2;\n"
-                + "    -fx-background-radius: 5px;");
-        }
-        for (XYChart.Data<String, Number> entry : (ObservableList<XYChart.Data<String,Number>>) closeSeries.getData()) {      
-            entry.getNode().setStyle("-fx-background-color: black, white;\n"
-                + "    -fx-background-insets: 0, 2;");
-        }
-        for (XYChart.Data<String, Number> entry : (ObservableList<XYChart.Data<String,Number>>) lowSeries.getData()) {      
-            entry.getNode().setStyle("-fx-background-color: black, white;\n"
-                + "    -fx-background-insets: 0, 2;\n"
-                + "    -fx-background-radius: 5px;");
-        }
-        for (XYChart.Data<String, Number> entry : (ObservableList<XYChart.Data<String,Number>>) highSeries.getData()) {
-            entry.getNode().setStyle("-fx-background-color: black, white;\n"
-                + "    -fx-background-insets: 0, 2;\n"
-                + "    -fx-background-radius: 5px;");
-        }
 
         graphPane.getChildren().addAll(lineChart);
 
@@ -1253,8 +1234,7 @@ public class CwacosView extends Application {
         double highest = 0;
         double lowest = 0;
         
-        //Populate each series.
-
+        //Clears the graph if there was something there before.
         if (openSeries.getData() != null) {
             openSeries.getData().clear();
             closeSeries.getData().clear();
@@ -1262,16 +1242,27 @@ public class CwacosView extends Application {
             highSeries.getData().clear();
         }
         if (entries != null) {
+            //This is an invisible rectangle that will get rid of the dumb dots that represent points on the line graph.
+            Rectangle rect = new Rectangle(0, 0);
+            rect.setVisible(false);
+
             for (Entry entry : entries) {
                 if (entries.indexOf(entry)==0) {
                     highest = entry.getHigh();
                     lowest = entry.getLow();
                 }
 
+                //Add the entry data with the rectangle to their respective lines.
                 openSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getOpen()));
+                openSeries.getData().get(entries.indexOf(entry)).setNode(rect);
                 closeSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getClose()));
+                closeSeries.getData().get(entries.indexOf(entry)).setNode(rect);
                 lowSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getLow()));
+                lowSeries.getData().get(entries.indexOf(entry)).setNode(rect);
                 highSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getHigh()));
+                highSeries.getData().get(entries.indexOf(entry)).setNode(rect);
+
+                //Checks if the current data point is the new highest/lowest of the data set.
                 if (entry.getHigh() > highest) {
                     highest = entry.getHigh();
                 }

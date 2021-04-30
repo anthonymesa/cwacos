@@ -58,7 +58,7 @@ public class MaxProfit {
         //Date of sell
         results[5] = _stocks.get(maxProfit.getEndJumpPosition()/2).getDateTimeString();
         //Value of profit
-        results[6] = String.valueOf(maxProfit.getProfit());
+        results[6] = String.format("%.2f", maxProfit.getProfit());
 
         return results;
     }

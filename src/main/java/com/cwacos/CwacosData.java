@@ -11,7 +11,6 @@ package com.cwacos;
  *      Michael Leonard
  *      Hyoungjin Choi
  *      Jack Fink
- *      Abdoul Djido
  */
 
 import java.time.LocalDateTime;

@@ -10,6 +10,7 @@ package com.cwacos;
  * Jack Fink
  * Anthony Mesa
  * Hyoungjin Choi
+ * Abdoul Djido
  */
 
 import javafx.application.Application;

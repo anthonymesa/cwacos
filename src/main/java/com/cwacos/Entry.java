@@ -19,6 +19,7 @@ public class Entry implements Comparable<Entry> {
 
     private DateFormat formatter = CwacosDateFormat.getDateFormat();
     private DateFormat readableFormatter = CwacosDateFormat.getHumanReadableDateFormat();
+    private DateFormat graphFormatter = CwacosDateFormat.getGraphFormat();
     private double open, close, low, high;
     private int volume;
     private Date dateTime;
@@ -99,6 +100,8 @@ public class Entry implements Comparable<Entry> {
     }
 
     public String getDateTimeString() { return readableFormatter.format(dateTime);}
+
+    public String getGraphTimeString() { return graphFormatter.format(dateTime); }
 
     //==============================================================================
     // Setters

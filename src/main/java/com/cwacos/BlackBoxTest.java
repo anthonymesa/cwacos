@@ -15,10 +15,10 @@ public class BlackBoxTest {
     /**
      * This method will test a selection of Stocks.get() calls and assess their correctness.
      */
-    public static void testGetStocks(){
+    public static void testGetStocks() {
         Stocks.init();
 
-        try{
+        try {
             //Test Symbol cases
             System.out.println("\n===================== Stocks getStocksData Test ======================");
             System.out.println("Testing Cases for Symbols: \n");
@@ -60,7 +60,7 @@ public class BlackBoxTest {
     /**
      * This method will test a selection of Cryptos.get() calls and assess their correctness.
      */
-    public static void testGetCrypto(){
+    public static void testGetCrypto() {
         Cryptos.init();
 
         try{

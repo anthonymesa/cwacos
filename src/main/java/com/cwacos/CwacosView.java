@@ -23,15 +23,26 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
+
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+
+
 import javafx.scene.text.TextAlignment;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Line;
+import javafx.scene.chart.XYChart.Data;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.*;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
+import javafx.collections.ObservableList;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Function;
@@ -1168,31 +1179,99 @@ public class CwacosView extends Application {
 
     //Method creates the CandleStick Graph
     private void generateCandlestickGraphComponent(int height, int w_margin, int h_margin) {
-        //Create and style the background.
-        StackPane candlestickGraph = new StackPane();
-        candlestickGraph.setStyle("-fx-background-color: " + UIColors.getPrimaryColor() + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
 
-        Image img = new Image("file:res/donate.jpg");
-        ImageView view = new ImageView(img);
-        view.setPreserveRatio(true);
+        StackPane graphPane = new StackPane();
+        //graphPane.setStyle("-fx-background-color: #" + UIColors.getAccentColor() + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
+        graphPane.setId("chart");
 
-        //THE BELOW BLOCK OF CODE IS TEMPORARY
-        //Rectangle tempBox = new Rectangle();
-        //tempBox.setFill(Paint.valueOf("4E4E4E"));
+        //Create each axis
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel("Interval");
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Stock Price");
 
-        //tempBox.setHeight((WINDOW_HEIGHT / GRID_Y) * (height - (h_margin * 2)));
-        //tempBox.setWidth((WINDOW_WIDTH / GRID_X) * (GRID_X - w_margin));
+        //Create the LineChart
+        LineChart<String, Number> lineChart = new LineChart<String, Number>(xAxis, yAxis);
+        lineChart.setTitle("Stock Data");
 
-        //Label candlestick = new Label();
-        //candlestick.setText("Candlestick graph goes here.");
-        //candlestick.setStyle("-fx-background-color: #" + ACCENT_COLOR + ";");
+        lineChart.getStylesheets().add("file:res/style.css");
 
-        candlestickGraph.getChildren().addAll(view);
-        StackPane.setAlignment(view, Pos.CENTER);
+        //Create lines for the line chart
+        XYChart.Series openSeries = new XYChart.Series();
+        openSeries.setName("Open");
+        XYChart.Series closeSeries = new XYChart.Series();
+        closeSeries.setName("Close");
+        XYChart.Series lowSeries = new XYChart.Series();
+        lowSeries.setName("Low");
+        XYChart.Series highSeries = new XYChart.Series();
+        highSeries.setName("High");
 
-        root.add(candlestickGraph, w_margin, yRowIndex, GRID_X - w_margin, height);
+        lineChart.getData().addAll(openSeries, closeSeries, lowSeries, highSeries);
+
+        graphPane.getChildren().addAll(lineChart);
+
+        root.add(graphPane, w_margin, yRowIndex, GRID_X - w_margin, height);
 
         yRowIndex += height;
+    }
+
+    private StackPane fetchChart() {
+        return (StackPane) root.lookup("#chart");
+    }
+
+    private void populateChart() {
+        StackPane sp = fetchChart();
+        LineChart<String, Number> lineChart = (LineChart<String, Number>) sp.getChildren().get(0);
+
+
+        ArrayList<Entry> entries = CwacosData.getActiveEntryList();
+
+        ObservableList<XYChart.Series<String, Number>> chartSeries = lineChart.getData();
+        XYChart.Series<String, Number> openSeries = chartSeries.get(0);
+        XYChart.Series<String, Number> closeSeries = chartSeries.get(1);
+        XYChart.Series<String, Number> lowSeries = chartSeries.get(2);
+        XYChart.Series<String, Number> highSeries = chartSeries.get(3);
+
+        double highest = 0;
+        double lowest = 0;
+
+
+        if (entries != null) {
+            //This is an invisible rectangle that will get rid of the dots
+            Rectangle rect = new Rectangle(0, 0);
+            rect.setVisible(false);
+
+            for (Entry entry : entries) {
+                if (entries.indexOf(entry)==0) {
+                    highest = entry.getHigh();
+                    lowest = entry.getLow();
+                }
+
+                openSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getOpen()));
+                openSeries.getData().get(entries.indexOf(entry)).setNode(rect);
+                closeSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getClose()));
+                closeSeries.getData().get(entries.indexOf(entry)).setNode(rect);
+                lowSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getLow()));
+                lowSeries.getData().get(entries.indexOf(entry)).setNode(rect);
+                highSeries.getData().add(new XYChart.Data(entry.getDateTimeString(), entry.getHigh()));
+                highSeries.getData().get(entries.indexOf(entry)).setNode(rect);
+
+
+                if (entry.getHigh() > highest) {
+                    highest = entry.getHigh();
+                }
+                if (entry.getLow() < lowest) {
+                    lowest = entry.getLow();
+                }
+            }
+        }
+
+          NumberAxis yAxis = (NumberAxis) lineChart.getYAxis();
+          CategoryAxis xAxis = (CategoryAxis) lineChart.getXAxis();
+          xAxis.setAnimated(false);
+          yAxis.setAutoRanging(false);
+          yAxis.setUpperBound(highest);
+          yAxis.setLowerBound(lowest);
     }
 
     //============================= STATUS BAR =================================

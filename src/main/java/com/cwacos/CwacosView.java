@@ -7,7 +7,7 @@ package com.cwacos;
  * run when user interacts with it. All non-UI data manipulation occurs in CwacosData.
  * <p>
  * Contributing Authors:
-*          Jack Fink
+ *      Jack Fink
  *      Anthony Mesa
  *      Hyoungjin Choi
  */
@@ -1240,11 +1240,10 @@ public class CwacosView extends Application {
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Interval");
         NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Stock Price");
+        yAxis.setLabel("Price");
 
         //Create the LineChart
         LineChart<String, Number> lineChart = new LineChart<String, Number>(xAxis, yAxis);
-        lineChart.setTitle("Stock Data");
 
         lineChart.getStylesheets().add("file:res/style.css");
 
@@ -1331,6 +1330,10 @@ public class CwacosView extends Application {
                 }
             }
         } else {
+            openSeries.getData().removeAll();
+            closeSeries.getData().removeAll();
+            lowSeries.getData().removeAll();
+            highSeries.getData().removeAll();
             openSeries.getData().clear();
             closeSeries.getData().clear();
             lowSeries.getData().clear();

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>com.cwacos</OriginalElement>
+  <nodes>
+    <node x="2064.8636363636365" y="374.5681818181817">com.cwacos.AVAPIStocksTranslator</node>
+    <node x="2064.863636363637" y="1010.4772727272725">com.cwacos.RandomFactsAPITranslator</node>
+    <node x="-409.090909090909" y="1348.749999999999">com.cwacos.BlackBoxTest</node>
+    <node x="2067.8636363636365" y="715.4318181818181">com.cwacos.AVAPICryptoTranslator</node>
+    <node x="1145.1818181818182" y="2192.090909090909">com.cwacos.StockDataSegment</node>
+    <node x="777.8863636363637" y="2192.090909090909">com.cwacos.CryptoDataSegment</node>
+    <node x="1457.5" y="1603.5340909090905">com.cwacos.Entry</node>
+    <node x="1708.9999999999995" y="49.0">com.cwacos.StorageAdapter</node>
+    <node x="1544.5" y="424.46590909090907">com.cwacos.StocksAdapter</node>
+    <node x="-410.59090909090924" y="1058.1249999999995">com.cwacos.UIColors</node>
+    <node x="-409.590909090909" y="639.3977272727275">com.cwacos.Response</node>
+    <node x="-467.09090909090895" y="204.85227272727298">com.cwacos.LoadData</node>
+    <node x="678.5000000000001" y="0.0">com.cwacos.CwacosData</node>
+    <node x="-422.59090909090946" y="1554.4886363636356">com.cwacos.Jump</node>
+    <node x="0.0" y="0.0">com.cwacos.CwacosView</node>
+    <node x="2234.454545454545" y="0.5">com.cwacos.LocalStorageTranslator</node>
+    <node x="977.1938502673804" y="1664.3636363636365">com.cwacos.DataSegment</node>
+    <node x="-379.09090909090895" y="42.125">com.cwacos.Cwacos</node>
+    <node x="1127.0" y="996.2727272727275">com.cwacos.Qfacts</node>
+    <node x="1533.5" y="748.5000000000001">com.cwacos.CryptosAdapter</node>
+    <node x="82.18181818181824" y="2013.1818181818185">com.cwacos.CwacosPopup</node>
+    <node x="2539.136363636364" y="530.5454545454545">com.cwacos.AlphaVantageConnection</node>
+    <node x="1127.0" y="376.36363636363626">com.cwacos.Stocks</node>
+    <node x="1127.0" y="715.4318181818181">com.cwacos.Cryptos</node>
+    <node x="-487.09090909090924" y="888.5">com.cwacos.CwacosDateFormat</node>
+    <node x="-409.590909090909" y="487.125">com.cwacos.PrintWriterException</node>
+    <node x="1127.0" y="0.0">com.cwacos.DataStorage</node>
+    <node x="1127.0" y="1225.0">com.cwacos.MaxProfit</node>
+    <node x="1533.5" y="1033.2727272727275">com.cwacos.QfactsAdapter</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="com.cwacos.AVAPIStocksTranslator" target="com.cwacos.StocksAdapter" relationship="REALIZATION">
+      <point x="171.25" y="-126.5" />
+      <point x="2427.1136363636365" y="478.46590909090907" />
+      <point x="1707.5" y="478.46590909090907" />
+      <point x="0.0" y="54.0" />
+    </edge>
+    <edge source="com.cwacos.AVAPIStocksTranslator" target="com.cwacos.AlphaVantageConnection" relationship="GENERALIZATION">
+      <point x="0.0" y="-126.5" />
+      <point x="2255.8636363636365" y="674.0" />
+      <point x="2698.636363636364" y="674.0" />
+      <point x="0.0" y="103.0" />
+    </edge>
+    <edge source="com.cwacos.LocalStorageTranslator" target="com.cwacos.StorageAdapter" relationship="REALIZATION">
+      <point x="0.0" y="-114.5" />
+      <point x="2429.454545454545" y="115.0" />
+      <point x="1903.9999999999995" y="115.0" />
+      <point x="0.0" y="66.0" />
+    </edge>
+    <edge source="com.cwacos.AVAPICryptoTranslator" target="com.cwacos.AlphaVantageConnection" relationship="GENERALIZATION">
+      <point x="0.0" y="-114.5" />
+      <point x="2255.8636363636365" y="674.0" />
+      <point x="2698.636363636364" y="674.0" />
+      <point x="0.0" y="103.0" />
+    </edge>
+    <edge source="com.cwacos.AVAPICryptoTranslator" target="com.cwacos.CryptosAdapter" relationship="REALIZATION">
+      <point x="-176.75" y="-114.5" />
+      <point x="2079.1136363636365" y="811.7499999999999" />
+      <point x="1707.5" y="811.7499999999999" />
+      <point x="0.0" y="54.0" />
+    </edge>
+    <edge source="com.cwacos.StockDataSegment" target="com.cwacos.DataSegment" relationship="GENERALIZATION">
+      <point x="0.0" y="-67.0" />
+      <point x="1272.6818181818182" y="2117.5" />
+      <point x="1096.8302139037435" y="2117.5" />
+      <point x="1096.8302139037435" y="1812.4545454545455" />
+      <point x="1105.1938502673804" y="1812.4545454545455" />
+      <point x="0.0" y="175.0" />
+    </edge>
+    <edge source="com.cwacos.CryptoDataSegment" target="com.cwacos.DataSegment" relationship="GENERALIZATION">
+      <point x="0.0" y="-67.0" />
+      <point x="909.3863636363637" y="2117.5" />
+      <point x="1096.8302139037435" y="2117.5" />
+      <point x="1096.8302139037435" y="1902.545454545455" />
+      <point x="1105.1938502673804" y="1902.545454545455" />
+      <point x="0.0" y="175.0" />
+    </edge>
+    <edge source="com.cwacos.RandomFactsAPITranslator" target="com.cwacos.QfactsAdapter" relationship="REALIZATION">
+      <point x="0.0" y="-79.0" />
+      <point x="2194.863636363637" y="1057.7954545454543" />
+      <point x="1662.5" y="1057.7954545454543" />
+      <point x="0.0" y="30.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="0.25" showDependencies="false" x="1311.0" y="553.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

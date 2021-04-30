@@ -7,9 +7,10 @@ package com.cwacos;
  * run when user interacts with it. All non-UI data manipulation occurs in CwacosData.
  * <p>
  * Contributing Authors:
- *      Jack Fink
- *      Anthony Mesa
- *      Hyoungjin Choi
+ * Jack Fink
+ * Anthony Mesa
+ * Hyoungjin Choi
+ * Abdoul Djido
  */
 
 import javafx.application.Application;
@@ -29,12 +30,17 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Line;
+import javafx.scene.chart.XYChart.Data;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
+import javafx.collections.ObservableList;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Function;

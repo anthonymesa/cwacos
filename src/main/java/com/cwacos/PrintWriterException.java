@@ -1,9 +1,9 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
- * Purpose: PrintWriterException
+ * Purpose: A custom PrintWriterException
  * 
  * Contributing Authors:
  *      Hyoungjin Choi

@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: LoadData is a container for passing loaded data from the LocalFileTranslator to the
  *      CwacosData class. This is necessary because the data, symbol and data type must be
@@ -39,6 +39,8 @@ public class LoadData {
 
         return loadedData;
     }
+
+    //================= GETTERS ===============
 
     public ArrayList<Entry> getData() {
         return this.data;

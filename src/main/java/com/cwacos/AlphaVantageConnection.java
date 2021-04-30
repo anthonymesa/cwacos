@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: This is a supporting class used by AVAPIStocksTranslator and AVAPICryptoTranslator that consolidates shared
  *          methods. It is used to make an API call to AlphaVantage API given a valid URL and also handles transforming
@@ -20,11 +20,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-/**
- * This class provides connection info and re-usable functions for connecting to the
- * AlphaVantage API for stock and crypto data.
- */
 
 public abstract class AlphaVantageConnection {
 

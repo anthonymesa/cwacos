@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: StockDataSegment provides a DataSegment object customized for stock calls. 
  * 
@@ -19,17 +19,13 @@ public class StockDataSegment extends DataSegment{
         this.callInterval = _callInterval;
     }
 
-    //==============================================================================
-    // Getters
-    //==============================================================================
+    //================= GETTERS ===============
 
     public int getCallInterval() {
         return this.callInterval;
     }
 
-    //==============================================================================
-    // Setters
-    //==============================================================================
+    //================= SETTERS ===============
 
     public void setCallInterval(int _interval) {
         this.callInterval = _interval;

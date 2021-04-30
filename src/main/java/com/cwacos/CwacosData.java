@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: CwacosData provides a central hub to access all of the data and data modifying functions
  *      within Cwacos. Any state or data modifications should be made using calls to static CwacosData functions.
@@ -57,7 +57,7 @@ public class CwacosData {
     public static Response loadState() {
         CwacosData.initDataSources();
         loadSettings();
-        loadQuakkaFacts();
+        loadQuokkaFacts();
 
         // Check that settings has favorites and file locations
         if((settings.get("favorites") != null) && (settings.get("fileLocations") != null)) {
@@ -314,32 +314,32 @@ public class CwacosData {
     /**
      * Checks that settings date is older than 24 hours and updates settings accordingly if so.
      */
-    public static void loadQuakkaFacts() {
+    public static void loadQuokkaFacts() {
 
-        String value = settings.get("lastQuakkaCall");
+        String value = settings.get("lastQuokkaCall");
 
         LocalDateTime dateNow = LocalDateTime.now();
 
         if (value != null) {
-            LocalDateTime dateSinceLastQuakkaCall = LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+            LocalDateTime dateSinceLastQuokkaCall = LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
 
             // 24 hours have passed. need new 5 strings and to update time
-            if (dateNow.isAfter(dateSinceLastQuakkaCall)) {
+            if (dateNow.isAfter(dateSinceLastQuokkaCall)) {
 
                 StringBuilder sb = new StringBuilder();
 
-                //make call to quakkas api and save values
+                //make call to quokkas api and save values
                 for (int i = 0; i < 5; i++) {
                     //sb.append("|" + RandomFactsAPITranslator.getQuokkasFact());
                 }
 
-                settings.put("facts", "Quakkas are really cute!" + sb.toString());
-                settings.put("lastQuakkaCall", dateNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")));
+                settings.put("facts", "Quokkas are really cute!" + sb.toString());
+                settings.put("lastQuokkaCall", dateNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")));
             }
 
         } else {
-            settings.put("facts", "Quakkas are really cute!");
-            settings.put("lastQuakkaCall", dateNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")));
+            settings.put("facts", "Quokkas are really cute!");
+            settings.put("lastQuokkaCall", dateNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")));
         }
     }
 

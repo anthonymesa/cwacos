@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: CryptosAdapter is an interface that defines the basic requirements for getting crypto
  *      information, no matter the method of retrieving data.

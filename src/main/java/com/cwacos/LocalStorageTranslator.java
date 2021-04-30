@@ -1,13 +1,13 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
- * 
+ * Last updated: 30-APR-2021
+ * <p>
  * Purpose: LocalStorageTranslator
- * 
+ * <p>
  * Contributing Authors:
- *      Hyoungjin Choi
- *      Anthony Mesa
+ * Hyoungjin Choi
+ * Anthony Mesa
  */
 
 
@@ -29,6 +29,12 @@ class LocalStorageTranslator implements StorageAdapter {
 
     }
 
+    /**
+     * Loads the settings from the settings file.
+     *
+     * @param _params Arraylist of Strings containing the path of the settings file.
+     * @return Hashmap of settings.
+     */
     public Map<String, String> loadSettings(ArrayList<String> _params) {
         String fileName = getFileName(_params);
         Path filePath = getPath(fileName);
@@ -52,21 +58,16 @@ class LocalStorageTranslator implements StorageAdapter {
                     settings.put(line[0], line[1]);
                 }
             }
-        } else {
-            // Commented out until we find a use for this
-//            File inputFile = new File(fileName);
-//            System.out.println("new settings file created");
-//            PrintWriter writer = null;
-//            try {
-//                writer = new PrintWriter(inputFile);
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            }
-//            pw.close();
         }
         return settings;
     }
 
+    /**
+     * Saves settings to the settings file.
+     *
+     * @param _settings Hashmap of settings to be saved.
+     * @param _params   ArrayList of Strings containing the path of the settings file.
+     */
     public void saveSettings(Map<String, String> _settings, ArrayList<String> _params) {
         String fileName = getFileName(_params);
         File inputFile = new File(fileName);
@@ -106,8 +107,11 @@ class LocalStorageTranslator implements StorageAdapter {
      */
 
     /**
+     * Stores the entries to a file and returns a response for whether it saved or did not save.
+     *
      * @param _params Array List of String containing a single element that is a Path/URL of the text file.
      * @param _input  Array List of String containing the data from API output to be stored.
+     * @return Response message that informs whether if the file has been saved or not.
      */
     public Response store(ArrayList<String> _params, ArrayList<String> _input) {
         String fileName = getFileName(_params);
@@ -143,7 +147,7 @@ class LocalStorageTranslator implements StorageAdapter {
                 writer.close();
             }
         } catch (IOException | PrintWriterException ex) {
-            return new Response("Failed to write data to " + fileName + "...",false);
+            return new Response("Failed to write data to " + fileName + "...", false);
         }
 
         return new Response("saved successfully to " + fileName + "...", true);
@@ -159,8 +163,10 @@ class LocalStorageTranslator implements StorageAdapter {
      */
 
     /**
+     * Load the entries from a file.
+     *
      * @param _storageInfo Array List of String containing a single element that is a Path/URL of the file.
-     * @return Array List of Objects containing the Entries read from a desired text file.
+     * @return LoadData object which contains the information for entries.
      */
     public LoadData load(ArrayList<String> _storageInfo) throws Exception {
         ArrayList<Object> data = new ArrayList<>();
@@ -198,7 +204,7 @@ class LocalStorageTranslator implements StorageAdapter {
             throw new Exception(fileName + " can not be found.");
         } catch (NoSuchElementException e) {
             throw new Exception("No trailing whitespace is allowed!");
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new Exception("A fatal error occurred while loading");
         }
     }

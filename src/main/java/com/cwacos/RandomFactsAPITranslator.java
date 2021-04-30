@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: This class handles calls to the Randoms Facts API, as well as storing and exporting the facts it
  *          receives in a fact list. Currently only used to make calls about Quokkas.
@@ -30,7 +30,7 @@ public class RandomFactsAPITranslator implements QfactsAdapter {
      *
      * @return A string containing a fact about Quokkas.
      */
-    private String getQuakkaFact() {
+    private String getQuokkaFact() {
         try {
             //Build HttpRequest with correct headers and using our API key.
             HttpRequest request = HttpRequest.newBuilder()
@@ -75,6 +75,3 @@ public class RandomFactsAPITranslator implements QfactsAdapter {
         return factsList;
     }
 }
-
-
-

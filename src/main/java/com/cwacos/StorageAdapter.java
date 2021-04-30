@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: StorageAdapter is an interface that defines the basic requirements for exporting or importing
  *      data from or to CwacosData respectively, no matter the method.
@@ -22,4 +22,4 @@ interface StorageAdapter {
     Map<String, String> loadSettings(ArrayList<String> _params);
 
     void saveSettings(Map<String, String> _settings, ArrayList<String> _params);
-} 
+}

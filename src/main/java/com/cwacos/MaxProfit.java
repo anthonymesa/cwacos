@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: This class holds the MaxProfit algorithm which can be used to determine the best buying/selling points within
  *          a list of stock prices. It will also calculate the profit made by buying and selling at those points.
@@ -109,9 +109,6 @@ public class MaxProfit {
             else
                 return crossJump;
         }
-
-
-
     }
 
     /**
@@ -151,5 +148,4 @@ public class MaxProfit {
         //return max Profit across entire array.
         return(new Jump(startingPosition, endingPosition, leftProfit + rightProfit));
     }
-
 }

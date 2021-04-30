@@ -18,6 +18,9 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -37,6 +40,8 @@ import java.util.function.Function;
 
 import javafx.geometry.*;
 import javafx.scene.paint.*;
+
+import javax.xml.crypto.Data;
 
 public class CwacosView extends Application {
 
@@ -1127,23 +1132,35 @@ public class CwacosView extends Application {
         StackPane candlestickGraph = new StackPane();
         candlestickGraph.setStyle("-fx-background-color: #" + PRIMARY_COLOR + ";");    //Set background of the graph. valueOf converts a color hex code to a JavaFX Paint object.
 
-        Image img = new Image("file:res/donate.jpg");
-        ImageView view = new ImageView(img);
-        view.setPreserveRatio(true);
+        NumberAxis xAxis= new NumberAxis();
+        xAxis.setLabel("Months");
 
-        //THE BELOW BLOCK OF CODE IS TEMPORARY
-        //Rectangle tempBox = new Rectangle();
-        //tempBox.setFill(Paint.valueOf("4E4E4E"));
+        NumberAxis yAxis= new NumberAxis();
+        yAxis.setLabel("Stock Price");
 
-        //tempBox.setHeight((WINDOW_HEIGHT / GRID_Y) * (height - (h_margin * 2)));
-        //tempBox.setWidth((WINDOW_WIDTH / GRID_X) * (GRID_X - w_margin));
+        javafx.scene.chart.LineChart<Number,Number> lineChart = new javafx.scene.chart.LineChart<>(xAxis,yAxis);
+        lineChart.setTitle("Stocks");
 
-        //Label candlestick = new Label();
-        //candlestick.setText("Candlestick graph goes here.");
-        //candlestick.setStyle("-fx-background-color: #" + ACCENT_COLOR + ";");
+        XYChart.Series<Number,Number> series = new XYChart.Series<>();
+        series.setName("Cwacos");
 
-        candlestickGraph.getChildren().addAll(view);
-        StackPane.setAlignment(view, Pos.CENTER);
+        //populating line chart
+        ArrayList<Entry> entries = CwacosData.getActiveEntryList();
+
+        if(entries!= null){
+            for(Entry entry: entries){
+                series.getData().add(new XYChart.Data<>(entry.getOpen(),entry.getClose()));//was not sure how these were suppose to be called so a correction could be needed
+                series.getData().add(new XYChart.Data<>(entry.getHigh(),entry.getLow()));
+                series.getData().add(new XYChart.Data<>(entry.getVolume(),entry.getVolume()));
+
+            }
+
+        }
+
+        lineChart.getData().add(series);
+
+        candlestickGraph.getChildren().addAll(lineChart);
+        StackPane.setAlignment(lineChart, Pos.CENTER);
 
         root.add(candlestickGraph, w_margin, yRowIndex, GRID_X - w_margin, height);
 

@@ -65,7 +65,7 @@ public class RandomFactsAPITranslator implements QfactsAdapter {
         String fact;
 
         for(int i = 0; i < _amnt; i++){
-            if((fact = getQuakkaFact()) != null)
+            if((fact = getQuokkaFact()) != null)
                 factsList.add(fact);
             else
                 //If the API call fails at any point, then return an empty ArrayList

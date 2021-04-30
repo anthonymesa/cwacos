@@ -1,5 +1,14 @@
 package com.cwacos;
 
+/**
+ * Last updated: 30-APR-2021
+ *
+ * Purpose: For black box testing the program.
+ *
+ * Contributing Authors:
+ *      Michael Leonard
+ */
+
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 

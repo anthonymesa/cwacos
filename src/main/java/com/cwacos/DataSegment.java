@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: DataSegment provides a template for all data segments that must be stored
  *      in the CwacosData class. The variables in this class are required for any
@@ -20,7 +20,7 @@ public abstract class DataSegment {
     private int callType;
     private ArrayList<Entry> entryList;
 
-    /* Getters */
+    //================= GETTERS ===============
 
     public String getFileUrl() {
         return this.fileUrl;
@@ -38,7 +38,7 @@ public abstract class DataSegment {
         return this.entryList;
     }
 
-    /* Setters */
+    //================= SETTERS ===============
 
     public void setFileUrl(String _newUrl) {
         this.fileUrl = _newUrl;

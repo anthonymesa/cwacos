@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: Jump is a basic class used to represent starting/ending points within our intraday stock information.
  *      The class will also store the maximum profit within the given starting/ending points.
@@ -25,9 +25,7 @@ public class Jump{
         this.profit = profit;
     }
 
-    //==============================================================================
-    // Getters
-    //==============================================================================
+    //================= GETTERS ===============
 
     public int getBeginJumpPosition() {
         return this.beginJumpPosition;
@@ -41,9 +39,7 @@ public class Jump{
         return this.profit;
     }
 
-    //==============================================================================
-    // Setters
-    //==============================================================================
+    //================= SETTERS ===============
 
     public void setBeginJumpPosition(int _begin) {
         this.beginJumpPosition = _begin;
@@ -56,5 +52,4 @@ public class Jump{
     public void setProfit(double _profit) {
         this.profit = _profit;
     }
-
 }

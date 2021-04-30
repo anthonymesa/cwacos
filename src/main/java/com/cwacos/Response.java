@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: Response provides a way to return an object from a function containing both the
  *      success/failure state of the function, and an error message that can be printed
@@ -20,9 +20,7 @@ public class Response {
         this.success = _success;
     }
 
-    //==============================================================================
-    // Getters
-    //==============================================================================
+    //================= GETTERS ===============
 
     public String getStatus() {
         return this.status;
@@ -32,9 +30,7 @@ public class Response {
         return this.success;
     }
 
-    //==============================================================================
-    // Setters
-    //==============================================================================
+    //================= SETTERS ===============
 
     public void setStatus(String _status) {
         this.status = _status;

@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: MaxProfit
  * 
@@ -107,9 +107,6 @@ public class MaxProfit {
             else
                 return crossJump;
         }
-
-
-
     }
 
     /**
@@ -149,5 +146,4 @@ public class MaxProfit {
         //return max Profit across entire array.
         return(new Jump(startingPosition, endingPosition, leftProfit + rightProfit));
     }
-
 }

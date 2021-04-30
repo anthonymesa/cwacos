@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * <p>
  * Purpose: CwacosView dynamically creates the UI and also defines UI actions that
  * run when user interacts with it. All non-UI data manipulation occurs in CwacosData.
@@ -23,11 +23,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.*;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 
@@ -37,7 +35,6 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 import javafx.geometry.*;
-import javafx.scene.paint.*;
 
 public class CwacosView extends Application {
 

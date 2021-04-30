@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: Entry defines a single financial data element over a single interval of time. Because this
  *      is used for all financial data manipulation and data storage, all data types (i.e. Stock, Crypto, etc.)
@@ -45,9 +45,7 @@ public class Entry implements Comparable<Entry> {
         return this.dateTime.compareTo(_entry.dateTime);
     }
 
-    //==============================================================================
-    // Getters
-    //==============================================================================
+    //================= GETTERS ===============
 
     public DateFormat getFormatter() {
         return formatter;
@@ -99,9 +97,7 @@ public class Entry implements Comparable<Entry> {
 
     public String getDateTimeString() { return formatter.format(dateTime);}
 
-    //==============================================================================
-    // Setters
-    //==============================================================================
+    //================= SETTERS ===============
 
     public void setFormatter(DateFormat formatter) {
         this.formatter = formatter;

@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: CwacosDateFormat allows a static date format to be defined and accessed
  *      from anywhere in the com.cwacos package.

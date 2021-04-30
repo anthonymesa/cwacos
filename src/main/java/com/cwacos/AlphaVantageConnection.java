@@ -1,9 +1,10 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
- * Purpose: 
+ * Purpose: This class provides connection info and re-usable functions for connecting to the
+ *          AlphaVantage API for stock and crypto data.
  * 
  * Contributing Authors:
  *      Michael Leonard
@@ -18,11 +19,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-/**
- * This class provides connection info and re-usable functions for connecting to the
- * AlphaVantage API for stock and crypto data.
- */
 
 public abstract class AlphaVantageConnection {
 

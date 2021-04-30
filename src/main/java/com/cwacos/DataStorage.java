@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: DataStorage model provides a constant access point for CwacosData to access data storing functions.
  * 
@@ -17,6 +17,9 @@ class DataStorage {
 
     private static StorageAdapter adapter;
 
+    /**
+     * Initializes a new instance of LocalStorageTranslator object.
+     */
     public static void init() {
         adapter = new LocalStorageTranslator();
     }
@@ -35,7 +38,7 @@ class DataStorage {
      * Reads the stored data from a desired location.
      *
      * @param _params ArrayList of Strings that will contain either the file URL/Path or the IP, Port number, etc.
-     * @return ArrayList of Objects that contain the values read from the storage.
+     * @return LoadData object which contains the information for entries.
      */
     public static LoadData load(ArrayList<String> _params) throws Exception{
         try{
@@ -45,10 +48,22 @@ class DataStorage {
         }
     }
 
+    /**
+     * Loads settings to the settings file.
+     *
+     * @param _params Arraylist of Strings containing the path of the settings file.
+     * @return Hashmap of settings.
+     */
     public static Map<String, String> loadSettings(ArrayList<String> _params) {
         return adapter.loadSettings(_params);
     }
 
+    /**
+     * Saves settings to the settings file.
+     *
+     * @param _settings Hashmap of settings to be saved.
+     * @param _params ArrayList of Strings containing the path of the settings file.
+     */
     public static void saveSettings(Map<String, String> _settings, ArrayList<String> _params) {
         adapter.saveSettings(_settings, _params);
     }
@@ -61,8 +76,8 @@ class DataStorage {
      */
     private static ArrayList<String> arraylistOfEntriesToArraylistOfStrings(ArrayList<Entry> _arraylistOfEntries) {
         ArrayList<String> arraylistOfStrings = new ArrayList<>();
-        for (Entry entry : _arraylistOfEntries) {
 
+        for (Entry entry : _arraylistOfEntries) {
             arraylistOfStrings.add(entry.toString());
         }
 

@@ -1,7 +1,7 @@
 package com.cwacos;
 
 /**
- * Last updated: 26-APR-2021
+ * Last updated: 30-APR-2021
  * 
  * Purpose: Stocks model provides a constant access point for CwacosData to access stock data functions.
  * 
@@ -31,4 +31,3 @@ public class Stocks {
         return adapter.getCallIntervals();
     }
 }
-

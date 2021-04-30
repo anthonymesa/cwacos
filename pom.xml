@@ -60,7 +60,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.1</version>
                 <configuration>
-                    <mainClass>Cwacos</mainClass>
+                    <mainClass>com.cwacos.Cwacos</mainClass>
                 </configuration>
             </plugin>
         </plugins>
